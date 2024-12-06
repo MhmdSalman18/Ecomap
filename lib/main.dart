@@ -1,3 +1,4 @@
+import 'package:ecomap/REGISTRATION/login.dart';
 import 'package:ecomap/home.dart';
 import 'package:flutter/material.dart';
 
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const HomePage(title: 'Flutter Demo Home Page'),
+      home: const LoginPage(title: 'Flutter Demo Home Page'),
     );
   }
 }
