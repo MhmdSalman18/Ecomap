@@ -44,16 +44,9 @@ Widget build(BuildContext context) {
           ElevatedButton(
             onPressed: () {
               // Handle login logic
-
             },
             child: const Text('Login'),
           ),
-            ElevatedButton(
-            onPressed: () {
-              Navigator.pushReplacementNamed(context, '/home');
-            },
-            child: const Text('Login'),
-            ),
           TextButton(
             onPressed: () {
               // Navigate to signup page

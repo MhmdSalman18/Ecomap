@@ -1,3 +1,4 @@
+import 'package:ecomap/BottomNavigationBar.dart';
 import 'package:ecomap/REGISTRATION/login.dart';
 import 'package:ecomap/home.dart';
 import 'package:flutter/material.dart';
@@ -12,14 +13,16 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
        
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const LoginPage(title: 'Flutter Demo Home Page'),
+      home: const BottomNavigationBarExampleApp(title: 'Flutter Demo Home Page'),
     );
   }
 }
