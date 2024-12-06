@@ -17,7 +17,7 @@ final TextEditingController _passwordController = TextEditingController();
 Widget build(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
-      title: Text('Login'),
+      title: const Text('Login'),
     ),
     body: Padding(
       padding: const EdgeInsets.all(16.0),
@@ -26,32 +26,39 @@ Widget build(BuildContext context) {
         children: <Widget>[
           TextField(
             controller: _emailController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: 'Email',
               border: OutlineInputBorder(),
             ),
           ),
-          SizedBox(height: 16.0),
+          const SizedBox(height: 16.0),
           TextField(
             controller: _passwordController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: 'Password',
               border: OutlineInputBorder(),
             ),
             obscureText: true,
           ),
-          SizedBox(height: 16.0),
+          const SizedBox(height: 16.0),
           ElevatedButton(
             onPressed: () {
               // Handle login logic
+
             },
-            child: Text('Login'),
+            child: const Text('Login'),
           ),
+            ElevatedButton(
+            onPressed: () {
+              Navigator.pushReplacementNamed(context, '/home');
+            },
+            child: const Text('Login'),
+            ),
           TextButton(
             onPressed: () {
               // Navigate to signup page
             },
-            child: Text('Don\'t have an account? Sign up'),
+            child: const Text('Don\'t have an account? Sign up'),
           ),
         ],
       ),
