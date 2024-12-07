@@ -11,7 +11,10 @@ class _HeatMapState extends State<HeatMap> {
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        backgroundColor: Colors.red,
+      ),
+      drawer: Drawer(),
       body: Center(
         child: Column(
           children: [Text("heat map page")],
