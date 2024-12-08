@@ -19,8 +19,11 @@ Widget build(BuildContext context) {
     appBar: AppBar(
       title: const Text('Status Page'),
     ),
+    drawer: Drawer(),
     body: Center(
-      child: Column(),
+      child: Column(
+
+      ),
     ),
   );
 }
