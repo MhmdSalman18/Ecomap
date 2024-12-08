@@ -10,20 +10,6 @@ class StatusPage extends StatefulWidget {
 class _StatusPageState extends State<StatusPage> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return const Scaffold();
   }
-}
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text('Status Page'),
-    ),
-    drawer: Drawer(),
-    body: Center(
-      child: Column(
-
-      ),
-    ),
-  );
 }
