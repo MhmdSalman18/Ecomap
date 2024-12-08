@@ -13,3 +13,12 @@ class _StatusPageState extends State<StatusPage> {
     return const Placeholder();
   }
 }
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text('Status Page'),
+    ),
+    body: const Placeholder(),
+  );
+}
