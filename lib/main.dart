@@ -1,30 +1,16 @@
 import 'package:ecomap/BottomNavigationBar.dart';
-import 'package:ecomap/REGISTRATION/login.dart';
-import 'package:ecomap/home.dart';
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() => runApp(const EcomapApp());
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class EcomapApp extends StatelessWidget {
+  const EcomapApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    
-    return MaterialApp(
-      
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-       
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const BottomNavigationBarExampleApp(title: 'Flutter Demo Home Page'),
+      home: BottomNavigationBarExample(), // Start with BottomNavigationBarExample
     );
   }
 }
-

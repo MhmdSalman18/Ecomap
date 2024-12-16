@@ -1,25 +1,8 @@
 import 'package:ecomap/home.dart';
 import 'package:ecomap/map.dart';
 import 'package:ecomap/status.dart';
+import 'package:ecomap/upload.dart';
 import 'package:flutter/material.dart';
-
-/// Flutter code sample for [BottomNavigationBar].
-
-void main() => runApp(const BottomNavigationBarExampleApp(
-      title: '',
-    ));
-
-class BottomNavigationBarExampleApp extends StatelessWidget {
-  const BottomNavigationBarExampleApp({super.key, required String title});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: BottomNavigationBarExample(),
-    );
-  }
-}
 
 class BottomNavigationBarExample extends StatefulWidget {
   const BottomNavigationBarExample({super.key});
@@ -31,27 +14,35 @@ class BottomNavigationBarExample extends StatefulWidget {
 
 class _BottomNavigationBarExampleState
     extends State<BottomNavigationBarExample> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 0; // Default to 'HomePage'
 
+  // List of pages for BottomNavigationBar
   static const List<Widget> _widgetOptions = <Widget>[
     StatusPage(),
-    HomePage(
-      title: '',
-    ),
+    UploadImage(),
     HeatMap(),
   ];
 
+  // Handle item selection
   void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index;
+      _selectedIndex = index + 1; // Offset by 1 to manage HomePage
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(_selectedIndex == 0
+            ? 'Ecomap - Home'
+            : _getTitle(_selectedIndex - 1)),
+        backgroundColor: Colors.teal,
+      ),
       body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
+        child: _selectedIndex == 0
+            ? const HomePage(title: 'Home') // Show HomePage if index is 0
+            : _widgetOptions.elementAt(_selectedIndex - 1), // Show selected page
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
@@ -61,17 +52,34 @@ class _BottomNavigationBarExampleState
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.camera_enhance),
-            label: 'Upload Image',
+            label: 'Upload',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.location_on),
-            label: 'Heat Map',
+            label: 'Map',
           ),
         ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
+        currentIndex: _selectedIndex == 0
+            ? 0 // Highlight nothing if on HomePage
+            : _selectedIndex - 1,
+        selectedItemColor:
+            _selectedIndex == 0 ? Colors.grey : Colors.amber[800],
+        unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
       ),
     );
+  }
+
+  String _getTitle(int index) {
+    switch (index) {
+      case 0:
+        return 'Status';
+      case 1:
+        return 'Upload';
+      case 2:
+        return 'Map';
+      default:
+        return 'Home';
+    }
   }
 }
