@@ -1,4 +1,3 @@
-
 import 'package:ecomap/home.dart';
 import 'package:ecomap/map.dart';
 import 'package:ecomap/status.dart';
@@ -6,7 +5,9 @@ import 'package:flutter/material.dart';
 
 /// Flutter code sample for [BottomNavigationBar].
 
-void main() => runApp(const BottomNavigationBarExampleApp(title: '',));
+void main() => runApp(const BottomNavigationBarExampleApp(
+      title: '',
+    ));
 
 class BottomNavigationBarExampleApp extends StatelessWidget {
   const BottomNavigationBarExampleApp({super.key, required String title});
@@ -14,8 +15,7 @@ class BottomNavigationBarExampleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-            debugShowCheckedModeBanner: false,
-
+      debugShowCheckedModeBanner: false,
       home: BottomNavigationBarExample(),
     );
   }
@@ -32,12 +32,13 @@ class BottomNavigationBarExample extends StatefulWidget {
 class _BottomNavigationBarExampleState
     extends State<BottomNavigationBarExample> {
   int _selectedIndex = 0;
-  
-  static const List<Widget> _widgetOptions = <Widget>[
-   HomePage(title: '',),
-   StatusPage(),
-      HeatMap(),
 
+  static const List<Widget> _widgetOptions = <Widget>[
+    StatusPage(),
+    HomePage(
+      title: '',
+    ),
+    HeatMap(),
   ];
 
   void _onItemTapped(int index) {
@@ -49,7 +50,6 @@ class _BottomNavigationBarExampleState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),

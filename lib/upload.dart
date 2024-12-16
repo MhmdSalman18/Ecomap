@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class StatusPage extends StatefulWidget {
-  const StatusPage({super.key});
+class UploadImage extends StatefulWidget {
+  const UploadImage({super.key});
 
   @override
-  State<StatusPage> createState() => _StatusPageState();
+  State<UploadImage> createState() => _UploadImageState();
 }
 
-class _StatusPageState extends State<StatusPage> {
+class _UploadImageState extends State<UploadImage> {
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
@@ -17,6 +17,6 @@ class _StatusPageState extends State<StatusPage> {
           children: [Text("status page")],
         ),
       ),
-    );
+    );;
   }
 }
