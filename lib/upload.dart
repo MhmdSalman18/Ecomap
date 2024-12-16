@@ -15,13 +15,24 @@ class _UploadImageState extends State<UploadImage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.red,
-        title: const Text("Upload Image"),
+        actions: [
+          Padding(
+            padding:
+                const EdgeInsets.only(right: 8.0), // Add padding to the right
+            child: CircleAvatar(
+              backgroundImage: NetworkImage(
+                  'https://via.placeholder.com/150'), // Replace with your image URL
+              radius: 18, // Adjust the size
+            ),
+          ),
+        ],
       ),
+      drawer: Drawer(),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text("Status Page", style: TextStyle(fontSize: 24)),
+            const Text("upload image Page", style: TextStyle(fontSize: 24)),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
@@ -29,7 +40,7 @@ class _UploadImageState extends State<UploadImage> {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const BottomNavigationBarExample(),
+                    builder: (context) => const BottomNavigationBarExample(title: '',),
                   ),
                 );
               },

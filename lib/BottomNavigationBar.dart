@@ -5,7 +5,7 @@ import 'package:ecomap/upload.dart';
 import 'package:flutter/material.dart';
 
 class BottomNavigationBarExample extends StatefulWidget {
-  const BottomNavigationBarExample({super.key});
+  const BottomNavigationBarExample({super.key, required String title});
 
   @override
   State<BottomNavigationBarExample> createState() =>
@@ -33,12 +33,12 @@ class _BottomNavigationBarExampleState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_selectedIndex == 0
-            ? 'Ecomap - Home'
-            : _getTitle(_selectedIndex - 1)),
-        backgroundColor: Colors.teal,
-      ),
+      // appBar: AppBar(
+      //   title: Text(_selectedIndex == 0
+      //       ? 'Ecomap - Home'
+      //       : _getTitle(_selectedIndex - 1)),
+      //   backgroundColor: Colors.teal,
+      // ),
       body: Center(
         child: _selectedIndex == 0
             ? const HomePage(title: 'Home') // Show HomePage if index is 0
