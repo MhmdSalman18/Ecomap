@@ -51,7 +51,7 @@ Widget build(BuildContext context) {
             onPressed: () {
               // Navigate to signup page
             },
-            child: const Text('Don\'t have an account? Sign up'),
+            child: Text('Don\'t have an account? Sign up'),
           ),
         ],
       ),
