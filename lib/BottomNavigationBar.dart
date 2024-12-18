@@ -1,7 +1,7 @@
 import 'package:ecomap/home.dart';
 import 'package:ecomap/map.dart';
 import 'package:ecomap/status.dart';
-import 'package:ecomap/upload.dart';
+import 'package:ecomap/uploadstate.dart';
 import 'package:flutter/material.dart';
 
 class BottomNavigationBarExample extends StatefulWidget {
@@ -19,7 +19,7 @@ class _BottomNavigationBarExampleState
   // List of pages for BottomNavigationBar
   static const List<Widget> _widgetOptions = <Widget>[
     StatusPage(),
-    UploadImage(),
+    UploadState(title: '',),
     HeatMap(),
   ];
 
