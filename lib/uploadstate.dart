@@ -80,10 +80,10 @@ class _UploadStateState extends State<UploadState> {
                   decoration: BoxDecoration(
                     color: Colors.grey[300],
                     borderRadius: BorderRadius.circular(12),
-                    image: DecorationImage(
-                    image: AssetImage('demo.jpg'), // Replace with your image path
-                    fit: BoxFit.cover,
-                    ),
+                    // image: DecorationImage(
+                    // image: AssetImage('demo.jpg'), // Replace with your image path
+                    // fit: BoxFit.cover,
+                    // ),
                   ),
                   child: const Center(
                     child: Text(
