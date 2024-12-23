@@ -1,119 +1,99 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:camera/camera.dart';
 
 class HomePage extends StatefulWidget {
-  final String title; // Declare the title as a property
-
-  const HomePage({super.key, required this.title}); // Initialize the title in the constructor
+  const HomePage({super.key, required String title});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
+  CameraController? _controller;
+  XFile? _image;
+
+  @override
+  void initState() {
+    super.initState();
+    _initCamera();
+  }
+
+  Future<void> _initCamera() async {
+    // Get a list of available cameras
+    final cameras = await availableCameras();
+
+    // Get a specific camera from the list (e.g., the first one)
+    final firstCamera = cameras.first;
+
+    // Initialize the camera controller
+    _controller = CameraController(
+      firstCamera,
+      ResolutionPreset.medium,
+    );
+
+    // Listen for camera state changes
+    _controller!.addListener(() {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+
+    // Initialize the camera
+    try {
+      await _controller!.initialize();
+    } on CameraException catch (e) {
+      debugPrint('Error initializing camera: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _takePicture() async {
+    try {
+      // Ensure that the camera is initialized
+      await _controller!.prepareForVideoRecording();
+
+      // Take the picture
+      final image = await _controller!.takePicture();
+
+      setState(() {
+        _image = image;
+      });
+    } on CameraException catch (e) {
+      debugPrint('Error taking picture: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.red,
-        actions: [
-          Padding(
-            padding:
-                const EdgeInsets.only(right: 8.0), // Add padding to the right
-            child: CircleAvatar(
-              backgroundImage: NetworkImage(
-                  'https://via.placeholder.com/150'), // Replace with your image URL
-              radius: 18, // Adjust the size
-            ),
-          ),
-        ],
+        title: const Text('Camera App'),
       ),
-drawer: Drawer(
-  child: ListView(
-    padding: EdgeInsets.zero,
-    children: [
-      DrawerHeader(
-        decoration: const BoxDecoration(
-          color: Colors.teal, // Background color for the header
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const CircleAvatar(
-              radius: 30,
-              backgroundImage: NetworkImage(
-                'https://via.placeholder.com/150', // Replace with your image URL
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              "Your Name", // Add your name or user name
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const Text(
-              "example@email.com", // Add email or other details
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 14,
-              ),
-            ),
-          ],
-        ),
-      ),
-      ListTile(
-        leading: const Icon(Icons.home),
-        title: const Text("Home"),
-        onTap: () {
-          Navigator.pop(context); // Close the drawer
-          // Add navigation to Home
-        },
-      ),
-      ListTile(
-        leading: const Icon(Icons.upload),
-        title: const Text("Upload"),
-        onTap: () {
-          Navigator.pop(context);
-          // Add navigation to Upload
-        },
-      ),
-      ListTile(
-        leading: const Icon(Icons.map),
-        title: const Text("Map"),
-        onTap: () {
-          Navigator.pop(context);
-          // Add navigation to Map
-        },
-      ),
-      ListTile(
-        leading: const Icon(Icons.settings),
-        title: const Text("Settings"),
-        onTap: () {
-          Navigator.pop(context);
-          // Add navigation to Settings
-        },
-      ),
-      const Divider(), // Add a horizontal line
-      ListTile(
-        leading: const Icon(Icons.logout),
-        title: const Text("Logout"),
-        onTap: () {
-          Navigator.pop(context);
-          // Add logout functionality
-        },
-      ),
-    ],
-  ),
-),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Text(
-              "Home",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          children: <Widget>[
+            if (_controller != null && _controller!.value.isInitialized)
+              CameraPreview(_controller!),
+            const SizedBox(height: 20),
+            if (_image != null)
+              Image.file(
+                File(_image!.path),
+                width: 300,
+              ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _controller != null && _controller!.value.isInitialized
+                  ? _takePicture
+                  : null,
+              child: const Icon(Icons.camera_alt),
             ),
           ],
         ),
