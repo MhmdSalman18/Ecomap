@@ -19,7 +19,7 @@ class _BottomNavigationBarExampleState
   // List of pages for BottomNavigationBar
   static const List<Widget> _widgetOptions = <Widget>[
     StatusPage(),
-    HomePage(title: '',),
+    UploadState(title: '', imagePath: '',),
     HeatMap(),
   ];
 

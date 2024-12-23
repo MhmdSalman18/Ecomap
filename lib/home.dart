@@ -1,7 +1,6 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'uploadstate.dart'; // Import UploadState for navigation
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required String title});
@@ -11,63 +10,51 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  CameraController? _controller;
-  XFile? _image;
+  CameraController? _cameraController;
+  bool _isCameraInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _initCamera();
+    _initializeCamera();
   }
 
-  Future<void> _initCamera() async {
-    // Get a list of available cameras
-    final cameras = await availableCameras();
-
-    // Get a specific camera from the list (e.g., the first one)
-    final firstCamera = cameras.first;
-
-    // Initialize the camera controller
-    _controller = CameraController(
-      firstCamera,
-      ResolutionPreset.medium,
-    );
-
-    // Listen for camera state changes
-    _controller!.addListener(() {
-      if (mounted) {
-        setState(() {});
-      }
-    });
-
-    // Initialize the camera
+  Future<void> _initializeCamera() async {
     try {
-      await _controller!.initialize();
-    } on CameraException catch (e) {
-      debugPrint('Error initializing camera: $e');
+      final cameras = await availableCameras();
+      if (cameras.isEmpty) return;
+
+      _cameraController = CameraController(
+        cameras.first,
+        ResolutionPreset.high, // Use a high resolution for full-body shots
+        enableAudio: false,
+      );
+      await _cameraController!.initialize();
+      if (!mounted) return;
+      setState(() => _isCameraInitialized = true);
+    } on CameraException {
+      // Handle exception
     }
+  }
+
+  Future<void> _takePicture() async {
+    if (_cameraController == null || !_cameraController!.value.isInitialized) return;
+    final image = await _cameraController!.takePicture();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => UploadState(
+          title: 'Upload State',
+          imagePath: image.path,
+        ),
+      ),
+    );
   }
 
   @override
   void dispose() {
-    _controller?.dispose();
+    _cameraController?.dispose();
     super.dispose();
-  }
-
-  Future<void> _takePicture() async {
-    try {
-      // Ensure that the camera is initialized
-      await _controller!.prepareForVideoRecording();
-
-      // Take the picture
-      final image = await _controller!.takePicture();
-
-      setState(() {
-        _image = image;
-      });
-    } on CameraException catch (e) {
-      debugPrint('Error taking picture: $e');
-    }
   }
 
   @override
@@ -75,28 +62,29 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Camera App'),
+        backgroundColor: Colors.red,
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            if (_controller != null && _controller!.value.isInitialized)
-              CameraPreview(_controller!),
-            const SizedBox(height: 20),
-            if (_image != null)
-              Image.file(
-                File(_image!.path),
-                width: 300,
-              ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _controller != null && _controller!.value.isInitialized
-                  ? _takePicture
-                  : null,
-              child: const Icon(Icons.camera_alt),
-            ),
-          ],
-        ),
+        child: _isCameraInitialized
+            ? Stack(
+                children: [
+                  Positioned.fill(
+                    child: CameraPreview(_cameraController!),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: ElevatedButton.icon(
+                        onPressed: _takePicture,
+                        icon: const Icon(Icons.camera_alt),
+                        label: const Text('Capture Photo'),
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            : const CircularProgressIndicator(),
       ),
     );
   }
