@@ -1,10 +1,11 @@
 import 'dart:io';
+import 'package:ecomap/BottomNavigationBar.dart';
+import 'package:ecomap/home.dart';
 import 'package:flutter/material.dart';
-import 'CustomDrawer.dart'; // Import the reusable drawer
 
 class UploadState extends StatefulWidget {
   final String imagePath; // Add imagePath parameter
-  const UploadState({super.key, required String title, required this.imagePath});
+  const UploadState({super.key, required this.imagePath, required String title});
 
   @override
   State<UploadState> createState() => _UploadStateState();
@@ -14,6 +15,14 @@ class _UploadStateState extends State<UploadState> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
+
+  String? _currentImagePath;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentImagePath = widget.imagePath;
+  }
 
   void _resetFields() {
     setState(() {
@@ -43,20 +52,27 @@ class _UploadStateState extends State<UploadState> {
     }
   }
 
-  void _retryUpload() {
-    // Logic to retry uploading the image
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Retrying image upload..."),
-      ),
-    );
+ void _retryUpload() {
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const BottomNavigationBarExample(title: 'Home Page'),
+    ),
+  );
+}
+
+
+  void _removeImage() {
+    setState(() {
+      _currentImagePath = null;
+    });
   }
 
-  void _recaptureImage() {
-    // Logic for recapturing the image
+  void _uploadFromGallery() {
+    // Logic to pick an image from the gallery
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text("Recapturing image..."),
+        content: Text("Upload from gallery functionality coming soon!"),
       ),
     );
   }
@@ -74,7 +90,6 @@ class _UploadStateState extends State<UploadState> {
           ),
         ],
       ),
-      drawer: const CustomDrawer(),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -83,7 +98,7 @@ class _UploadStateState extends State<UploadState> {
             children: [
               const SizedBox(height: 16.0),
 
-              // Image Container with Retry and Recapture Buttons
+              // Image Container with Retry, Recapture, and Remove Buttons
               Stack(
                 alignment: Alignment.center,
                 children: [
@@ -93,14 +108,14 @@ class _UploadStateState extends State<UploadState> {
                     decoration: BoxDecoration(
                       color: Colors.grey[300],
                       borderRadius: BorderRadius.circular(12),
-                      image: widget.imagePath.isNotEmpty
+                      image: _currentImagePath != null
                           ? DecorationImage(
-                              image: FileImage(File(widget.imagePath)),
+                              image: FileImage(File(_currentImagePath!)),
                               fit: BoxFit.cover,
                             )
                           : null,
                     ),
-                    child: widget.imagePath.isEmpty
+                    child: _currentImagePath == null
                         ? const Center(
                             child: Text(
                               'No Image Available',
@@ -109,7 +124,7 @@ class _UploadStateState extends State<UploadState> {
                           )
                         : null,
                   ),
-                  if (widget.imagePath.isEmpty)
+                  if (_currentImagePath == null)
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -123,14 +138,25 @@ class _UploadStateState extends State<UploadState> {
                         ),
                         const SizedBox(height: 8.0),
                         ElevatedButton.icon(
-                          onPressed: _recaptureImage,
-                          icon: const Icon(Icons.camera_alt),
-                          label: const Text("Recapture"),
+                          onPressed: _uploadFromGallery,
+                          icon: const Icon(Icons.photo_library),
+                          label: const Text("Upload from Gallery"),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
                           ),
                         ),
                       ],
+                    ),
+                  if (_currentImagePath != null)
+                    Positioned(
+                      bottom: 8.0,
+                      right: 8.0,
+                      child: ElevatedButton.icon(
+                        onPressed: _removeImage,
+                        icon: const Icon(Icons.delete),
+                        label: const Text("Remove"),
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      ),
                     ),
                 ],
               ),
