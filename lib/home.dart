@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:image_picker/image_picker.dart'; // Import for gallery access
 import 'uploadstate.dart'; // Import UploadState for navigation
 
 class HomePage extends StatefulWidget {
@@ -11,6 +12,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   CameraController? _cameraController;
+  final ImagePicker _picker = ImagePicker(); // Create an ImagePicker instance
   bool _isCameraInitialized = false;
 
   @override
@@ -51,6 +53,21 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<void> _openGallery() async {
+    final XFile? pickedImage = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedImage != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => UploadState(
+            title: 'Upload State',
+            imagePath: pickedImage.path,
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   void dispose() {
     _cameraController?.dispose();
@@ -73,13 +90,26 @@ class _HomePageState extends State<HomePage> {
                   ),
                   Align(
                     alignment: Alignment.bottomCenter,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: ElevatedButton.icon(
-                        onPressed: _takePicture,
-                        icon: const Icon(Icons.camera_alt),
-                        label: const Text('Capture Photo'),
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: ElevatedButton.icon(
+                            onPressed: _openGallery,
+                            icon: const Icon(Icons.photo_library),
+                            label: const Text(''),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: ElevatedButton.icon(
+                            onPressed: _takePicture,
+                            icon: const Icon(Icons.camera_alt),
+                            label: const Text(''),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
