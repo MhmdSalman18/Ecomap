@@ -1,5 +1,6 @@
 import 'package:ecomap/BottomNavigationBar.dart';
 import 'package:ecomap/CustomDrawer.dart';
+import 'package:ecomap/REGISTRATION/account.dart';
 import 'package:flutter/material.dart';
 
 class StatusPage extends StatefulWidget {
@@ -24,7 +25,7 @@ class _StatusPageState extends State<StatusPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const BottomNavigationBarExample(title: 'Home'),
+              builder: (context) => const AccountPage(title: 'Home'),
             ),
           );
         },
