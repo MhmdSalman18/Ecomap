@@ -4,7 +4,7 @@ import 'package:ecomap/REGISTRATION/account.dart';
 import 'package:flutter/material.dart';
 
 class StatusPage extends StatefulWidget {
-  const StatusPage({super.key});
+  const StatusPage({super.key, required String title});
 
   @override
   State<StatusPage> createState() => _StatusPageState();
@@ -15,35 +15,51 @@ class _StatusPageState extends State<StatusPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-  backgroundColor: Colors.red,
-  actions: [
-    Padding(
-      padding: const EdgeInsets.only(right: 8.0), // Add padding to the right
-      child: GestureDetector(
-        onTap: () {
-          // Navigate to HomePage
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AccountPage(title: 'Home'),
+        backgroundColor: Colors.red,
+        actions: [
+          Padding(
+            padding:
+                const EdgeInsets.only(right: 8.0), // Add padding to the right
+            child: GestureDetector(
+              onTap: () {
+                // Navigate to HomePage
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AccountPage(title: 'Home'),
+                  ),
+                );
+              },
+              child: CircleAvatar(
+                backgroundImage: NetworkImage(
+                    'https://via.placeholder.com/150'), // Replace with your image URL
+                radius: 18, // Adjust the size
+              ),
             ),
-          );
-        },
-        child: CircleAvatar(
-          backgroundImage: NetworkImage(
-              'https://via.placeholder.com/150'), // Replace with your image URL
-          radius: 18, // Adjust the size
-        ),
+          ),
+        ],
       ),
-    ),
-  ],
-),
-
-      drawer: const CustomDrawer(), // Use the reusable drawer
-
       body: Center(
         child: Column(
-          children: [Text("status page")],
+          children: [
+            Text("status page"),
+            Container(
+              margin: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+                color: Colors.blue,
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              width: MediaQuery.of(context).size.width * 0.8,
+              height: 100.0,
+              child: const Center(
+                child: Text(
+                  'Responsive Box',
+                  style: TextStyle(color: Colors.white, fontSize: 18.0),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -1,6 +1,8 @@
 import 'package:ecomap/BottomNavigationBar.dart';
+import 'package:ecomap/REGISTRATION/account.dart';
 import 'package:ecomap/REGISTRATION/login.dart';
 import 'package:ecomap/home.dart';
+import 'package:ecomap/status.dart';
 import 'package:ecomap/uploadstate.dart';
 import 'package:flutter/material.dart';
 
@@ -13,7 +15,7 @@ class EcomapApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: BottomNavigationBarExample(title: '',), // Start with BottomNavigationBarExample
+      home: StatusPage(title: '',), // Start with BottomNavigationBarExample
     );
   }
 }
