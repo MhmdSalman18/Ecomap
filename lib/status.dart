@@ -19,24 +19,24 @@ class _StatusPageState extends State<StatusPage> {
         title: const Text('Status'),
         actions: [
           Padding(
-        padding:
-            const EdgeInsets.only(right: 8.0), // Add padding to the right
-        child: GestureDetector(
-          onTap: () {
-            // Navigate to HomePage
-            Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const AccountPage(title: 'Home'),
-          ),
-            );
-          },
-          child: CircleAvatar(
-            backgroundImage: NetworkImage(
-            'https://via.placeholder.com/150'), // Replace with your image URL
-            radius: 18, // Adjust the size
-          ),
-        ),
+            padding:
+                const EdgeInsets.only(right: 8.0), // Add padding to the right
+            child: GestureDetector(
+              onTap: () {
+                // Navigate to HomePage
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AccountPage(title: 'Home'),
+                  ),
+                );
+              },
+              child: CircleAvatar(
+                backgroundImage: NetworkImage(
+                    'https://via.placeholder.com/150'), // Replace with your image URL
+                radius: 18, // Adjust the size
+              ),
+            ),
           ),
         ],
       ),
@@ -44,6 +44,28 @@ class _StatusPageState extends State<StatusPage> {
         child: Column(
           children: [
             Text("status page"),
+            Container(
+              margin: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+                color: Colors.green,
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: Row(
+                mainAxisSize:
+                    MainAxisSize.min, // Makes the width wrap the content
+                mainAxisAlignment:
+                    MainAxisAlignment.end, // Align content to the right
+                children: const [
+                  Icon(Icons.history, color: Colors.white),
+                  SizedBox(width: 10.0),
+                  Text(
+                    'History',
+                    style: TextStyle(color: Colors.white, fontSize: 18.0),
+                  ),
+                ],
+              ),
+            ),
             Container(
               margin: const EdgeInsets.all(10.0),
               padding: const EdgeInsets.all(20.0),
