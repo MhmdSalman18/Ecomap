@@ -16,26 +16,27 @@ class _StatusPageState extends State<StatusPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.red,
+        title: const Text('Status'),
         actions: [
           Padding(
-            padding:
-                const EdgeInsets.only(right: 8.0), // Add padding to the right
-            child: GestureDetector(
-              onTap: () {
-                // Navigate to HomePage
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AccountPage(title: 'Home'),
-                  ),
-                );
-              },
-              child: CircleAvatar(
-                backgroundImage: NetworkImage(
-                    'https://via.placeholder.com/150'), // Replace with your image URL
-                radius: 18, // Adjust the size
-              ),
-            ),
+        padding:
+            const EdgeInsets.only(right: 8.0), // Add padding to the right
+        child: GestureDetector(
+          onTap: () {
+            // Navigate to HomePage
+            Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const AccountPage(title: 'Home'),
+          ),
+            );
+          },
+          child: CircleAvatar(
+            backgroundImage: NetworkImage(
+            'https://via.placeholder.com/150'), // Replace with your image URL
+            radius: 18, // Adjust the size
+          ),
+        ),
           ),
         ],
       ),
