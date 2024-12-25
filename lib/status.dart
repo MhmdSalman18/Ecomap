@@ -1,6 +1,7 @@
 import 'package:ecomap/BottomNavigationBar.dart';
 import 'package:ecomap/CustomDrawer.dart';
 import 'package:ecomap/REGISTRATION/account.dart';
+import 'package:ecomap/statushistory.dart';
 import 'package:flutter/material.dart';
 
 class StatusPage extends StatefulWidget {
@@ -44,27 +45,42 @@ class _StatusPageState extends State<StatusPage> {
         child: Column(
           children: [
             Text("status page"),
-            Container(
-              margin: const EdgeInsets.all(10.0),
-              padding: const EdgeInsets.all(20.0),
-              decoration: BoxDecoration(
-                color: Colors.green,
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Row(
-                mainAxisSize:
-                    MainAxisSize.min, // Makes the width wrap the content
-                mainAxisAlignment:
-                    MainAxisAlignment.end, // Align content to the right
-                children: const [
-                  Icon(Icons.history, color: Colors.white),
-                  SizedBox(width: 10.0),
-                  Text(
-                    'History',
-                    style: TextStyle(color: Colors.white, fontSize: 18.0),
+            Row(
+              mainAxisAlignment:
+                  MainAxisAlignment.end, // Align the row's content to the right
+              children: [
+                GestureDetector(
+                   onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const StatusHistoryPage(),
+                    ),
+                  );
+                },
+                  child: Container(
+                    margin: const EdgeInsets.all(10.0),
+                    padding: const EdgeInsets.all(20.0),
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: Row(
+                      mainAxisSize:
+                          MainAxisSize.min, // Makes the width wrap the content
+                      children: const [
+                        Icon(Icons.history, color: Colors.white),
+                        SizedBox(width: 10.0),
+                        Text(
+                          'History',
+                          style: TextStyle(color: Colors.white, fontSize: 18.0),
+                        ),
+                      ],
+                    ),
                   ),
-                ],
-              ),
+                ),
+            
+              ],
             ),
             Container(
               margin: const EdgeInsets.all(10.0),
