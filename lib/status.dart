@@ -59,8 +59,8 @@ class _StatusPageState extends State<StatusPage> {
                   );
                 },
                   child: Container(
-                    margin: const EdgeInsets.all(10.0),
-                    padding: const EdgeInsets.all(20.0),
+                    margin: const EdgeInsets.all(6.0),
+                    padding: const EdgeInsets.all(6.0),
                     decoration: BoxDecoration(
                       color: Colors.green,
                       borderRadius: BorderRadius.circular(10.0),
@@ -89,7 +89,7 @@ class _StatusPageState extends State<StatusPage> {
                 color: Colors.blue,
                 borderRadius: BorderRadius.circular(10.0),
               ),
-              width: MediaQuery.of(context).size.width * 0.8,
+              width: MediaQuery.of(context).size.width * 010,
               height: 100.0,
               child: const Center(
                 child: Text(
