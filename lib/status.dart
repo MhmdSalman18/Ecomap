@@ -63,7 +63,7 @@ class _StatusPageState extends State<StatusPage> {
                     padding: const EdgeInsets.all(6.0),
                     decoration: BoxDecoration(
                       color: Colors.green,
-                      borderRadius: BorderRadius.circular(10.0),
+                      borderRadius: BorderRadius.circular(5.0),
                     ),
                     child: Row(
                       mainAxisSize:
