@@ -86,16 +86,23 @@ class _StatusPageState extends State<StatusPage> {
               margin: const EdgeInsets.all(10.0),
               padding: const EdgeInsets.all(20.0),
               decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(10.0),
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(10.0),
               ),
-              width: MediaQuery.of(context).size.width * 010,
+              width: MediaQuery.of(context).size.width * 0.9,
               height: 100.0,
-              child: const Center(
-                child: Text(
-                  'Responsive Box',
-                  style: TextStyle(color: Colors.white, fontSize: 18.0),
+              child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                'Responsive Box',
+                style: TextStyle(color: Colors.white, fontSize: 18.0),
                 ),
+                CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Icon(Icons.pending_actions_sharp, color: Colors.blue),
+                ),
+              ],
               ),
             ),
           ],
