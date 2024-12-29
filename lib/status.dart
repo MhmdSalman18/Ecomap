@@ -58,7 +58,7 @@ class _StatusPageState extends State<StatusPage> {
                   );
                 },
                   child: Container(
-                    margin: const EdgeInsets.all(6.0),
+                    margin: const EdgeInsets.all(10.0),
                     padding: const EdgeInsets.all(6.0),
                     decoration: BoxDecoration(
                       color: Colors.green,
@@ -88,7 +88,53 @@ class _StatusPageState extends State<StatusPage> {
               color: Colors.blue,
               borderRadius: BorderRadius.circular(10.0),
               ),
-              width: MediaQuery.of(context).size.width * 0.9,
+              // width: MediaQuery.of(context).size.width * 0.9,
+              height: 100.0,
+              child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                'Responsive Box',
+                style: TextStyle(color: Colors.white, fontSize: 18.0),
+                ),
+                CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Icon(Icons.pending_actions_sharp, color: Colors.blue),
+                ),
+              ],
+              ),
+            ),
+            Container(
+              margin: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(10.0),
+              ),
+              // width: MediaQuery.of(context).size.width * 0.9,
+              height: 100.0,
+              child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                'Responsive Box',
+                style: TextStyle(color: Colors.white, fontSize: 18.0),
+                ),
+                CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Icon(Icons.pending_actions_sharp, color: Colors.blue),
+                ),
+              ],
+              ),
+            ),
+            Container(
+              margin: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(10.0),
+              ),
+              // width: MediaQuery.of(context).size.width * 0.9,
               height: 100.0,
               child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
