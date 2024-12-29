@@ -44,7 +44,6 @@ class _StatusPageState extends State<StatusPage> {
       body: Center(
         child: Column(
           children: [
-            Text("status page"),
             Row(
               mainAxisAlignment:
                   MainAxisAlignment.end, // Align the row's content to the right
