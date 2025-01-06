@@ -49,14 +49,14 @@ class _StatusPageState extends State<StatusPage> {
                   MainAxisAlignment.end, // Align the row's content to the right
               children: [
                 GestureDetector(
-                   onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const StatusHistoryPage(),
-                    ),
-                  );
-                },
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const StatusHistoryPage(),
+                      ),
+                    );
+                  },
                   child: Container(
                     margin: const EdgeInsets.all(10.0),
                     padding: const EdgeInsets.all(6.0),
@@ -78,76 +78,99 @@ class _StatusPageState extends State<StatusPage> {
                     ),
                   ),
                 ),
-            
               ],
             ),
             Container(
               margin: const EdgeInsets.all(10.0),
               padding: const EdgeInsets.all(20.0),
               decoration: BoxDecoration(
-              color: Colors.blue,
-              borderRadius: BorderRadius.circular(10.0),
+                color: Colors.blue,
+                borderRadius: BorderRadius.circular(10.0),
               ),
               // width: MediaQuery.of(context).size.width * 0.9,
               height: 100.0,
               child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                'Responsive Box',
-                style: TextStyle(color: Colors.white, fontSize: 18.0),
-                ),
-                CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Icon(Icons.pending_actions_sharp, color: Colors.blue),
-                ),
-              ],
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Responsive Box',
+                    style: TextStyle(color: Colors.white, fontSize: 18.0),
+                  ),
+                  CircleAvatar(
+                    backgroundColor: Colors.white,
+                    child:
+                        Icon(Icons.pending_actions_sharp, color: Colors.blue),
+                  ),
+                ],
               ),
             ),
             Container(
               margin: const EdgeInsets.all(10.0),
               padding: const EdgeInsets.all(20.0),
               decoration: BoxDecoration(
-              color: Colors.blue,
-              borderRadius: BorderRadius.circular(10.0),
+                color: Colors.blue,
+                borderRadius: BorderRadius.circular(10.0),
               ),
-              // width: MediaQuery.of(context).size.width * 0.9,
-              height: 100.0,
+              height: 140.0, // Increased to accommodate text
               child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                'Responsive Box',
-                style: TextStyle(color: Colors.white, fontSize: 18.0),
-                ),
-                CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Icon(Icons.pending_actions_sharp, color: Colors.blue),
-                ),
-              ],
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        const Text(
+                          ' Tiger',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        const Text(
+                          'Munnar,reservation forest analu',
+                          style: TextStyle(color: Colors.white, fontSize: 14.0),
+                        ),
+                        const Text(
+                          ' 29th December 2024',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14.0,
+                              fontStyle: FontStyle.italic),
+                        ),
+                      ],
+                    ),
+                  ),
+                  CircleAvatar(
+                    backgroundColor: Colors.white,
+                    child:
+                        Icon(Icons.pending_actions_sharp, color: Colors.blue),
+                  ),
+                ],
               ),
             ),
             Container(
               margin: const EdgeInsets.all(10.0),
               padding: const EdgeInsets.all(20.0),
               decoration: BoxDecoration(
-              color: Colors.blue,
-              borderRadius: BorderRadius.circular(10.0),
+                color: Colors.blue,
+                borderRadius: BorderRadius.circular(10.0),
               ),
               // width: MediaQuery.of(context).size.width * 0.9,
               height: 100.0,
               child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                'Responsive Box',
-                style: TextStyle(color: Colors.white, fontSize: 18.0),
-                ),
-                CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Icon(Icons.pending_actions_sharp, color: Colors.blue),
-                ),
-              ],
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Responsive Box',
+                    style: TextStyle(color: Colors.white, fontSize: 18.0),
+                  ),
+                  CircleAvatar(
+                    backgroundColor: Colors.white,
+                    child:
+                        Icon(Icons.pending_actions_sharp, color: Colors.blue),
+                  ),
+                ],
               ),
             ),
           ],
