@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:ecomap/BottomNavigationBar.dart';
 import 'package:ecomap/CustomDrawer.dart';
 import 'package:ecomap/REGISTRATION/account.dart';
@@ -16,8 +18,10 @@ class _StatusPageState extends State<StatusPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.red,
-        title: const Text('Status'),
+        backgroundColor:
+           Color(0xFF1B3B13), // AppBar background color
+        iconTheme: IconThemeData(
+          color: Color(0xFFB4E576),), 
         actions: [
           Padding(
             padding:
@@ -41,139 +45,227 @@ class _StatusPageState extends State<StatusPage> {
           ),
         ],
       ),
-      body: Center(
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment:
-                  MainAxisAlignment.end, // Align the row's content to the right
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const StatusHistoryPage(),
+      drawer: CustomDrawer(),
+      body: Container(
+        color: Color(0xFF1B3B13),
+        child: Center(
+          
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment:
+                    MainAxisAlignment.end, // Align the row's content to the right
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const StatusHistoryPage(),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.all(10.0),
+                      padding: const EdgeInsets.all(6.0),
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        borderRadius: BorderRadius.circular(5.0),
                       ),
-                    );
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.all(10.0),
-                    padding: const EdgeInsets.all(6.0),
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                    child: Row(
-                      mainAxisSize:
-                          MainAxisSize.min, // Makes the width wrap the content
-                      children: const [
-                        Icon(Icons.history, color: Colors.white),
-                        SizedBox(width: 10.0),
-                        Text(
-                          'History',
-                          style: TextStyle(color: Colors.white, fontSize: 18.0),
-                        ),
-                      ],
+                      child: Row(
+                        mainAxisSize:
+                            MainAxisSize.min, // Makes the width wrap the content
+                        children: const [
+                          Icon(Icons.history, color: Colors.white),
+                          SizedBox(width: 10.0),
+                          Text(
+                            'History',
+                            style: TextStyle(color: Colors.white, fontSize: 18.0),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
+                ],
+              ),
+              Container(
+                margin: const EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(20.0),
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 49, 106, 35),
+                  borderRadius: BorderRadius.circular(10.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color.fromARGB(255, 0, 0, 0).withOpacity(0.2), // Shadow color
+                      spreadRadius: 2, // Spread of the shadow
+                      blurRadius: 10, // Blur radius
+                      offset: Offset(0, 4), // Horizontal and vertical offset
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            Container(
-              margin: const EdgeInsets.all(10.0),
-              padding: const EdgeInsets.all(20.0),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              // width: MediaQuery.of(context).size.width * 0.9,
-              height: 100.0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Responsive Box',
-                    style: TextStyle(color: Colors.white, fontSize: 18.0),
-                  ),
-                  CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child:
-                        Icon(Icons.pending_actions_sharp, color: Colors.blue),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              margin: const EdgeInsets.all(10.0),
-              padding: const EdgeInsets.all(20.0),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              height: 140.0, // Increased to accommodate text
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                child: Column(
+                  mainAxisSize:
+                      MainAxisSize.min, // Adjust height based on content
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          ' Tiger',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Tiger',
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 255, 255, 255),
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              const Text(
+                                'Munnar, reservation forest analu',
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 255, 255, 255), fontSize: 14.0),
+                              ),
+                              const SizedBox(height: 8.0), // Add spacing
+                              Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing:
+                                    10.0, // Spacing between "date" and "Send"
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Text(
+                                        '29th December 2024',
+                                        style: TextStyle(
+                                            color: Color.fromARGB(255, 255, 255, 255),
+                                            fontSize: 14.0,
+                                            ),
+                                      ),
+                                      SizedBox(width: 10),
+                                      Container(
+                                        alignment: Alignment.center,
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 5.0, horizontal: 16.0),
+                                        decoration: BoxDecoration(
+                                          color: const Color.fromARGB(255, 253, 190, 190),
+                                          borderRadius:
+                                              BorderRadius.circular(5.0),
+                                        ),
+                                        child: const Text(
+                                          'Cancelled',
+                                          style: TextStyle(
+                                            color: Color.fromARGB(255, 255, 0, 0),
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                        const Text(
-                          'Munnar,reservation forest analu',
-                          style: TextStyle(color: Colors.white, fontSize: 14.0),
-                        ),
-                        const Text(
-                          ' 29th December 2024',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14.0,
-                              fontStyle: FontStyle.italic),
+                        CircleAvatar(
+                          backgroundColor: const Color.fromARGB(255, 255, 0, 0),
+                          child: Icon(Icons.cancel,
+                              color: const Color.fromARGB(255, 245, 245, 245)),
                         ),
                       ],
                     ),
-                  ),
-                  CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child:
-                        Icon(Icons.pending_actions_sharp, color: Colors.blue),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Container(
-              margin: const EdgeInsets.all(10.0),
-              padding: const EdgeInsets.all(20.0),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(10.0),
+              Container(
+                margin: const EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(20.0),
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 255, 255, 255),
+                  borderRadius: BorderRadius.circular(10.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2), // Shadow color
+                      spreadRadius: 2, // Spread of the shadow
+                      blurRadius: 10, // Blur radius
+                      offset: Offset(0, 4), // Horizontal and vertical offset
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize:
+                      MainAxisSize.min, // Adjust height based on content
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Tiger',
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 57, 57, 57),
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              const Text(
+                                'Munnar, reservation forest analu',
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 62, 62, 62), fontSize: 14.0),
+                              ),
+                              const SizedBox(height: 8.0), // Add spacing
+                              Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing:
+                                    10.0, // Spacing between "date" and "Send"
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Text(
+                                        '29th December 2024',
+                                        style: TextStyle(
+                                            color: Color.fromARGB(255, 56, 56, 56),
+                                            fontSize: 14.0,
+                                            ),
+                                      ),
+                                      SizedBox(width: 10),
+                                      Container(
+                                        alignment: Alignment.center,
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 5.0, horizontal: 16.0),
+                                        decoration: BoxDecoration(
+                                          color: const Color.fromARGB(255, 204, 253, 190),
+                                          borderRadius:
+                                              BorderRadius.circular(5.0),
+                                        ),
+                                        child: const Text(
+                                          'Send',
+                                          style: TextStyle(
+                                            color: Color.fromARGB(255, 4, 255, 0),
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        CircleAvatar(
+                          backgroundColor: const Color.fromARGB(255, 0, 255, 0),
+                          child: Icon(Icons.pending_actions_sharp,
+                              color: const Color.fromARGB(255, 245, 245, 245)),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              // width: MediaQuery.of(context).size.width * 0.9,
-              height: 100.0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Responsive Box',
-                    style: TextStyle(color: Colors.white, fontSize: 18.0),
-                  ),
-                  CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child:
-                        Icon(Icons.pending_actions_sharp, color: Colors.blue),
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

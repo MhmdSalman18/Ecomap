@@ -18,8 +18,8 @@ class _BottomNavigationBarExampleState
 
   // List of pages for BottomNavigationBar
   static const List<Widget> _widgetOptions = <Widget>[
-    StatusPage(title: '',),
-    HomePage(title: '', ),
+    StatusPage(title: ''),
+    HomePage(title: ''),
     HeatMap(),
   ];
 
@@ -33,12 +33,7 @@ class _BottomNavigationBarExampleState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text(_selectedIndex == 0
-      //       ? 'Ecomap - Home'
-      //       : _getTitle(_selectedIndex - 1)),
-      //   backgroundColor: Colors.teal,
-      // ),
+      backgroundColor: Colors.red, // Set background color to red
       body: Center(
         child: _selectedIndex == 0
             ? const HomePage(title: 'Home') // Show HomePage if index is 0
@@ -51,7 +46,7 @@ class _BottomNavigationBarExampleState
             label: 'Status',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.camera_enhance),
+            icon: Icon(Icons.camera),
             label: 'Upload',
           ),
           BottomNavigationBarItem(
@@ -63,8 +58,9 @@ class _BottomNavigationBarExampleState
             ? 0 // Highlight nothing if on HomePage
             : _selectedIndex - 1,
         selectedItemColor:
-            _selectedIndex == 0 ? Colors.grey : Colors.amber[800],
-        unselectedItemColor: Colors.grey,
+            _selectedIndex == 0 ? Color(0xFF5F7548) : Color(0xFFB4E576),
+        unselectedItemColor:Color(0xFF5F7548),
+        backgroundColor: Color(0xFF1B3B13), // Set BottomNavigationBar background color to red
         onTap: _onItemTapped,
       ),
     );

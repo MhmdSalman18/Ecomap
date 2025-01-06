@@ -42,7 +42,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _takePicture() async {
-    if (_cameraController == null || !_cameraController!.value.isInitialized) return;
+    if (_cameraController == null || !_cameraController!.value.isInitialized)
+      return;
     final image = await _cameraController!.takePicture();
     Navigator.push(
       context,
@@ -56,7 +57,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _openGallery() async {
-    final XFile? pickedImage = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedImage =
+        await _picker.pickImage(source: ImageSource.gallery);
     if (pickedImage != null) {
       Navigator.push(
         context,
@@ -80,7 +82,11 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.red,
+        backgroundColor:
+           Color(0xFF1B3B13), // AppBar background color
+        iconTheme: IconThemeData(
+          color: Color(0xFFB4E576), // Change the hamburger icon color
+        ),
         actions: [
           Padding(
             padding:
@@ -114,28 +120,45 @@ class _HomePageState extends State<HomePage> {
                   ),
                   Align(
                     alignment: Alignment.bottomCenter,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: ElevatedButton.icon(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          bottom: 20.0), // Add some space from the bottom
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment
+                            .spaceEvenly, // Spread the buttons evenly
+                        children: [
+                          // Gallery button on the left
+                          IconButton(
                             onPressed: _openGallery,
-                            icon: const Icon(Icons.photo_library),
-                            label: const Text(''),
+                            icon: const Icon(Icons.photo_library,
+                                color: Color(0xFF5F7548)),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: ElevatedButton.icon(
-                            onPressed: _takePicture,
-                            icon: const Icon(Icons.camera_alt),
-                            label: const Text(''),
+                          // Camera button in the center
+                          GestureDetector(
+                            onTap: _takePicture,
+                            child: Container(
+                              width: 70.0,
+                              height: 70.0,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Color(0xFF5F7548),
+                              ),
+                              child: const Icon(Icons.camera_alt,
+                                  color: Color.fromARGB(255, 255, 255, 255), size: 30.0),
+                            ),
                           ),
-                        ),
-                      ],
+                          // Placeholder for an optional button on the right
+                          IconButton(
+                            onPressed: () {
+                              // Add functionality if needed
+                            },
+                            icon: const Icon(Icons.settings,
+                                color: Color(0xFF5F7548)),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                  )
                 ],
               )
             : const CircularProgressIndicator(),
