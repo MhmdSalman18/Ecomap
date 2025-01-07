@@ -1,3 +1,5 @@
+import 'package:ecomap/BottomNavigationBar.dart';
+import 'package:ecomap/home.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -72,7 +74,6 @@ class _UploadDpPageState extends State<UploadDpPage> {
             // Register Button
             ElevatedButton(
               onPressed: () {
-                // Add registration logic here
                 if (_image == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -80,17 +81,19 @@ class _UploadDpPageState extends State<UploadDpPage> {
                     ),
                   );
                 } else {
-                  // Proceed with registration
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Registration successful!"),
-                    ),
+                  // Navigate to HomePage
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const BottomNavigationBarExample(title: '',)),
                   );
                 }
               },
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 50),
                 backgroundColor: const Color(0xFFD1F5A0), // Button color
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30), // Rounded corners
+                ),
               ),
               child: const Text(
                 "Register",
@@ -106,3 +109,5 @@ class _UploadDpPageState extends State<UploadDpPage> {
     );
   }
 }
+
+// HomePage widget definition

@@ -47,7 +47,7 @@ class _BottomNavigationBarExampleState
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.camera),
-            label: 'Upload',
+            label: 'Camera',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.location_on),
