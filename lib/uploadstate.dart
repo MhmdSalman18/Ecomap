@@ -127,7 +127,7 @@ class _UploadStateState extends State<UploadState> {
                   alignment: Alignment.center,
                   children: [
                     Container(
-                      width: MediaQuery.of(context).size.width * 0.8,
+                      width: MediaQuery.of(context).size.width * 1,
                       height: MediaQuery.of(context).size.height * 0.3,
                       decoration: BoxDecoration(
                         color: Colors.grey[300],

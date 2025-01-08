@@ -1,6 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key, required String title});
@@ -10,100 +10,269 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
-  File? _image;
-  final _picker = ImagePicker();
+  String _tempEmail = "user@example.com";
+  String _fullName = "John Doe";
+  File? _profileImage;
 
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Account Page'),
+        backgroundColor: Colors.blueAccent,
+        elevation: 5,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Profile Image
+              Center(
+                child: Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 60,
+                      backgroundImage: _profileImage != null
+                          ? FileImage(_profileImage!)
+                          : const AssetImage('assets/profile_image.png')
+                              as ImageProvider,
+                      backgroundColor: Colors.grey[200],
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: GestureDetector(
+                        onTap: () async {
+                          final picker = ImagePicker();
+                          final pickedFile =
+                              await picker.pickImage(source: ImageSource.gallery);
+                          if (pickedFile != null) {
+                            setState(() {
+                              _profileImage = File(pickedFile.path);
+                            });
+                          }
+                        },
+                        child: CircleAvatar(
+                          radius: 18,
+                          backgroundColor: Colors.blueAccent,
+                          child: const Icon(Icons.edit, size: 20, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30),
 
-  // Function to pick an image from the gallery
+              // Full Name
+              _buildDetailRow(
+                label: "Full Name",
+                value: _fullName,
+              ),
+              const SizedBox(height: 15),
+
+              // Email
+              _buildDetailRow(
+                label: "Email",
+                value: _tempEmail,
+              ),
+              const SizedBox(height: 30),
+
+              // Edit Button
+              ElevatedButton.icon(
+                onPressed: () async {
+                  final updatedDetails = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditAccountPage(
+                        fullName: _fullName,
+                        email: _tempEmail,
+                        profileImage: _profileImage,
+                      ),
+                    ),
+                  );
+
+                  if (updatedDetails != null) {
+                    setState(() {
+                      _fullName = updatedDetails['fullName'];
+                      _tempEmail = updatedDetails['email'];
+                      _profileImage = updatedDetails['profileImage'];
+                    });
+                  }
+                },
+                icon: const Icon(Icons.edit),
+                label: const Text('Edit Account'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  backgroundColor: Colors.blueAccent,
+                  textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow({required String label, required String value}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '$label: ',
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.grey,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class EditAccountPage extends StatefulWidget {
+  final String fullName;
+  final String email;
+  final File? profileImage;
+
+  const EditAccountPage({
+    super.key,
+    required this.fullName,
+    required this.email,
+    this.profileImage,
+  });
+
+  @override
+  State<EditAccountPage> createState() => _EditAccountPageState();
+}
+
+class _EditAccountPageState extends State<EditAccountPage> {
+  late TextEditingController fullNameController;
+  late TextEditingController emailController;
+  File? _selectedImage;
+
+  @override
+  void initState() {
+    super.initState();
+    fullNameController = TextEditingController(text: widget.fullName);
+    emailController = TextEditingController(text: widget.email);
+    _selectedImage = widget.profileImage;
+  }
+
   Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
     if (pickedFile != null) {
       setState(() {
-        _image = File(pickedFile.path);
+        _selectedImage = File(pickedFile.path);
       });
     }
   }
 
   @override
-  void dispose() {
-    _usernameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Account Page')),
+      appBar: AppBar(
+        title: const Text('Edit Account'),
+        backgroundColor: Colors.blueAccent,
+        elevation: 5,
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
         child: Column(
           children: [
-            // Image Upload Section
+            // Profile Image with Edit Option
             GestureDetector(
               onTap: _pickImage,
-              child: CircleAvatar(
-                radius: 50,
-                backgroundColor: Colors.grey[200],
-                backgroundImage: _image != null ? FileImage(_image!) : null,
-                child: _image == null
-                    ? const Icon(Icons.camera_alt, size: 50, color: Colors.grey)
-                    : null,
+              child: Stack(
+                children: [
+                  CircleAvatar(
+                    radius: 60,
+                    backgroundImage: _selectedImage != null
+                        ? FileImage(_selectedImage!)
+                        : const AssetImage('assets/profile_image.png')
+                            as ImageProvider,
+                    backgroundColor: Colors.grey[200],
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: CircleAvatar(
+                      radius: 18,
+                      backgroundColor: Colors.blueAccent,
+                      child: const Icon(Icons.edit, size: 20, color: Colors.white),
+                    ),
+                  ),
+                ],
               ),
+            ),
+            const SizedBox(height: 30),
+
+            // Full Name Field
+            _buildTextField(
+              controller: fullNameController,
+              label: "Full Name",
             ),
             const SizedBox(height: 20),
 
-            // Username TextField
-            TextFormField(
-              controller: _usernameController,
-              decoration: const InputDecoration(
-                labelText: 'Username',
-                border: OutlineInputBorder(),
-              ),
+            // Email Field
+            _buildTextField(
+              controller: emailController,
+              label: "Email",
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 30),
 
-            // Email TextField
-            TextFormField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 10),
-
-            // Password TextField
-            TextFormField(
-              controller: _passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 20),
-
-            // Submit Button
+            // Save Button
             ElevatedButton(
               onPressed: () {
-                // Handle form submission
-                String username = _usernameController.text;
-                String email = _emailController.text;
-                String password = _passwordController.text;
-                // You can now use these values for further processing
-                print('Username: $username');
-                print('Email: $email');
-                print('Password: $password');
+                Navigator.pop(context, {
+                  'fullName': fullNameController.text,
+                  'email': emailController.text,
+                  'profileImage': _selectedImage,
+                });
               },
-              child: const Text('Save Account Details'),
+              child: const Text('Save'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                backgroundColor: Colors.blueAccent,
+                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+  }) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
       ),
     );
