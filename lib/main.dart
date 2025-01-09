@@ -1,5 +1,6 @@
 
 import 'package:ecomap/home.dart';
+import 'package:ecomap/uploadstate.dart';
 
 import 'package:flutter/material.dart';
 
@@ -12,7 +13,7 @@ class EcomapApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomePage(title: '',), // Start with BottomNavigationBarExample
+      home: UploadState(), // Start with BottomNavigationBarExample
     );
   }
 }
