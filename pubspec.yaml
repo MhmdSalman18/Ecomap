@@ -38,6 +38,9 @@ dependencies:
   font_awesome_flutter: ^10.8.0
   camera: ^0.9.4+4
   image_picker: ^1.1.2
+  path_provider: ^2.1.5
+  geolocator: ^13.0.2  
+  geocoding: ^3.0.0
 
 dev_dependencies:
   flutter_test:

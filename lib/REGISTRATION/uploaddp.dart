@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
 class UploadDpPage extends StatefulWidget {
-  const UploadDpPage({super.key});
+  const UploadDpPage({super.key, required String title});
 
   @override
   State<UploadDpPage> createState() => _UploadDpPageState();

@@ -3,7 +3,7 @@ import 'package:ecomap/REGISTRATION/signup.dart';
 import 'package:flutter/material.dart';
 
 class FirstPage extends StatefulWidget {
-  const FirstPage({super.key, required String title});
+  const FirstPage({super.key, required String title, required String imagePath});
 
   @override
   State<FirstPage> createState() => _FirstPageState();

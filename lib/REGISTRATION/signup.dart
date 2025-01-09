@@ -117,7 +117,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const UploadDpPage(),
+                    builder: (context) => const UploadDpPage(title: '',),
                   ),
                   );
                 },

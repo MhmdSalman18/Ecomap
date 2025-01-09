@@ -1,16 +1,9 @@
-import 'dart:io';
-import 'package:ecomap/BottomNavigationBar.dart';
-import 'package:ecomap/CustomDrawer.dart';
-import 'package:ecomap/REGISTRATION/account.dart';
-import 'package:ecomap/home.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 
 class UploadState extends StatefulWidget {
-  final String imagePath; // Add imagePath parameter
-  const UploadState({super.key, required this.imagePath, required String title});
-
   @override
-  State<UploadState> createState() => _UploadStateState();
+  _UploadStateState createState() => _UploadStateState();
 }
 
 class _UploadStateState extends State<UploadState> {
@@ -18,238 +11,135 @@ class _UploadStateState extends State<UploadState> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
 
-  String? _currentImagePath;
+  Position? _location;
+  String _address = 'Fetching address...';
 
   @override
   void initState() {
     super.initState();
-    _currentImagePath = widget.imagePath;
+    _getCurrentLocation();
   }
 
-  void _resetFields() {
-    setState(() {
-      _titleController.clear();
-      _descriptionController.clear();
-      _dateController.clear();
-    });
-  }
+  /// Fetch the current location
+  Future<void> _getCurrentLocation() async {
+    try {
+      // Check permissions and request location access
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        permission = await Geolocator.requestPermission();
+      }
 
-  void _sendData() {
-    final title = _titleController.text;
-    final description = _descriptionController.text;
-    final date = _dateController.text;
+      // Fetch current location if permission is granted
+      if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
+        Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+        setState(() {
+          _location = position;
+        });
 
-    if (title.isNotEmpty && description.isNotEmpty && date.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Data Sent: $title, $description, $date"),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please fill in all fields"),
-        ),
-      );
+        // Optionally, fetch address using the coordinates
+        _getAddressFromCoordinates(position.latitude, position.longitude);
+      } else {
+        setState(() {
+          _address = "Location permission denied";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _address = "Failed to get location: $e";
+      });
     }
   }
 
- void _retryUpload() {
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const BottomNavigationBarExample(title: 'Home Page'),
-    ),
-  );
-}
-
-
-  void _removeImage() {
+  /// Fetch address from latitude and longitude
+  Future<void> _getAddressFromCoordinates(double latitude, double longitude) async {
+    // Use a reverse geocoding service or package like 'geocoding' to get address.
+    // For now, we'll just display latitude and longitude as the "address."
     setState(() {
-      _currentImagePath = null;
+      _address = "Latitude: $latitude, Longitude: $longitude";
     });
-  }
-
-  void _uploadFromGallery() {
-    // Logic to pick an image from the gallery
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Upload from gallery functionality coming soon!"),
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF1B3B13), // AppBar background color
-        iconTheme: IconThemeData(
-          color: Color(0xFFB4E576),
-        ),
-        actions: [
-          Padding(
-            padding:
-                const EdgeInsets.only(right: 8.0), // Add padding to the right
-            child: GestureDetector(
-              onTap: () {
-                // Navigate to HomePage
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AccountPage(title: 'Home'),
-                  ),
-                );
-              },
-              // ignore: prefer_const_constructors
-              child: CircleAvatar(
-                backgroundImage: NetworkImage(
-                    'https://via.placeholder.com/150'), // Replace with your image URL
-                radius: 18, // Adjust the size
-              ),
-            ),
-          ),
-        ],
+        title: const Text('Upload Data'),
       ),
-      drawer: CustomDrawer(),
-      body: 
-        Container(
-          color:  Color(0xFF1B3B13),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 16.0),
-          
-                // Image Container with Retry, Recapture, and Remove Buttons
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Container(
-                      width: MediaQuery.of(context).size.width * 1,
-                      height: MediaQuery.of(context).size.height * 0.3,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(12),
-                        image: _currentImagePath != null
-                            ? DecorationImage(
-                                image: FileImage(File(_currentImagePath!)),
-                                fit: BoxFit.cover,
-                              )
-                            : null,
-                      ),
-                      child: _currentImagePath == null
-                          ? const Center(
-                              child: Text(
-                                'No Image Available',
-                                style: TextStyle(color: Colors.black54, fontSize: 18),
-                              ),
-                            )
-                          : null,
-                    ),
-                    if (_currentImagePath == null)
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ElevatedButton.icon(
-                            onPressed: _retryUpload,
-                            icon: const Icon(Icons.refresh),
-                            label: const Text("Retry"),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.orange,
-                            ),
-                          ),
-                          const SizedBox(height: 8.0),
-                          ElevatedButton.icon(
-                            onPressed: _uploadFromGallery,
-                            icon: const Icon(Icons.photo_library),
-                            label: const Text("Upload from Gallery"),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                            ),
-                          ),
-                        ],
-                      ),
-                    if (_currentImagePath != null)
-                      Positioned(
-                        bottom: 8.0,
-                        right: 8.0,
-                        child: ElevatedButton.icon(
-                          onPressed: _removeImage,
-                          icon: const Icon(Icons.delete),
-                          label: const Text("Remove"),
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                        ),
-                      ),
-                  ],
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Title:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              TextField(
+                controller: _titleController,
+                decoration: const InputDecoration(hintText: 'Enter title'),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Description:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              TextField(
+                controller: _descriptionController,
+                decoration: const InputDecoration(hintText: 'Enter description'),
+                maxLines: 4,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Date:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              TextField(
+                controller: _dateController,
+                decoration: const InputDecoration(hintText: 'Enter date (e.g., YYYY-MM-DD)'),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Location Information:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              if (_location != null)
+                Text(
+                  'Latitude: ${_location!.latitude}, Longitude: ${_location!.longitude}',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                )
+              else
+                const CircularProgressIndicator(), // Show loader while fetching location
+              const SizedBox(height: 8),
+              const Text(
+                'Address:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                _address,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Handle form submission logic here
+                    print('Title: ${_titleController.text}');
+                    print('Description: ${_descriptionController.text}');
+                    print('Date: ${_dateController.text}');
+                    if (_location != null) {
+                      print('Latitude: ${_location!.latitude}');
+                      print('Longitude: ${_location!.longitude}');
+                    }
+                  },
+                  child: const Text('Submit'),
                 ),
-          
-                const SizedBox(height: 16.0),
-          
-                // Title Field
-                TextField(
-                  controller: _titleController,
-                  decoration: const InputDecoration(
-                    labelText: 'Title',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-          
-                const SizedBox(height: 16.0),
-          
-                // Description Field
-                TextField(
-                  controller: _descriptionController,
-                  maxLines: 3,
-                  decoration: const InputDecoration(
-                    labelText: 'Description',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-          
-                const SizedBox(height: 16.0),
-          
-                // Date Field
-                TextField(
-                  controller: _dateController,
-                  keyboardType: TextInputType.datetime,
-                  decoration: const InputDecoration(
-                    labelText: 'Date',
-                    hintText: 'YYYY-MM-DD',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-          
-                const SizedBox(height: 24.0),
-          
-                // Buttons for Reset and Send
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: _resetFields,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey,
-                      ),
-                      child: const Text('Reset', style: TextStyle(color: Colors.white)),
-                    ),
-                    ElevatedButton(
-                      onPressed: _sendData,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                      ),
-                      child: const Text('Send', style: TextStyle(color: Colors.white)),
-                    ),
-                  ],
-                ),
-          
-                const SizedBox(height: 16.0),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-      
+      ),
     );
   }
 }

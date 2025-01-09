@@ -1,6 +1,6 @@
-import 'package:ecomap/REGISTRATION/account.dart';
-import 'package:ecomap/REGISTRATION/firstpage.dart';
-import 'package:ecomap/status.dart';
+
+import 'package:ecomap/home.dart';
+
 import 'package:flutter/material.dart';
 
 void main() => runApp(const EcomapApp());
@@ -10,9 +10,9 @@ class EcomapApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: AccountPage(title: '', ), // Start with BottomNavigationBarExample
+      home: HomePage(title: '',), // Start with BottomNavigationBarExample
     );
   }
 }
