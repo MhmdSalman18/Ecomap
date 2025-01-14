@@ -61,7 +61,7 @@ class CustomDrawer extends StatelessWidget {
               title: const Text("Map", style: TextStyle(color: Color(0xFFD1F5A0))),
               onTap: () {
                 Navigator.pop(context);
-                // Add navigation to M
+                // Add navigation to Map
               },
             ),
             ListTile(

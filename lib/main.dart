@@ -13,7 +13,7 @@ class EcomapApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: UploadState(), // Start with BottomNavigationBarExample
+      home: HomePage(title: '',), // Start with BottomNavigationBarExample
     );
   }
 }
