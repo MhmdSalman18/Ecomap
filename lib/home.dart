@@ -1,3 +1,5 @@
+import 'package:ecomap/CustomDrawer.dart';
+import 'package:ecomap/REGISTRATION/account.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:image_picker/image_picker.dart'; // Import for gallery access
@@ -59,7 +61,7 @@ class _HomePageState extends State<HomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => UploadState(
+        builder: (context) => UploadState(imagePath: '', title: '',
           
         ),
       ),
@@ -82,7 +84,7 @@ class _HomePageState extends State<HomePage> {
         context,
         MaterialPageRoute(
           builder: (context) =>
-              UploadState(
+              UploadState(imagePath: '', title: '',
                 
               ),
         ),
@@ -144,6 +146,35 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xFF1B3B13), // AppBar background color
+        iconTheme: IconThemeData(
+          color: Color(0xFFB4E576),
+        ),
+        actions: [
+          Padding(
+            padding:
+                const EdgeInsets.only(right: 8.0), // Add padding to the right
+            child: GestureDetector(
+              onTap: () {
+                // Navigate to HomePage
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AccountPage(title: 'Home'),
+                  ),
+                );
+              },
+              child: CircleAvatar(
+                backgroundImage: NetworkImage(
+                    'https://via.placeholder.com/150'), // Replace with your image URL
+                radius: 18, // Adjust the size
+              ),
+            ),
+          ),
+        ],
+      ),
+      drawer: CustomDrawer(),
       body: Center(
         child: _isCameraInitialized
             ? Stack(

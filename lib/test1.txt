@@ -1,0 +1,149 @@
+import 'dart:io';
+import 'package:ecomap/BottomNavigationBar.dart';
+import 'package:ecomap/CustomDrawer.dart';
+import 'package:ecomap/REGISTRATION/account.dart';
+import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+
+class UploadState extends StatefulWidget {
+  final String imagePath;
+  const UploadState({super.key, required this.imagePath, required String title});
+
+  @override
+  State<UploadState> createState() => _UploadStateState();
+}
+
+class _UploadStateState extends State<UploadState> {
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
+
+  String? _currentImagePath;
+  String _locationMessage = "Fetching location...";
+
+  @override
+  void initState() {
+    super.initState();
+    _currentImagePath = widget.imagePath;
+    _getLocation(); // Fetch location on initialization
+  }
+
+  Future<void> _getLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Check if location services are enabled
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      setState(() {
+        _locationMessage = "Location services are disabled.";
+      });
+      return;
+    }
+
+    // Check for location permissions
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        setState(() {
+          _locationMessage = "Location permissions are denied.";
+        });
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      setState(() {
+        _locationMessage = "Location permissions are permanently denied.";
+      });
+      return;
+    }
+
+    // Get the current position
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    setState(() {
+      _locationMessage =
+          "Latitude: ${position.latitude}, Longitude: ${position.longitude}";
+    });
+  }
+
+  void _resetFields() {
+    setState(() {
+      _titleController.clear();
+      _descriptionController.clear();
+      _dateController.clear();
+    });
+  }
+
+  void _sendData() {
+    final title = _titleController.text;
+    final description = _descriptionController.text;
+    final date = _dateController.text;
+
+    if (title.isNotEmpty && description.isNotEmpty && date.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Data Sent: $title, $description, $date"),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please fill in all fields"),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF1B3B13),
+        iconTheme: const IconThemeData(
+          color: Color(0xFFB4E576),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AccountPage(title: 'Home'),
+                  ),
+                );
+              },
+              child: const CircleAvatar(
+                backgroundImage: NetworkImage('https://via.placeholder.com/150'),
+                radius: 18,
+              ),
+            ),
+          ),
+        ],
+      ),
+      drawer: CustomDrawer(),
+      body: Container(
+        color: const Color(0xFF1B3B13),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 16.0),
+              Text(
+                "Location is: $_locationMessage",
+                style: const TextStyle(color: Color(0xFFD1F5A0)),
+              ),
+              const SizedBox(height: 24.0),
+              // Continue with your form and other UI components
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
