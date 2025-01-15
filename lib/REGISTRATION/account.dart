@@ -19,9 +19,10 @@ class _AccountPageState extends State<AccountPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Account Page'),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Color(0xFF1B3B13),
         elevation: 5,
       ),
+      backgroundColor: const Color(0xFF1B3B13),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
@@ -56,7 +57,7 @@ class _AccountPageState extends State<AccountPage> {
                         },
                         child: CircleAvatar(
                           radius: 18,
-                          backgroundColor: Colors.blueAccent,
+                          backgroundColor:  Color(0xFFB4E576),
                           child: const Icon(Icons.edit, size: 20, color: Colors.white),
                         ),
                       ),
@@ -106,7 +107,7 @@ class _AccountPageState extends State<AccountPage> {
                 label: const Text('Edit Account'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  backgroundColor: Colors.blueAccent,
+                  backgroundColor:  Color(0xFFB4E576),
                   textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
@@ -190,9 +191,10 @@ class _EditAccountPageState extends State<EditAccountPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Account'),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor:  Color(0xFFB4E576),
         elevation: 5,
       ),
+      backgroundColor: const Color(0xFF1B3B13),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
         child: Column(
@@ -215,7 +217,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                     right: 0,
                     child: CircleAvatar(
                       radius: 18,
-                      backgroundColor: Colors.blueAccent,
+                      backgroundColor:  Color(0xFFB4E576),
                       child: const Icon(Icons.edit, size: 20, color: Colors.white),
                     ),
                   ),
@@ -250,7 +252,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
               child: const Text('Save'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                backgroundColor: Colors.blueAccent,
+                backgroundColor:  Color(0xFFB4E576),
                 textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
