@@ -1,5 +1,7 @@
+import 'package:ecomap/BottomNavigationBar.dart';
 import 'package:ecomap/REGISTRATION/login.dart';
 import 'package:ecomap/REGISTRATION/signup.dart';
+import 'package:ecomap/home.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -101,6 +103,12 @@ class _LoginPageState extends State<LoginPage> {
                 ElevatedButton(
                 onPressed: () {
                   // Add sign-in functionality here
+                  Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>  BottomNavigationBarExample(title: '',),
+                        ),
+                      );
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50), backgroundColor:Color(0xFFD1F5A0), // Set button color to red

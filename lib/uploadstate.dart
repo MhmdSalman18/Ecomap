@@ -32,45 +32,54 @@ class _UploadStateState extends State<UploadState> {
   }
 
   Future<void> _getLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
+  bool serviceEnabled;
+  LocationPermission permission;
 
-    // Check if location services are enabled
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      setState(() {
-        _locationMessage = "Location services are disabled.";
-      });
-      return;
-    }
+  // Check if location services are enabled
+  serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) {
+    setState(() {
+      _locationMessage = "Please enable location services.";
+    });
+    return;
+  }
 
-    // Check for location permissions
-    permission = await Geolocator.checkPermission();
+  // Check for location permissions
+  permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
     if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        setState(() {
-          _locationMessage = "Location permissions are denied.";
-        });
-        return;
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
       setState(() {
-        _locationMessage = "Location permissions are permanently denied.";
+        _locationMessage = "Location permissions are denied.";
       });
       return;
     }
+  }
 
-    // Get the current position
+  if (permission == LocationPermission.deniedForever) {
+    setState(() {
+      _locationMessage = "Location permissions are permanently denied.";
+    });
+    return;
+  }
+
+  // Get the current position with high accuracy
+  try {
     Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
+      desiredAccuracy: LocationAccuracy.best,
+      forceAndroidLocationManager: true,
+    );
     setState(() {
       _locationMessage =
           "Latitude: ${position.latitude}, Longitude: ${position.longitude}";
     });
+  } catch (e) {
+    setState(() {
+      _locationMessage = "Error fetching location: $e";
+    });
   }
+}
+
 
   void _resetFields() {
     setState(() {
