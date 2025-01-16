@@ -25,7 +25,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(10.0), // Add border radius
                 child: Image.asset(
-                  'panther.jpg', // Replace with your image path
+                  'assets/panther.jpg', // Replace with your image path
                   height: 250,
                 ),
               ),

@@ -16,7 +16,7 @@ class _BottomNavigationBarExampleState
     extends State<BottomNavigationBarExample> {
   int _selectedIndex = 0; // Default to 'HomePage'
 
-  // List of pages for BottomNavigationBar
+  // List of pages for BottomNavigationBa
   static const List<Widget> _widgetOptions = <Widget>[
     StatusPage(title: ''),
     HomePage(title: ''),

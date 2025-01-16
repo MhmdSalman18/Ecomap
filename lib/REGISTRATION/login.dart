@@ -27,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
                 ClipRRect(
                 borderRadius: BorderRadius.circular(10.0), // Add border radius
                 child: Image.asset(
-                  'giraffe.jpg', // Replace with your image path
+                  'assets/giraffe.jpg', // Replace with your image path
                   height: 250,
                 ),
                 ),

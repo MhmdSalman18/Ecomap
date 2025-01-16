@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
-import 'dart:typed_data'; // for handling byte arrays
 
 class HeatMap extends StatefulWidget {
   const HeatMap({super.key});
@@ -16,15 +15,18 @@ class _HeatMapState extends State<HeatMap> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("HeatMap Example")),
-      body: Container(
-        height: MediaQuery.of(context).size.height, // Full screen height
+      body: SizedBox(
+        height: MediaQuery.of(context).size.height,
         child: MapLibreMap(
           onMapCreated: _onMapCreated,
           initialCameraPosition: const CameraPosition(
-            target: LatLng(37.7749, -122.4194), // San Francisco's coordinates
+            target: LatLng(37.7749, -122.4194), // San Francisco
             zoom: 12,
           ),
-          styleString: "https://demotiles.maplibre.org/style.json", // Map style URL
+          styleString: "https://demotiles.maplibre.org/style.json",
+          onStyleLoadedCallback: () {
+            debugPrint("Map style loaded successfully!");
+          },
         ),
       ),
     );
@@ -32,41 +34,104 @@ class _HeatMapState extends State<HeatMap> {
 
   void _onMapCreated(MapLibreMapController controller) {
     mapController = controller;
-    _addHeatMapMarkers();
+
+    // Wait for the style to load before adding layers
+    mapController.onStyleLoaded(() {
+      debugPrint("Style loaded callback triggered!");
+      _addHeatMapLayer();
+    });
   }
 
-  // Add custom markers to the map
-  void _addHeatMapMarkers() async {
-    // Sample data with geo-coordinates
-    List<LatLng> points = [
-      const LatLng(37.7749, -122.4194),
-      const LatLng(37.7750, -122.4195),
-      const LatLng(37.7751, -122.4196),
-      // Add more coordinates as necessary
-    ];
+  void _addHeatMapLayer() async {
+    try {
+      // Sample data points with weights
+      final List<Map<String, dynamic>> features = [
+        {
+          "type": "Feature",
+          "properties": {"weight": 1.0},
+          "geometry": {
+            "type": "Point",
+            "coordinates": [-122.4194, 37.7749]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": {"weight": 0.8},
+          "geometry": {
+            "type": "Point",
+            "coordinates": [-122.4195, 37.7750]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": {"weight": 0.6},
+          "geometry": {
+            "type": "Point",
+            "coordinates": [-122.4196, 37.7751]
+          }
+        },
+        // Add more data points as needed
+      ];
 
-    // Load a custom icon and add it to the map style
-    await mapController.addImage(
-      "custom-marker", // The image name you will reference later
-      await _loadCustomMarkerImage(), // Load the image as a byte array
-    );
-
-    // Add markers using the custom image
-    for (var point in points) {
-      await mapController.addSymbol(
-        SymbolOptions(
-          geometry: point,
-          iconImage: "custom-marker", // Reference the image name here
-          iconSize: 0.5, // Adjust size
-          iconColor: "#FF0000", // Marker color (if applicable)
+      // Create GeoJSON source
+      await mapController.addSource(
+        "heat",
+        GeojsonSourceProperties(
+          data: {
+            "type": "FeatureCollection",
+            "features": features,
+          },
         ),
       );
+      debugPrint("GeoJSON source added!");
+
+      // Add heatmap layer
+      await mapController.addLayer(
+        "heat", // source ID
+        "heatmap", // layer ID
+        HeatmapLayerProperties(
+          heatmapWeight: [
+            "interpolate",
+            ["linear"],
+            ["get", "weight"],
+            0, 0,
+            1, 1,
+          ],
+          heatmapIntensity: [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            0, 1,
+            15, 3,
+          ],
+          heatmapColor: [
+            "interpolate",
+            ["linear"],
+            ["heatmap-density"],
+            0, "rgba(33,102,172,0)",
+            0.2, "rgb(103,169,207)",
+            0.4, "rgb(209,229,240)",
+            0.6, "rgb(253,219,199)",
+            0.8, "rgb(239,138,98)",
+            1, "rgb(178,24,43)",
+          ],
+          heatmapRadius: [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            0, 5,
+            15, 40,
+          ],
+          heatmapOpacity: 0.7,
+        ),
+      );
+      debugPrint("Heatmap layer added!");
+    } catch (e) {
+      debugPrint("Error adding heatmap layer: $e");
     }
   }
+}
 
-  // Load the custom marker image as a byte array
-  Future<Uint8List> _loadCustomMarkerImage() async {
-    final ByteData data = await DefaultAssetBundle.of(context).load('assets/custom_marker.png');
-    return data.buffer.asUint8List();
-  }
+extension on MapLibreMapController {
+  void onStyleLoaded(Null Function() param0) {}
 }

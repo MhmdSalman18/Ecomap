@@ -23,7 +23,7 @@ class _UploadStateState extends State<UploadState> {
 
   String? _currentImagePath;
   String _locationMessage = "Fetching location...";
-
+  
   @override
   void initState() {
     super.initState();
@@ -63,11 +63,10 @@ class _UploadStateState extends State<UploadState> {
     return;
   }
 
-  // Get the current position with high accuracy
+  // Fetch the current position
   try {
     Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.best,
-      forceAndroidLocationManager: true,
+      desiredAccuracy: LocationAccuracy.high, // Use high accuracy for precision
     );
     setState(() {
       _locationMessage =
@@ -318,20 +317,21 @@ class _UploadStateState extends State<UploadState> {
 
               const SizedBox(height: 24.0),
 
-                  GestureDetector(
-                  onLongPress: () {
-                    Clipboard.setData(ClipboardData(text: _locationMessage));
-                    ScaffoldMessenger.of(context).showSnackBar(
+              GestureDetector(
+                onLongPress: () {
+                  Clipboard.setData(ClipboardData(text: _locationMessage));
+                  ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text("Location copied to clipboard"),
                     ),
-                    );
-                  },
-                  child: Text(
-                    "Location is: $_locationMessage",
-                    style: const TextStyle(color: Color(0xFFD1F5A0)),
-                  ),
-                  ),
+                  );
+                },
+                child: Text(
+                  "Location is: $_locationMessage",
+                  style: const TextStyle(color: Color(0xFFD1F5A0)),
+                ),
+              ),
+
               const SizedBox(height: 24.0),
 
               // Buttons for Reset and Send
