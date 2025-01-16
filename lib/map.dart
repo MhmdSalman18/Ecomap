@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:location/location.dart';
 
 class HeatMap extends StatefulWidget {
   const HeatMap({super.key});
@@ -10,41 +11,59 @@ class HeatMap extends StatefulWidget {
 
 class _HeatMapState extends State<HeatMap> {
   late MapLibreMapController mapController;
+  Location location = Location();
+  LatLng? currentLocation;
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("HeatMap Example")),
-      body: SizedBox(
-        height: MediaQuery.of(context).size.height,
-        child: MapLibreMap(
-          onMapCreated: _onMapCreated,
-          initialCameraPosition: const CameraPosition(
-            target: LatLng(37.7749, -122.4194), // San Francisco
-            zoom: 12,
-          ),
-          styleString: "https://demotiles.maplibre.org/style.json",
-          onStyleLoadedCallback: () {
-            debugPrint("Map style loaded successfully!");
-          },
-        ),
-      ),
+      body: currentLocation == null
+          ? const Center(child: CircularProgressIndicator())
+          : SizedBox(
+              height: MediaQuery.of(context).size.height,
+              child: MapLibreMap(
+                onMapCreated: _onMapCreated,
+                initialCameraPosition: CameraPosition(
+                  target: currentLocation!,
+                  zoom: 12,
+                ),
+                styleString: "https://demotiles.maplibre.org/style.json",
+                myLocationEnabled: true, // Enable current location display
+                myLocationRenderMode: MyLocationRenderMode.gps, // Fixed constant
+                onStyleLoadedCallback: () {
+                  debugPrint("Map style loaded successfully!");
+                  _addHeatMapLayer();
+                },
+              ),
+            ),
     );
   }
 
   void _onMapCreated(MapLibreMapController controller) {
     mapController = controller;
+  }
 
-    // Wait for the style to load before adding layers
-    mapController.onStyleLoaded(() {
-      debugPrint("Style loaded callback triggered!");
-      _addHeatMapLayer();
-    });
+  void _getCurrentLocation() async {
+    try {
+      final LocationData locationData = await location.getLocation();
+      setState(() {
+        currentLocation =
+            LatLng(locationData.latitude ?? 0.0, locationData.longitude ?? 0.0);
+      });
+    } catch (e) {
+      debugPrint("Error getting current location: $e");
+    }
   }
 
   void _addHeatMapLayer() async {
     try {
-      // Sample data points with weights
       final List<Map<String, dynamic>> features = [
         {
           "type": "Feature",
@@ -70,10 +89,8 @@ class _HeatMapState extends State<HeatMap> {
             "coordinates": [-122.4196, 37.7751]
           }
         },
-        // Add more data points as needed
       ];
 
-      // Create GeoJSON source
       await mapController.addSource(
         "heat",
         GeojsonSourceProperties(
@@ -85,10 +102,9 @@ class _HeatMapState extends State<HeatMap> {
       );
       debugPrint("GeoJSON source added!");
 
-      // Add heatmap layer
       await mapController.addLayer(
-        "heat", // source ID
-        "heatmap", // layer ID
+        "heat",
+        "heatmap",
         HeatmapLayerProperties(
           heatmapWeight: [
             "interpolate",
@@ -130,8 +146,4 @@ class _HeatMapState extends State<HeatMap> {
       debugPrint("Error adding heatmap layer: $e");
     }
   }
-}
-
-extension on MapLibreMapController {
-  void onStyleLoaded(Null Function() param0) {}
 }

@@ -24,10 +24,10 @@ class _SignUpPageState extends State<SignUpPage> {
               // App Logo or Image
               ClipRRect(
                 borderRadius: BorderRadius.circular(10.0), // Add border radius
-                child: Image.asset(
-                  'assets/panther.jpg', // Replace with your image path
-                  height: 250,
-                ),
+                // child: Image.asset(
+                //   'assets/panther.jpg', // Replace with your image path
+                //   height: 250,
+                // ),
               ),
               const SizedBox(height: 30),
               TextField(

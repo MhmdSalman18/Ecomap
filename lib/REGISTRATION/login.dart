@@ -26,10 +26,10 @@ class _LoginPageState extends State<LoginPage> {
               // App Logo or Image
                 ClipRRect(
                 borderRadius: BorderRadius.circular(10.0), // Add border radius
-                child: Image.asset(
-                  'assets/giraffe.jpg', // Replace with your image path
-                  height: 250,
-                ),
+                // child: Image.asset(
+                //   'assets/giraffe.jpg', // Replace with your image path
+                //   height: 250,
+                // ),
                 ),
               const SizedBox(height: 30),
 

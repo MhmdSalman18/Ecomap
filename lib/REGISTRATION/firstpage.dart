@@ -25,12 +25,12 @@ class _FirstPageState extends State<FirstPage> {
                 child: ClipRRect(
                   borderRadius:
                       BorderRadius.circular(10.0), // Add border radius
-                  child: Image.asset(
-                    'assets/tiger.jpg', // Replace with your asset image or a NetworkImage
-                    height: 250,
-                    width: 250,
-                    fit: BoxFit.cover, // This will make the image fit properly
-                  ),
+                  // child: Image.asset(
+                  //   'tiger.jpg', // Replace with your asset image or a NetworkImage
+                  //   height: 250,
+                  //   width: 250,
+                  //   fit: BoxFit.cover, // This will make the image fit properly
+                  // ),
                 ),
               ),
               const SizedBox(height: 20.0),
