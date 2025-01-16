@@ -18,7 +18,7 @@ class _StatusPageState extends State<StatusPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF1B3B13), // AppBar background color
+        backgroundColor: Color(0xFF1B3B13), // 
         iconTheme: IconThemeData(
           color: Color(0xFFB4E576),
         ),
