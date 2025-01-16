@@ -18,7 +18,9 @@ class _AccountPageState extends State<AccountPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Account Page'),
+                iconTheme: IconThemeData(color: Color(0xFFD1F5A0)),
+
+        // title: const Text('Account Page'),
         backgroundColor: Color(0xFF1B3B13),
         elevation: 5,
       ),
@@ -125,19 +127,21 @@ class _AccountPageState extends State<AccountPage> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '$label: ',
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        // Text(
+        //   '$label: ',
+        //   style: const TextStyle(
+        //     fontSize: 16,
+        //     fontWeight: FontWeight.bold,
+        //   ),
+        // ),
         Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
+          child: Center(
+            child: Text(
+              value,
+              style: const TextStyle(
+          fontSize: 16,
+          color: Colors.grey,
+              ),
             ),
           ),
         ),
@@ -190,8 +194,12 @@ class _EditAccountPageState extends State<EditAccountPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Account'),
-        backgroundColor:  Color(0xFFB4E576),
+        title: const Text(
+          'Edit Account',
+          style: TextStyle(color: Color(0xFFD1F5A0)),
+        ),
+        iconTheme: IconThemeData(color: Color(0xFFD1F5A0)),
+        backgroundColor: Color(0xFF1B3B13),
         elevation: 5,
       ),
       backgroundColor: const Color(0xFF1B3B13),
@@ -271,11 +279,22 @@ class _EditAccountPageState extends State<EditAccountPage> {
   }) {
     return TextField(
       controller: controller,
+      style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+      labelText: label,
+      labelStyle: const TextStyle(color: Colors.white),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: Colors.white),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: Colors.white),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: Colors.white),
+      ),
       ),
     );
   }
