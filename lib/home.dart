@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => UploadState(imagePath: '', title: '',
+        builder: (context) => UploadState(imagePath: image.path, title: 'Captured Image',
           
         ),
       ),
