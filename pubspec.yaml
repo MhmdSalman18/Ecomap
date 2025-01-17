@@ -42,6 +42,7 @@ dependencies:
   geolocator: ^13.0.2  
   geocoding: ^3.0.0
   maplibre_gl: ^0.20.0
+  location: ^6.0.2
 
 dev_dependencies:
   flutter_test:
@@ -67,9 +68,12 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  assets:
-    # - assets/custom_marker.png
-    - assets/assets/tiger.jpg
+  # assets:
+  #   # - assets/custom_marker.png
+  #   - assets/assets/tiger.jpg
+  #   - assets/assets/giraffe.jpg
+  #   - assets/assets/panther.jpg
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
