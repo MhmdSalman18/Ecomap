@@ -129,7 +129,7 @@ class _HeatMapState extends State<HeatMap> {
             ["linear"],
             ["zoom"],
             0, 1,
-            15, 3,
+            15, 3//dadadas
           ],
           heatmapColor: [
             "interpolate",
