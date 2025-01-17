@@ -23,23 +23,24 @@ class _HeatMapState extends State<HeatMap> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("HeatMap Example")),
+      appBar: AppBar(title: const Text("Kerala HeatMap Example")),
       body: currentLocation == null
           ? const Center(child: CircularProgressIndicator())
           : SizedBox(
               height: MediaQuery.of(context).size.height,
               child: MapLibreMap(
                 onMapCreated: _onMapCreated,
-                initialCameraPosition: CameraPosition(
-                  target: currentLocation!,
-                  zoom: 12,
+                initialCameraPosition: const CameraPosition(
+                  target: LatLng(10.8505, 76.2711), // Center of Kerala
+                  zoom: 8, // Adjust zoom level for Kerala
                 ),
                 styleString: "https://demotiles.maplibre.org/style.json",
-                myLocationEnabled: true, // Enable current location display
-                myLocationRenderMode: MyLocationRenderMode.gps, // Fixed constant
+                myLocationEnabled: true,
+                myLocationRenderMode: MyLocationRenderMode.gps,
                 onStyleLoadedCallback: () {
                   debugPrint("Map style loaded successfully!");
                   _addHeatMapLayer();
+                  _addKeralaBorders();
                 },
               ),
             ),
@@ -48,6 +49,7 @@ class _HeatMapState extends State<HeatMap> {
 
   void _onMapCreated(MapLibreMapController controller) {
     mapController = controller;
+    _setKeralaBounds();
   }
 
   void _getCurrentLocation() async {
@@ -62,6 +64,23 @@ class _HeatMapState extends State<HeatMap> {
     }
   }
 
+  void _setKeralaBounds() {
+    // Define the bounding box for Kerala
+    LatLngBounds keralaBounds = LatLngBounds(
+      southwest: LatLng(8.0, 74.5), // Southwest corner of Kerala
+      northeast: LatLng(12.8, 77.5), // Northeast corner of Kerala
+    );
+
+    // Restrict the camera to these bounds
+    mapController.setCameraBounds(
+      west: keralaBounds.southwest.longitude,
+      north: keralaBounds.northeast.latitude,
+      south: keralaBounds.southwest.latitude,
+      east: keralaBounds.northeast.longitude,
+      padding: 0,
+    );
+  }
+
   void _addHeatMapLayer() async {
     try {
       final List<Map<String, dynamic>> features = [
@@ -70,7 +89,7 @@ class _HeatMapState extends State<HeatMap> {
           "properties": {"weight": 1.0},
           "geometry": {
             "type": "Point",
-            "coordinates": [-122.4194, 37.7749]
+            "coordinates": [76.2711, 10.8505] // Example point in Kerala
           }
         },
         {
@@ -78,15 +97,7 @@ class _HeatMapState extends State<HeatMap> {
           "properties": {"weight": 0.8},
           "geometry": {
             "type": "Point",
-            "coordinates": [-122.4195, 37.7750]
-          }
-        },
-        {
-          "type": "Feature",
-          "properties": {"weight": 0.6},
-          "geometry": {
-            "type": "Point",
-            "coordinates": [-122.4196, 37.7751]
+            "coordinates": [76.5, 10.9] // Another example point in Kerala
           }
         },
       ];
@@ -144,6 +155,50 @@ class _HeatMapState extends State<HeatMap> {
       debugPrint("Heatmap layer added!");
     } catch (e) {
       debugPrint("Error adding heatmap layer: $e");
+    }
+  }
+
+  void _addKeralaBorders() async {
+    try {
+      final Map<String, dynamic> keralaBordersGeoJson = {
+        "type": "FeatureCollection",
+        "features": [
+          {
+            "type": "Feature",
+            "geometry": {
+              "type": "Polygon",
+              "coordinates": [
+                [
+                  [74.5, 8.0],
+                  [77.5, 8.0],
+                  [77.5, 12.8],
+                  [74.5, 12.8],
+                  [74.5, 8.0],
+                ]
+              ],
+            },
+            "properties": {},
+          },
+        ],
+      };
+
+      await mapController.addSource(
+        "keralaBorders",
+        GeojsonSourceProperties(data: keralaBordersGeoJson),
+      );
+      debugPrint("Kerala borders GeoJSON source added!");
+
+      await mapController.addLayer(
+        "keralaBorders",
+        "line",
+        LineLayerProperties(
+          lineColor: "rgba(0, 0, 0, 1)",
+          lineWidth: 2,
+        ),
+      );
+      debugPrint("Kerala borders layer added!");
+    } catch (e) {
+      debugPrint("Error adding Kerala borders layer: $e");
     }
   }
 }
