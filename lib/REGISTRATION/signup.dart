@@ -22,13 +22,13 @@ class _SignUpPageState extends State<SignUpPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // App Logo or Image
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10.0), // Add border radius
-                // child: Image.asset(
-                //   'assets/panther.jpg', // Replace with your image path
-                //   height: 250,
-                // ),
-              ),
+                ClipRRect(
+                borderRadius: BorderRadius.circular(20.0), // Add border radius
+                child: Image.asset(
+                  'assets/assets/panther.jpg', // Replace with your image path
+                  height: 250,
+                ),
+                ),
               const SizedBox(height: 30),
               TextField(
                 decoration: InputDecoration(
@@ -112,20 +112,24 @@ class _SignUpPageState extends State<SignUpPage> {
               const SizedBox(height: 20),
 
               // Sign Up Button
-                ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const UploadDpPage(title: '',),
+                  ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const UploadDpPage(title: '',),
+                    ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                    backgroundColor: Color(0xFFD1F5A0),
+                    shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50), backgroundColor:Color(0xFFD1F5A0), // Set button color to red
-                ),
-                child: const Text('Next'),
-              ),
+                  child: const Text('Next'),
+                  ),
               const SizedBox(height: 20),
 
               // Already have an account? Sign In

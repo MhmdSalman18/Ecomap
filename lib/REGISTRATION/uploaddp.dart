@@ -92,16 +92,16 @@ class _UploadDpPageState extends State<UploadDpPage> {
                 minimumSize: const Size(double.infinity, 50),
                 backgroundColor: const Color(0xFFD1F5A0), // Button color
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30), // Rounded corners
+                  borderRadius: BorderRadius.circular(10), // Rounded corners
                 ),
               ),
-              child: const Text(
+                child: const Text(
                 "Register",
                 style: TextStyle(
                   fontSize: 18,
                   color: Color(0xFF1B3B13), // Button text color
                 ),
-              ),
+                ),
             ),
           ],
         ),

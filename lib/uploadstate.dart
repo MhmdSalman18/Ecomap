@@ -281,12 +281,10 @@ class _UploadStateState extends State<UploadState> {
                 ),
                 style: const TextStyle(color: Color(0xFFD1F5A0)),
               ),
-
               const SizedBox(height: 16.0),
-
               // Date Field
-              TextField(
-                controller: _dateController,
+                TextField(
+                controller: _dateController..text = DateTime.now().toString().split(' ')[0],
                 keyboardType: TextInputType.datetime,
                 decoration: const InputDecoration(
                   labelText: 'Date',
@@ -295,25 +293,25 @@ class _UploadStateState extends State<UploadState> {
                   hintStyle: TextStyle(color: Color(0xFFD1F5A0)),
                   border: OutlineInputBorder(),
                   suffixIcon:
-                      Icon(Icons.calendar_today, color: Color(0xFFD1F5A0)),
+                    Icon(Icons.calendar_today, color: Color(0xFFD1F5A0)),
                 ),
                 style: const TextStyle(color: Color(0xFFD1F5A0)),
                 onTap: () async {
                   FocusScope.of(context).requestFocus(FocusNode());
                   DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime(2101),
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2101),
                   );
                   if (pickedDate != null) {
-                    setState(() {
-                      _dateController.text =
-                          pickedDate.toString().split(' ')[0];
-                    });
+                  setState(() {
+                    _dateController.text =
+                      pickedDate.toString().split(' ')[0];
+                  });
                   }
                 },
-              ),
+                ),
 
               const SizedBox(height: 24.0),
 

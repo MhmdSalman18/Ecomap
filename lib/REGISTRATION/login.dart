@@ -26,10 +26,10 @@ class _LoginPageState extends State<LoginPage> {
               // App Logo or Image
                 ClipRRect(
                 borderRadius: BorderRadius.circular(10.0), // Add border radius
-                // child: Image.asset(
-                //   'assets/giraffe.jpg', // Replace with your image path
-                //   height: 250,
-                // ),
+                child: Image.asset(
+                  'assets/assets/giraffe.jpg', // Replace with your image path
+                  height: 250,
+                ),
                 ),
               const SizedBox(height: 30),
 
@@ -100,21 +100,25 @@ class _LoginPageState extends State<LoginPage> {
               ),
 
               // Sign In Button
-                ElevatedButton(
-                onPressed: () {
-                  // Add sign-in functionality here
-                  Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>  BottomNavigationBarExample(title: '',),
-                        ),
-                      );
-                },
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50), backgroundColor:Color(0xFFD1F5A0), // Set button color to red
-                ),
-                child: const Text('Sign In'),
-                ),
+                  ElevatedButton(
+                  onPressed: () {
+                    // Add sign-in functionality here
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BottomNavigationBarExample(title: ''),
+                    ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                    backgroundColor: Color(0xFFD1F5A0),
+                    shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10), // Add border radius
+                    ),
+                  ),
+                  child: const Text('Sign In'),
+                  ),
               const SizedBox(height: 20),
 
               // Don't have an account? Sign Up
