@@ -87,8 +87,8 @@ class _FirstPageState extends State<FirstPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => SignUpPage(
-                        title: '',
+                      builder: (context) => SignUpPage(title: '',
+                        
                         )),
                   );
                   },
