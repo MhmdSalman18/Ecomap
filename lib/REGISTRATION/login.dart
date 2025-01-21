@@ -1,3 +1,4 @@
+import 'package:ecomap/REGISTRATION/forgotpass.dart';
 import 'package:flutter/material.dart';
 import 'package:ecomap/BottomNavigationBar.dart';
 import 'package:ecomap/REGISTRATION/signup.dart';
@@ -227,7 +228,31 @@ Future<void> saveToken(String token) async {
                 ),
                 child: const Text('Sign In'),
               ),
-              // ... other widgets
+              
+
+           
+Align(
+  alignment: Alignment.centerRight,
+  child: TextButton(
+   onPressed: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => ForgotPasswordPage(),
+    ),
+  );
+},
+
+    child: Text(
+      'Forgot Password?',
+      style: TextStyle(
+        color: Color(0xFFD1F5A0),
+        decoration: TextDecoration.underline,
+      ),
+    ),
+  ),
+)
+
             ],
           ),
         ),
