@@ -25,13 +25,17 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1B3B13),
+      backgroundColor: const Color(0xFF101C08),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/assets/ecomap_logo.png'),
-            const SizedBox(height: 20),
+            SizedBox(
+              width: 200, // Set the desired width
+              height: 200, // Set the desired height
+              child: Image.asset('assets/assets/ecomap_logo.png'),
+            ),
+            const SizedBox(height: 10),
             const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
             ),
