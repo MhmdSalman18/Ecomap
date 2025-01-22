@@ -4,6 +4,7 @@ import 'package:ecomap/REGISTRATION/firstpage.dart';
 import 'package:ecomap/REGISTRATION/login.dart';
 import 'package:ecomap/home.dart';
 import 'package:ecomap/map.dart';
+import 'package:ecomap/splash.dart';
 import 'package:ecomap/status.dart';
 import 'package:ecomap/uploadstate.dart';
 
@@ -18,7 +19,7 @@ class EcomapApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: FirstPage(title: '', imagePath: '',  ), // St with BottomNavigationBarExample
+      home: SplashScreen(), // St with BottomNavigationBarExample
     );
   }
 }
