@@ -43,6 +43,7 @@ dependencies:
   geocoding: ^3.0.0
   maplibre_gl: ^0.20.0
   location: ^6.0.2
+  shared_preferences: ^2.3.5
 
 dev_dependencies:
   flutter_test:
