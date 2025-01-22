@@ -123,6 +123,181 @@ Future<String> loginUser(String email, String password) async {
 }
 
 
+Future<Map<String, dynamic>> sendOtp(String email) async {
+  try {
+    final response = await http.post(
+      Uri.parse('$baseUrl/user/forgot-password'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'email': email,
+      }),
+    );
+
+    print('Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+
+    final responseBody = jsonDecode(response.body);
+
+    // Successful OTP Send
+    if (response.statusCode == 200) {
+      return {
+        'success': true,
+        'message': responseBody['message'] ?? 'OTP sent successfully'
+      };
+    } 
+    // Client-side errors (400-410)
+    else if (response.statusCode >= 400 && response.statusCode < 410) {
+      return {
+        'success': false,
+        'message': responseBody['message'] ?? 'Failed to send OTP'
+      };
+    } 
+    // Server-side errors (500 range)
+    else if (response.statusCode >= 500) {
+      return {
+        'success': false,
+        'message': 'Server error. Please try again later.'
+      };
+    } 
+    // Unexpected status codes
+    else {
+      return {
+        'success': false,
+        'message': 'An unexpected error occurred. Please try again.'
+      };
+    }
+  } on SocketException catch (_) {
+    return {
+      'success': false,
+      'message': 'No internet connection. Please check your network.'
+    };
+  } catch (error) {
+    return {
+      'success': false,
+      'message': 'An unexpected error occurred: ${error.toString()}'
+    };
+  }
+}
+
+
+Future<Map<String, dynamic>> verifyOtp(String email, String otp) async {
+  try {
+    final response = await http.post(
+      Uri.parse('$baseUrl/user/verify-otp'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'email': email,
+        'otp': otp,
+      }),
+    );
+
+    print('Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+
+    final responseBody = jsonDecode(response.body);
+
+    // Successful OTP Verification
+    if (response.statusCode == 200) {
+      return {
+        'success': true,
+        'message': responseBody['message'] ?? 'OTP verified successfully',
+        'resetToken': responseBody['resetToken'], // New field to store reset token
+      };
+    } 
+    // Client-side errors (400-410)
+    else if (response.statusCode >= 400 && response.statusCode < 410) {
+      return {
+        'success': false,
+        'message': responseBody['message'] ?? 'Invalid OTP'
+      };
+    } 
+    // Server-side errors (500 range)
+    else if (response.statusCode >= 500) {
+      return {
+        'success': false,
+        'message': 'Server error. Please try again later.'
+      };
+    } 
+    // Unexpected status codes
+    else {
+      return {
+        'success': false,
+        'message': 'An unexpected error occurred. Please try again.'
+      };
+    }
+  } on SocketException catch (_) {
+    return {
+      'success': false,
+      'message': 'No internet connection. Please check your network.'
+    };
+  } catch (error) {
+    return {
+      'success': false,
+      'message': 'An unexpected error occurred: ${error.toString()}'
+    };
+  }
+}
+
+Future<Map<String, dynamic>> resetPassword({
+  required String resetToken,
+  required String newPassword,
+}) async {
+  try {
+    final response = await http.post(
+      Uri.parse('$baseUrl/user/reset-password'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'resetToken': resetToken,
+        'newPassword': newPassword,
+      }),
+    );
+
+    print('Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+
+    final responseBody = jsonDecode(response.body);
+
+    // Successful Password Reset
+    if (response.statusCode == 200) {
+      return {
+        'success': true,
+        'message': responseBody['message'] ?? 'Password reset successful'
+      };
+    } 
+    // Client-side errors (400-410)
+    else if (response.statusCode >= 400 && response.statusCode < 410) {
+      return {
+        'success': false,
+        'message': responseBody['message'] ?? 'Failed to reset password'
+      };
+    } 
+    // Server-side errors (500 range)
+    else if (response.statusCode >= 500) {
+      return {
+        'success': false,
+        'message': 'Server error. Please try again later.'
+      };
+    } 
+    // Unexpected status codes
+    else {
+      return {
+        'success': false,
+        'message': 'An unexpected error occurred. Please try again.'
+      };
+    }
+  } on SocketException catch (_) {
+    return {
+      'success': false,
+      'message': 'No internet connection. Please check your network.'
+    };
+  } catch (error) {
+    return {
+      'success': false,
+      'message': 'An unexpected error occurred: ${error.toString()}'
+    };
+  }
+}
+
 
 
 
