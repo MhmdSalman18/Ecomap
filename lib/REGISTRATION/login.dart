@@ -1,7 +1,7 @@
 import 'package:ecomap/REGISTRATION/forgotpass.dart';
 import 'package:flutter/material.dart';
 import 'package:ecomap/BottomNavigationBar.dart';
-import 'package:ecomap/REGISTRATION/signup.dart';
+
 import 'package:ecomap/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
