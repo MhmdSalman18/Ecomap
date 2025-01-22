@@ -73,6 +73,9 @@ flutter:
     - assets/assets/tiger.jpg
     - assets/assets/giraffe.jpg
     - assets/assets/panther.jpg
+    - assets/assets/ecomap_logo.png
+
+
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
