@@ -11,6 +11,8 @@
 migrate_working_dir/
 node_modules/
 
+lib/err
+
 # IntelliJ related
 *.iml
 *.ipr
