@@ -3,9 +3,12 @@ import 'package:ecomap/BottomNavigationBar.dart';
 import 'package:ecomap/CustomDrawer.dart';
 import 'package:ecomap/REGISTRATION/account.dart';
 import 'package:ecomap/home.dart';
+import 'package:ecomap/services/api_service.dart';
+import 'package:ecomap/status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UploadState extends StatefulWidget {
   final String imagePath; // Add imagePath parameter
@@ -20,6 +23,8 @@ class _UploadStateState extends State<UploadState> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
+
+  final ApiService apiService = ApiService();
 
   String? _currentImagePath;
   String _locationMessage = "Fetching location...";
@@ -88,25 +93,63 @@ class _UploadStateState extends State<UploadState> {
     });
   }
 
-  void _sendData() {
+  
+
+
+  void _sendData() async {
     final title = _titleController.text;
     final description = _descriptionController.text;
     final date = _dateController.text;
 
-    if (title.isNotEmpty && description.isNotEmpty && date.isNotEmpty) {
+    // Validate fields
+    if (title.isEmpty || description.isEmpty || date.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Data Sent: $title, $description, $date"),
+        const SnackBar(content: Text("Please fill in all fields")),
+      );
+      return;
+    }
+
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    // Attempt upload
+    final result = await apiService.uploadData(
+      title: title,
+      description: description,
+      date: date,
+      imagePath: _currentImagePath ?? '',
+      location: _locationMessage,
+    );
+
+    // Dismiss loading indicator
+    Navigator.of(context).pop();
+
+    // Handle response
+    if (result['success']) {
+      // Navigate to success page or show success message
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => 
+          StatusPage(title: '',)
+          // UploadSuccessPage(
+          //   uploadDetails: result['data'],
+          // ),
         ),
       );
     } else {
+      // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please fill in all fields"),
-        ),
+        SnackBar(content: Text(result['message'])),
       );
     }
   }
+
+
 
   void _retryUpload() {
     Navigator.pushReplacement(

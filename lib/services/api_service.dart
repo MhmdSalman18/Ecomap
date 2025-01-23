@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http_parser/http_parser.dart';
+
 
 class ApiService {
   // Set the base URL for your API
@@ -294,6 +297,78 @@ Future<Map<String, dynamic>> resetPassword({
     return {
       'success': false,
       'message': 'An unexpected error occurred: ${error.toString()}'
+    };
+  }
+}
+
+
+
+Future<Map<String, dynamic>> uploadData({
+  required String title,
+  required String description,
+  required String date,
+  required String imagePath,
+  required String location,
+}) async {
+  // Retrieve the authentication token
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('auth_token');
+
+  // Create a multipart request
+  var request = http.MultipartRequest(
+    'POST', 
+    Uri.parse('$baseUrl/upload-image')
+  );
+
+  // Add X-AuthToken header instead of Authorization
+  request.headers['x-authtoken'] = token ?? '';
+  request.headers['Content-Type'] = 'multipart/form-data';
+
+  // Add text fields matching the schema
+  request.fields['title'] = title;
+  request.fields['description'] = description;
+  request.fields['date'] = date;
+
+  // Parse location coordinates (assuming format is "Latitude, Longitude")
+  List<String> coords = location.split(',');
+  if (coords.length == 2) {
+    request.fields['location[type]'] = 'Point';
+    request.fields['location[coordinates][0]'] = coords[1].trim(); // Longitude
+    request.fields['location[coordinates][1]'] = coords[0].trim(); // Latitude
+  }
+
+  // Add image file as jpg
+  if (imagePath.isNotEmpty) {
+    request.files.add(await http.MultipartFile.fromPath(
+      'image', 
+      imagePath,
+      contentType: MediaType('image', 'jpg')
+    ));
+  }
+
+  // Send the request
+  try {
+    final response = await request.send();
+    final responseBody = await response.stream.bytesToString();
+    
+    if (response.statusCode == 200) {
+      return {
+        'success': true,
+        'message': 'Upload successful',
+        'data': json.decode(responseBody)
+      };
+    } else {
+      return {
+        'success': false,
+        'message': 'Upload failed',
+        'error': responseBody
+      };
+    }
+  } catch (e) {
+    return {
+      'success': false,
+      'message': 'Network error',
+      'error': e.toString()
     };
   }
 }
