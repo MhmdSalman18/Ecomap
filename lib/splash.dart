@@ -34,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   void _navigateToHome() async {
-    await Future.delayed(const Duration(seconds: 3), () {});
+    await Future.delayed(const Duration(seconds: 5), () {});
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (context) => FirstPage(title: '', imagePath: '',)),
     );
@@ -43,7 +43,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF101C08),
+      backgroundColor: const Color(0xFF082517),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -53,7 +53,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
               child: SizedBox(
                 width: 200, // Set the desired width
                 height: 200, // Set the desired height
-                child: Image.asset('assets/assets/ecomap_logo.png'),
+                child: Image.asset('assets/assets/ecomap_banner.png'),
               ),
             ),
             const SizedBox(height: 10),
