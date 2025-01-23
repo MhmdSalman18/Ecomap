@@ -330,7 +330,7 @@ class _UploadStateState extends State<UploadState> {
                 // Date Field
                   TextField(
                   controller: _dateController..text = DateTime.now().toString().split(' ')[0],
-                  // keyboardType: TextInputType.datetime,
+                  keyboardType: TextInputType.datetime,
                   decoration: const InputDecoration(
                     labelText: 'Date',
                     hintText: 'YYYY-MM-DD',
@@ -384,28 +384,29 @@ class _UploadStateState extends State<UploadState> {
                     ElevatedButton(
                       onPressed: _resetFields,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                      backgroundColor: Colors.grey,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                       ),
                       child: const Text('Reset',
-                          style: TextStyle(color: Colors.white)),
+                        style: TextStyle(color: Colors.white, fontSize: 15)),
                     ),
+                    SizedBox(width: 80,),
                     ElevatedButton(
                       onPressed: _sendData,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                      backgroundColor: Colors.green,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                       ),
                       child: const Text('Send',
-                          style: TextStyle(color: Colors.white)),
+                        style: TextStyle(color: Colors.white, fontSize: 15)),
                     ),
                   ],
                 ),
