@@ -1,4 +1,5 @@
 import 'package:ecomap/REGISTRATION/forgotpass.dart';
+import 'package:ecomap/REGISTRATION/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:ecomap/BottomNavigationBar.dart';
 
@@ -16,12 +17,12 @@ class _LoginPageState extends State<LoginPage> {
   // Text Controllers
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
+  bool _isPasswordValid = true; // Add your validation logic
+  bool _isPasswordVisible = false;
   final ApiService apiService = ApiService();
 
   // Validation States
   bool _isEmailValid = true;
-  bool _isPasswordValid = true;
 
   // Email Validation Regex
   final RegExp _emailRegExp = RegExp(
@@ -42,89 +43,86 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   // Login Method
-void _handleLogin() async {
-  if (_isEmailValid && _isPasswordValid) {
-    // Show loading indicator
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Center(
-          child: CircularProgressIndicator(
-            color: Color(0xFFD1F5A0),
-          ),
-        );
-      },
-    );
-
-    try {
-      // Call login API and get token
-      final token = await apiService.loginUser(
-        _emailController.text.trim(), 
-        _passwordController.text.trim()
-      );
-
-      // Dismiss loading indicator
-      Navigator.of(context).pop();
-
-      // Save token (you might want to use secure storage)
-      await saveToken(token);
-
-      // Navigate to bottom navigation
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => BottomNavigationBarExample(title: ''),
-        ),
-      );
-    } catch (error) {
-      // Dismiss loading indicator
-      Navigator.of(context).pop();
-
-      // Show error in AlertDialog
+  void _handleLogin() async {
+    if (_isEmailValid && _isPasswordValid) {
+      // Show loading indicator
       showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Login Error', style: TextStyle(color: Colors.red)),
-            content: Text(
-              error.toString().replaceAll('Exception: ', ''),
-              style: TextStyle(color: Colors.black87),
-            ),
-            backgroundColor: Colors.white,
-            actions: <Widget>[
-              TextButton(
-                child: Text('OK', style: TextStyle(color: Colors.blue)),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
+          return Center(
+            child: CircularProgressIndicator(
+              color: Color(0xFFD1F5A0),
             ),
           );
         },
       );
+
+      try {
+        // Call login API and get token
+        final token = await apiService.loginUser(
+            _emailController.text.trim(), _passwordController.text.trim());
+
+        // Dismiss loading indicator
+        Navigator.of(context).pop();
+
+        // Save token (you might want to use secure storage)
+        await saveToken(token);
+
+        // Navigate to bottom navigation
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BottomNavigationBarExample(title: ''),
+          ),
+        );
+      } catch (error) {
+        // Dismiss loading indicator
+        Navigator.of(context).pop();
+
+        // Show error in AlertDialog
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Login Error', style: TextStyle(color: Colors.red)),
+              content: Text(
+                error.toString().replaceAll('Exception: ', ''),
+                style: TextStyle(color: Colors.black87),
+              ),
+              backgroundColor: Colors.white,
+              actions: <Widget>[
+                TextButton(
+                  child: Text('OK', style: TextStyle(color: Colors.blue)),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+            );
+          },
+        );
+      }
+    } else {
+      // Show validation error SnackBar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please correct the errors in the form'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
-  } else {
-    // Show validation error SnackBar
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Please correct the errors in the form'),
-        backgroundColor: Colors.red,
-      ),
-    );
   }
-}
 
 // Utility function to save token
-Future<void> saveToken(String token) async {
-  // Use SharedPreferences or secure storage
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('auth_token', token);
-}
-
+  Future<void> saveToken(String token) async {
+    // Use SharedPreferences or secure storage
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('auth_token', token);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +154,8 @@ Future<void> saveToken(String token) async {
                   hintText: 'Enter your email',
                   errorText: _isEmailValid ? null : 'Invalid email format',
                   errorStyle: TextStyle(color: Colors.red),
-                  hintStyle: TextStyle(color: Color(0xFFD1F5A0).withOpacity(0.6)),
+                  hintStyle:
+                      TextStyle(color: Color(0xFFD1F5A0).withOpacity(0.6)),
                   filled: true,
                   fillColor: Colors.white.withOpacity(0.1),
                   border: OutlineInputBorder(
@@ -171,10 +170,8 @@ Future<void> saveToken(String token) async {
                       color: _isEmailValid ? Colors.white54 : Colors.red,
                     ),
                   ),
-                  prefixIcon: Icon(
-                    Icons.email, 
-                    color: _isEmailValid ? Colors.greenAccent : Colors.red
-                  ),
+                  prefixIcon: Icon(Icons.email,
+                      color: _isEmailValid ? Colors.greenAccent : Colors.red),
                 ),
                 onChanged: _validateEmail,
                 style: TextStyle(color: Color(0xFFD1F5A0)),
@@ -184,14 +181,17 @@ Future<void> saveToken(String token) async {
               // Password TextField with Validation
               TextField(
                 controller: _passwordController,
-                obscureText: true,
+                obscureText: !_isPasswordVisible,
                 decoration: InputDecoration(
                   labelText: 'Password',
                   labelStyle: TextStyle(color: Color(0xFFD1F5A0)),
                   hintText: 'Enter your password',
-                  errorText: _isPasswordValid ? null : 'Password must be 8+ characters',
+                  errorText: _isPasswordValid
+                      ? null
+                      : 'Password must be 8+ characters',
                   errorStyle: TextStyle(color: Colors.red),
-                  hintStyle: TextStyle(color: Color(0xFFD1F5A0).withOpacity(0.6)),
+                  hintStyle:
+                      TextStyle(color: Color(0xFFD1F5A0).withOpacity(0.6)),
                   filled: true,
                   fillColor: Colors.white.withOpacity(0.1),
                   border: OutlineInputBorder(
@@ -207,15 +207,47 @@ Future<void> saveToken(String token) async {
                     ),
                   ),
                   prefixIcon: Icon(
-                    Icons.lock, 
-                    color: _isPasswordValid ? Colors.greenAccent : Colors.red
+                    Icons.lock,
+                    color: _isPasswordValid ? Colors.greenAccent : Colors.red,
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                      color: Color(0xFFD1F5A0),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
                   ),
                 ),
                 onChanged: _validatePassword,
                 style: TextStyle(color: Color(0xFFD1F5A0)),
               ),
-              const SizedBox(height: 20),
-
+              // const SizedBox(height: 20),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ForgotPasswordPage(),
+                      ),
+                    );
+                  },
+                  child: Text(
+                    'Forgot Password?',
+                    style: TextStyle(
+                      color: Color(0xFFD1F5A0),
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ),
               // Rest of the code remains the same...
               ElevatedButton(
                 onPressed: _handleLogin,
@@ -228,31 +260,26 @@ Future<void> saveToken(String token) async {
                 ),
                 child: const Text('Sign In'),
               ),
-              
-
-           
-Align(
-  alignment: Alignment.centerRight,
-  child: TextButton(
-   onPressed: () {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => ForgotPasswordPage(),
-    ),
-  );
-},
-
-    child: Text(
-      'Forgot Password?',
-      style: TextStyle(
-        color: Color(0xFFD1F5A0),
-        decoration: TextDecoration.underline,
-      ),
-    ),
-  ),
-)
-
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SignUpPage(title: '',),
+                      ),
+                    );
+                  },
+                  child: Text(
+                    "Don't have an account? Sign up",
+                    style: TextStyle(
+                      color: Color(0xFFD1F5A0),
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),

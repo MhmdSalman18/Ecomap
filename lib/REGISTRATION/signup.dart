@@ -273,6 +273,26 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 child: const Text('Next'),
               ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LoginPage(title: '',),
+                      ),
+                    );
+                  },
+                  child: Text(
+                    "Already have an account? Sign up",
+                    style: TextStyle(
+                      color: Color(0xFFD1F5A0),
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
