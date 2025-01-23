@@ -179,6 +179,8 @@ class _UploadStateState extends State<UploadState> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+            backgroundColor: Color(0xFF1B3B13),
+
       appBar: AppBar(
         backgroundColor: const Color(0xFF1B3B13), // AppBar background color
         iconTheme: const IconThemeData(
@@ -208,208 +210,209 @@ class _UploadStateState extends State<UploadState> {
         ],
       ),
       drawer: CustomDrawer(),
-      body: Container(
-        color: const Color(0xFF1B3B13),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 16.0),
-
-              // Image Container with Retry, Recapture, and Remove Buttons
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width * 1,
-                    height: MediaQuery.of(context).size.height * 0.3,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(12),
-                      image: _currentImagePath != null
-                          ? DecorationImage(
-                              image: FileImage(File(_currentImagePath!)),
-                              fit: BoxFit.cover,
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 16.0),
+          
+                // Image Container with Retry, Recapture, and Remove Buttons
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      width: MediaQuery.of(context).size.width * 1,
+                      height: MediaQuery.of(context).size.height * 0.3,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(12),
+                        image: _currentImagePath != null
+                            ? DecorationImage(
+                                image: FileImage(File(_currentImagePath!)),
+                                fit: BoxFit.cover,
+                              )
+                            : null,
+                      ),
+                      child: _currentImagePath == null
+                          ? const Center(
+                              child: Text(
+                                'No Image Available',
+                                style: TextStyle(
+                                    color: Colors.black54, fontSize: 18),
+                              ),
                             )
                           : null,
                     ),
-                    child: _currentImagePath == null
-                        ? const Center(
-                            child: Text(
-                              'No Image Available',
-                              style: TextStyle(
-                                  color: Colors.black54, fontSize: 18),
+                    if (_currentImagePath == null)
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: _retryUpload,
+                            icon: const Icon(Icons.refresh),
+                            label: const Text("Retry"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
-                          )
-                        : null,
-                  ),
-                  if (_currentImagePath == null)
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton.icon(
-                          onPressed: _retryUpload,
-                          icon: const Icon(Icons.refresh),
-                          label: const Text("Retry"),
+                          ),
+                          const SizedBox(height: 8.0),
+                          ElevatedButton.icon(
+                            onPressed: _uploadFromGallery,
+                            icon: const Icon(Icons.photo_library),
+                            label: const Text("Upload from Gallery"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    if (_currentImagePath != null)
+                      Positioned(
+                        bottom: 8.0,
+                        right: 8.0,
+                        child: ElevatedButton.icon(
+                          onPressed: _removeImage,
+                          icon: const Icon(Icons.delete),
+                          label: const Text("Remove"),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange,
+                            backgroundColor: Colors.red,
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 20, vertical: 10),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                          ),
-                        ),
-                        const SizedBox(height: 8.0),
-                        ElevatedButton.icon(
-                          onPressed: _uploadFromGallery,
-                          icon: const Icon(Icons.photo_library),
-                          label: const Text("Upload from Gallery"),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  if (_currentImagePath != null)
-                    Positioned(
-                      bottom: 8.0,
-                      right: 8.0,
-                      child: ElevatedButton.icon(
-                        onPressed: _removeImage,
-                        icon: const Icon(Icons.delete),
-                        label: const Text("Remove"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                       ),
-                    ),
-                ],
-              ),
-
-              const SizedBox(height: 16.0),
-
-              // Title Field
-              TextField(
-                controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Title',
-                  labelStyle: TextStyle(color: Color(0xFFD1F5A0)),
-                  border: OutlineInputBorder(),
+                  ],
                 ),
-                style: const TextStyle(color: Color(0xFFD1F5A0)),
-              ),
-
-              const SizedBox(height: 16.0),
-
-              // Description Field
-              TextField(
-                controller: _descriptionController,
-                maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  labelStyle: TextStyle(color: Color(0xFFD1F5A0)),
-                  border: OutlineInputBorder(),
-                ),
-                style: const TextStyle(color: Color(0xFFD1F5A0)),
-              ),
-              const SizedBox(height: 16.0),
-              // Date Field
+          
+                const SizedBox(height: 16.0),
+          
+                // Title Field
                 TextField(
-                controller: _dateController..text = DateTime.now().toString().split(' ')[0],
-                keyboardType: TextInputType.datetime,
-                decoration: const InputDecoration(
-                  labelText: 'Date',
-                  hintText: 'YYYY-MM-DD',
-                  labelStyle: TextStyle(color: Color(0xFFD1F5A0)),
-                  hintStyle: TextStyle(color: Color(0xFFD1F5A0)),
-                  border: OutlineInputBorder(),
-                  suffixIcon:
-                    Icon(Icons.calendar_today, color: Color(0xFFD1F5A0)),
-                ),
-                style: const TextStyle(color: Color(0xFFD1F5A0)),
-                onTap: () async {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  DateTime? pickedDate = await showDatePicker(
-                  context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2101),
-                  );
-                  if (pickedDate != null) {
-                  setState(() {
-                    _dateController.text =
-                      pickedDate.toString().split(' ')[0];
-                  });
-                  }
-                },
-                ),
-
-              const SizedBox(height: 24.0),
-
-              GestureDetector(
-                onLongPress: () {
-                  Clipboard.setData(ClipboardData(text: _locationMessage));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Location copied to clipboard"),
-                    ),
-                  );
-                },
-                child: Text(
-                  "Location is: $_locationMessage",
+                  controller: _titleController,
+                  decoration: const InputDecoration(
+                    labelText: 'Name of the animal',
+                    labelStyle: TextStyle(color: Color(0xFFD1F5A0)),
+                    border: OutlineInputBorder(),
+                  ),
                   style: const TextStyle(color: Color(0xFFD1F5A0)),
                 ),
-              ),
-
-              const SizedBox(height: 24.0),
-
-              // Buttons for Reset and Send
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: _resetFields,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 10),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text('Reset',
-                        style: TextStyle(color: Colors.white)),
+          
+                const SizedBox(height: 16.0),
+          
+                // Description Field
+                TextField(
+                  controller: _descriptionController,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    labelText: 'Description',
+                    labelStyle: TextStyle(color: Color(0xFFD1F5A0)),
+                    border: OutlineInputBorder(),
                   ),
-                  ElevatedButton(
-                    onPressed: _sendData,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 10),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text('Send',
-                        style: TextStyle(color: Colors.white)),
+                  style: const TextStyle(color: Color(0xFFD1F5A0)),
+                ),
+                const SizedBox(height: 16.0),
+                // Date Field
+                  TextField(
+                  controller: _dateController..text = DateTime.now().toString().split(' ')[0],
+                  // keyboardType: TextInputType.datetime,
+                  decoration: const InputDecoration(
+                    labelText: 'Date',
+                    hintText: 'YYYY-MM-DD',
+                    labelStyle: TextStyle(color: Color(0xFFD1F5A0)),
+                    hintStyle: TextStyle(color: Color(0xFFD1F5A0)),
+                    border: OutlineInputBorder(),
+                    suffixIcon:
+                      Icon(Icons.calendar_today, color: Color(0xFFD1F5A0)),
                   ),
-                ],
-              ),
-
-              const SizedBox(height: 16.0),
-            ],
+                  style: const TextStyle(color: Color(0xFFD1F5A0)),
+                  onTap: () async {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2101),
+                    );
+                    if (pickedDate != null) {
+                    setState(() {
+                      _dateController.text =
+                        pickedDate.toString().split(' ')[0];
+                    });
+                    }
+                  },
+                  ),
+          
+                const SizedBox(height: 24.0),
+          
+                GestureDetector(
+                  onLongPress: () {
+                    Clipboard.setData(ClipboardData(text: _locationMessage));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Location copied to clipboard"),
+                      ),
+                    );
+                  },
+                  child: Text(
+                    "Location is: $_locationMessage",
+                    style: const TextStyle(color: Color(0xFFD1F5A0)),
+                  ),
+                ),
+          
+                const SizedBox(height: 24.0),
+          
+                // Buttons for Reset and Send
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: _resetFields,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text('Reset',
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                    ElevatedButton(
+                      onPressed: _sendData,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text('Send',
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                  ],
+                ),
+          
+                const SizedBox(height: 16.0),
+              ],
+            ),
           ),
         ),
       ),
