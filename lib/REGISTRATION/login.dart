@@ -127,156 +127,179 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        color: Color(0xFF1B3B13),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
+      backgroundColor: Color(0xFF1B3B13),
+      body: Center(
+        child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // App Logo
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10.0),
-                child: Image.asset(
-                  'assets/assets/giraffe.jpg',
-                  height: 250,
-                ),
-              ),
-              const SizedBox(height: 30),
-
-              // Email TextField with Validation
-              TextField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  labelStyle: TextStyle(color: Color(0xFFD1F5A0)),
-                  hintText: 'Enter your email',
-                  errorText: _isEmailValid ? null : 'Invalid email format',
-                  errorStyle: TextStyle(color: Colors.red),
-                  hintStyle:
-                      TextStyle(color: Color(0xFFD1F5A0).withOpacity(0.6)),
-                  filled: true,
-                  fillColor: Colors.white.withOpacity(0.1),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: _isEmailValid ? Colors.white54 : Colors.red,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: _isEmailValid ? Colors.white54 : Colors.red,
-                    ),
-                  ),
-                  prefixIcon: Icon(Icons.email,
-                      color: _isEmailValid ? Colors.greenAccent : Colors.red),
-                ),
-                onChanged: _validateEmail,
-                style: TextStyle(color: Color(0xFFD1F5A0)),
-              ),
-              const SizedBox(height: 20),
-
-              // Password TextField with Validation
-              TextField(
-                controller: _passwordController,
-                obscureText: !_isPasswordVisible,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  labelStyle: TextStyle(color: Color(0xFFD1F5A0)),
-                  hintText: 'Enter your password',
-                  errorText: _isPasswordValid
-                      ? null
-                      : 'Password must be 8+ characters',
-                  errorStyle: TextStyle(color: Colors.red),
-                  hintStyle:
-                      TextStyle(color: Color(0xFFD1F5A0).withOpacity(0.6)),
-                  filled: true,
-                  fillColor: Colors.white.withOpacity(0.1),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: _isPasswordValid ? Colors.white54 : Colors.red,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(
-                      color: _isPasswordValid ? Colors.white54 : Colors.red,
-                    ),
-                  ),
-                  prefixIcon: Icon(
-                    Icons.lock,
-                    color: _isPasswordValid ? Colors.greenAccent : Colors.red,
-                  ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _isPasswordVisible
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                      color: Color(0xFFD1F5A0),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
-                  ),
-                ),
-                onChanged: _validatePassword,
-                style: TextStyle(color: Color(0xFFD1F5A0)),
-              ),
-              // const SizedBox(height: 20),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ForgotPasswordPage(),
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // App Logo
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10.0),
+                        child: Image.asset(
+                          'assets/assets/giraffe.jpg',
+                          height: 250,
+                        ),
                       ),
-                    );
-                  },
-                  child: Text(
-                    'Forgot Password?',
-                    style: TextStyle(
-                      color: Color(0xFFD1F5A0),
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                ),
-              ),
-              // Rest of the code remains the same...
-              ElevatedButton(
-                onPressed: _handleLogin,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                  backgroundColor: Color(0xFFD1F5A0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Text('Sign In'),
-              ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SignUpPage(title: '',),
+                      const SizedBox(height: 30),
+
+                      // Email TextField with Validation
+                      TextField(
+                        controller: _emailController,
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          labelStyle: TextStyle(color: Color(0xFFD1F5A0)),
+                          hintText: 'Enter your email',
+                          errorText:
+                              _isEmailValid ? null : 'Invalid email format',
+                          errorStyle: TextStyle(color: Colors.red),
+                          hintStyle: TextStyle(
+                              color: Color(0xFFD1F5A0).withOpacity(0.6)),
+                          filled: true,
+                          fillColor: Colors.white.withOpacity(0.1),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(
+                              color:
+                                  _isEmailValid ? Colors.white54 : Colors.red,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(
+                              color:
+                                  _isEmailValid ? Colors.white54 : Colors.red,
+                            ),
+                          ),
+                          prefixIcon: Icon(Icons.email,
+                              color: _isEmailValid
+                                  ? Colors.greenAccent
+                                  : Colors.red),
+                        ),
+                        onChanged: _validateEmail,
+                        style: TextStyle(color: Color(0xFFD1F5A0)),
                       ),
-                    );
-                  },
-                  child: Text(
-                    "Don't have an account? Sign up",
-                    style: TextStyle(
-                      color: Color(0xFFD1F5A0),
-                      decoration: TextDecoration.underline,
-                    ),
+                      const SizedBox(height: 20),
+
+                      // Password TextField with Validation
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: !_isPasswordVisible,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          labelStyle: TextStyle(color: Color(0xFFD1F5A0)),
+                          hintText: 'Enter your password',
+                          errorText: _isPasswordValid
+                              ? null
+                              : 'Password must be 8+ characters',
+                          errorStyle: TextStyle(color: Colors.red),
+                          hintStyle: TextStyle(
+                              color: Color(0xFFD1F5A0).withOpacity(0.6)),
+                          filled: true,
+                          fillColor: Colors.white.withOpacity(0.1),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(
+                              color: _isPasswordValid
+                                  ? Colors.white54
+                                  : Colors.red,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide(
+                              color: _isPasswordValid
+                                  ? Colors.white54
+                                  : Colors.red,
+                            ),
+                          ),
+                          prefixIcon: Icon(
+                            Icons.lock,
+                            color: _isPasswordValid
+                                ? Colors.greenAccent
+                                : Colors.red,
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: Color(0xFFD1F5A0),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isPasswordVisible = !_isPasswordVisible;
+                              });
+                            },
+                          ),
+                        ),
+                        onChanged: _validatePassword,
+                        style: TextStyle(color: Color(0xFFD1F5A0)),
+                      ),
+                      // const SizedBox(height: 20),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ForgotPasswordPage(),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            'Forgot Password?',
+                            style: TextStyle(
+                              color: Color(0xFFD1F5A0),
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Rest of the code remains the same...
+                      ElevatedButton(
+                        onPressed: _handleLogin,
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 50),
+                          backgroundColor: Color(0xFFD1F5A0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: const Text('Sign In'),
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SignUpPage(
+                                  title: '',
+                                ),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            "Don't have an account? Sign up",
+                            style: TextStyle(
+                              color: Color(0xFFD1F5A0),
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

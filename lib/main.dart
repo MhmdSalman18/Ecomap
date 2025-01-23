@@ -2,6 +2,7 @@
 import 'package:ecomap/REGISTRATION/account.dart';
 import 'package:ecomap/REGISTRATION/firstpage.dart';
 import 'package:ecomap/REGISTRATION/login.dart';
+import 'package:ecomap/REGISTRATION/signup.dart';
 import 'package:ecomap/home.dart';
 import 'package:ecomap/map.dart';
 import 'package:ecomap/splash.dart';
@@ -19,7 +20,7 @@ class EcomapApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(), // St with BottomNavigationBarExample
+      home: SignUpPage(title: '',), // St with BottomNavigationBarExample
     );
   }
 }
