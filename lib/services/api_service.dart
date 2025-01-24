@@ -317,7 +317,7 @@ Future<Map<String, dynamic>> uploadData({
   // Create a multipart request
   var request = http.MultipartRequest(
     'POST', 
-    Uri.parse('$baseUrl/upload-image')
+    Uri.parse('$baseUrl/user/upload-image')
   );
 
   // Add X-AuthToken header instead of Authorization
@@ -331,11 +331,29 @@ Future<Map<String, dynamic>> uploadData({
 
   // Parse location coordinates (assuming format is "Latitude, Longitude")
   List<String> coords = location.split(',');
-  if (coords.length == 2) {
-    request.fields['location[type]'] = 'Point';
-    request.fields['location[coordinates][0]'] = coords[1].trim(); // Longitude
-    request.fields['location[coordinates][1]'] = coords[0].trim(); // Latitude
+if (coords.length == 2) {
+  try {
+    // Debug: Print raw coordinates to identify issues
+    print("Raw Longitude: '${coords[1]}'");
+    print("Raw Latitude: '${coords[0]}'");
+
+    // Parse coordinates after trimming whitespace
+    double longitude = double.parse(coords[1].trim());
+    double latitude = double.parse(coords[0].trim());
+
+    // Construct the location map
+    Map<String, dynamic> location = {
+      "type": "Point",
+      "coordinates": [longitude, latitude]
+    };
+
+    // Debug: Print the result
+    print("Parsed Location: $location");
+  } catch (e) {
+    print("Error parsing coordinates: $e");
   }
+}
+
 
   // Add image file as jpg
   if (imagePath.isNotEmpty) {
@@ -348,6 +366,8 @@ Future<Map<String, dynamic>> uploadData({
 
   // Send the request
   try {
+    print("😊");
+        print(request.fields);
     final response = await request.send();
     final responseBody = await response.stream.bytesToString();
     
@@ -358,6 +378,7 @@ Future<Map<String, dynamic>> uploadData({
         'data': json.decode(responseBody)
       };
     } else {
+      print("salman❤️"+responseBody);
       return {
         'success': false,
         'message': 'Upload failed',

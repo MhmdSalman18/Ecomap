@@ -201,8 +201,7 @@ class _UploadStateState extends State<UploadState> {
                 );
               },
               child: const CircleAvatar(
-                backgroundImage: NetworkImage(
-                    'https://via.placeholder.com/150'), // Replace with your image URL
+                // Replace with your image URL
                 radius: 18, // Adjust the size
               ),
             ),

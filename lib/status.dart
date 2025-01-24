@@ -37,8 +37,7 @@ class _StatusPageState extends State<StatusPage> {
                 );
               },
               child: CircleAvatar(
-                backgroundImage: NetworkImage(
-                    'https://via.placeholder.com/150'), // Replace with your image URL
+             // Replace with your image URL
                 radius: 18, // Adjust the size
               ),
             ),

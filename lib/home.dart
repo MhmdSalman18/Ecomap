@@ -130,9 +130,7 @@ class _HomePageState extends State<HomePage> {
                 );
               },
               child: CircleAvatar(
-                backgroundImage: NetworkImage(
-                    'https://via.placeholder.com/150'), // Replace with your image URL
-                radius: 18, // Adjust the size
+               
               ),
             ),
           ),
