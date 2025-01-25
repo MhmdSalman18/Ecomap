@@ -1,4 +1,5 @@
 import 'package:ecomap/CustomDrawer.dart';
+import 'package:ecomap/REGISTRATION/ac.dart';
 import 'package:ecomap/REGISTRATION/account.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
@@ -125,7 +126,7 @@ class _HomePageState extends State<HomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const AccountPage(title: 'Home'),
+                    builder: (context) =>  ac(),
                   ),
                 );
               },

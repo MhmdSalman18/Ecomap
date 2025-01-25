@@ -10,6 +10,17 @@ class ApiService {
   final String baseUrl =
       'https://ecomap-zehf.onrender.com'; // Replace with your actual server URL
 
+
+      Future<String> getUserEmail() async {
+        final prefs = await SharedPreferences.getInstance();
+        final email = prefs.getString('user_email');
+        if (email != null) {
+          return email;
+        } else {
+          throw Exception('No email found');
+        }
+      }
+
 Future<String> registerUser(
   String name, String email, String password) async {
   try {
@@ -31,6 +42,9 @@ Future<String> registerUser(
 
     // Successful registration
     if (response.statusCode == 201) {
+      final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('user_email', email);
+        await prefs.setString('user_name', name); // Save name here
       return responseBody['message'];
     } 
     // Client-side errors (400-410)
@@ -86,6 +100,8 @@ Future<String> loginUser(String email, String password) async {
 
     // Successful login
     if (response.statusCode == 200) {
+      final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('user_email', email);
       // Check if token is present
       if (responseBody['token'] != null) {
         return responseBody['token'];

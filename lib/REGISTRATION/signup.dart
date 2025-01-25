@@ -22,6 +22,7 @@ class _SignUpPageState extends State<SignUpPage> {
   bool _isEmailValid = true;
   bool _isPasswordValid = true;
   bool _isConfirmPasswordValid = true;
+  bool _isPasswordVisible = false;
 
   void _validateFields() {
     setState(() {
@@ -114,7 +115,7 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset:true,
+      resizeToAvoidBottomInset: true,
       backgroundColor: Color(0xFF1B3B13),
       body: Center(
         child: SingleChildScrollView(
@@ -205,32 +206,45 @@ class _SignUpPageState extends State<SignUpPage> {
                 // Password TextField
                 TextField(
                   controller: _passwordController,
-                  obscureText: true,
+                  obscureText: !_isPasswordVisible,
                   decoration: InputDecoration(
-                    labelText: 'Password',
-                    labelStyle: const TextStyle(color: Color(0xFFD1F5A0)),
-                    hintText: 'Enter your password',
-                    hintStyle: TextStyle(
-                        color: const Color(0xFFD1F5A0).withOpacity(0.6)),
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.1),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: Colors.white54)),
-                    enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                            color: _isPasswordValid
-                                ? Colors.white54
-                                : Colors.red)),
-                    focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                            color: _isPasswordValid
-                                ? Colors.greenAccent
-                                : Colors.red)),
-                    prefixIcon:
-                        const Icon(Icons.lock, color: Colors.greenAccent),
+                  labelText: 'Password',
+                  labelStyle: const TextStyle(color: Color(0xFFD1F5A0)),
+                  hintText: 'Enter your password',
+                  hintStyle: TextStyle(
+                    color: const Color(0xFFD1F5A0).withOpacity(0.6)),
+                  filled: true,
+                  fillColor: Colors.white.withOpacity(0.1),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: Colors.white54)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(
+                      color: _isPasswordValid
+                        ? Colors.white54
+                        : Colors.red)),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(
+                      color: _isPasswordValid
+                        ? Colors.greenAccent
+                        : Colors.red)),
+                  prefixIcon:
+                    const Icon(Icons.lock, color: Colors.greenAccent),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                    _isPasswordVisible
+                      ? Icons.visibility
+                      : Icons.visibility_off,
+                    color: Color(0xFFD1F5A0),
+                    ),
+                    onPressed: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                    },
+                  ),
                   ),
                   style: const TextStyle(color: Color(0xFFD1F5A0)),
                   onChanged: (value) => _validateFields(),
@@ -240,32 +254,45 @@ class _SignUpPageState extends State<SignUpPage> {
                 // Confirm Password TextField
                 TextField(
                   controller: _confirmPasswordController,
-                  obscureText: true,
+                  obscureText: !_isPasswordVisible,
                   decoration: InputDecoration(
-                    labelText: 'Confirm Password',
-                    labelStyle: const TextStyle(color: Color(0xFFD1F5A0)),
-                    hintText: 'Re-enter your password',
-                    hintStyle: TextStyle(
-                        color: const Color(0xFFD1F5A0).withOpacity(0.6)),
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.1),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: Colors.white54)),
-                    enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                            color: _isConfirmPasswordValid
-                                ? Colors.white54
-                                : Colors.red)),
-                    focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                            color: _isConfirmPasswordValid
-                                ? Colors.greenAccent
-                                : Colors.red)),
-                    prefixIcon:
-                        const Icon(Icons.lock, color: Colors.greenAccent),
+                  labelText: 'Confirm Password',
+                  labelStyle: const TextStyle(color: Color(0xFFD1F5A0)),
+                  hintText: 'Re-enter your password',
+                  hintStyle: TextStyle(
+                    color: const Color(0xFFD1F5A0).withOpacity(0.6)),
+                  filled: true,
+                  fillColor: Colors.white.withOpacity(0.1),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: Colors.white54)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(
+                      color: _isConfirmPasswordValid
+                        ? Colors.white54
+                        : Colors.red)),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(
+                      color: _isConfirmPasswordValid
+                        ? Colors.greenAccent
+                        : Colors.red)),
+                  prefixIcon:
+                    const Icon(Icons.lock, color: Colors.greenAccent),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                    _isPasswordVisible
+                      ? Icons.visibility
+                      : Icons.visibility_off,
+                    color: Color(0xFFD1F5A0),
+                    ),
+                    onPressed: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                    },
+                  ),
                   ),
                   style: const TextStyle(color: Color(0xFFD1F5A0)),
                   onChanged: (value) => _validateFields(),
