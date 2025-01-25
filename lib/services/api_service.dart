@@ -11,16 +11,15 @@ class ApiService {
       'https://ecomap-zehf.onrender.com'; // Replace with your actual server URL
 
 
-      Future<String> getUserEmail() async {
-        final prefs = await SharedPreferences.getInstance();
-        final email = prefs.getString('user_email');
-        if (email != null) {
-          return email;
-        } else {
-          throw Exception('No email found');
-        }
-      }
-
+      Future<Map<String, String>> getUserDetails() async {
+    final prefs = await SharedPreferences.getInstance();
+    final email = prefs.getString('user_email') ?? 'No email found';
+    final name = prefs.getString('user_name') ?? 'No name found';
+    return {
+      'email': email,
+      'name': name,
+    };
+  }
 Future<String> registerUser(
   String name, String email, String password) async {
   try {
@@ -101,24 +100,30 @@ Future<String> loginUser(String email, String password) async {
     // Successful login
     if (response.statusCode == 200) {
       final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('user_email', email);
-      // Check if token is present
+
+      // Save email to SharedPreferences
+      await prefs.setString('user_email', email);
+
+      // Save name if it exists in the response
+      if (responseBody['name'] != null) {
+        await prefs.setString('user_name', responseBody['name']);
+      }
+
+      // Return the token if it exists
       if (responseBody['token'] != null) {
         return responseBody['token'];
       } else {
         throw Exception('No authentication token received');
       }
     } 
-    // Client-side errors (400-410)
+    // Handle errors
     else if (response.statusCode >= 400 && response.statusCode < 410) {
-      // Check if there's a specific error message in the response
       if (responseBody != null && responseBody['message'] != null) {
         throw Exception(responseBody['message']);
       }
-      // Fallback error message
       throw Exception('Invalid credentials or login failed');
     } 
-    // Server-side errors (500 range)
+    // Handle server-side errors
     else if (response.statusCode >= 500) {
       throw Exception('Server error. Please try again later.');
     } 
@@ -127,19 +132,16 @@ Future<String> loginUser(String email, String password) async {
       throw Exception('An unexpected error occurred. Please try again.');
     }
   } on SocketException catch (_) {
-    // Specifically catch network connectivity issues
     throw Exception('No internet connection. Please check your network.');
   } on FormatException catch (_) {
-    // Catch JSON parsing errors
     throw Exception('Error processing server response');
   } on HttpException catch (_) {
-    // Catch HTTP-specific errors
     throw Exception('Could not connect to the server');
   } catch (error) {
-    // Catch any other unexpected errors
     throw Exception('An unexpected error occurred: ${error.toString()}');
   }
 }
+
 
 
 Future<Map<String, dynamic>> sendOtp(String email) async {

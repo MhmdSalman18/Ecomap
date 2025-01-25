@@ -11,29 +11,31 @@ class ac extends StatefulWidget {
 
 class _acState extends State<ac> {
   String _email = '';
+  String _name = '';
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchUserEmail();
+    _fetchUserDetails();
   }
 
-  Future<void> _fetchUserEmail() async {
-  try {
-    final email = await ApiService().getUserEmail();
-    setState(() {
-      _email = email;
-      _isLoading = false;
-    });
-  } catch (e) {
-    print('Error fetching email: $e'); // Add this line for debugging
-    setState(() {
-      _email = 'Error fetching email: $e';
-      _isLoading = false;
-    });
+  Future<void> _fetchUserDetails() async {
+    try {
+      final details = await ApiService().getUserDetails();
+      setState(() {
+        _email = details['email']!;
+        _name = details['name']!;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _email = 'Error fetching details';
+        _name = '';
+        _isLoading = false;
+      });
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +46,18 @@ class _acState extends State<ac> {
       body: Center(
         child: _isLoading
             ? CircularProgressIndicator()
-            : Text(
-                'User Email: $_email',
-                style: TextStyle(fontSize: 20),
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'User Name: $_name',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  Text(
+                    'User Email: $_email',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ],
               ),
       ),
     );
