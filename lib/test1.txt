@@ -101,7 +101,7 @@ class _UploadStateState extends State<UploadState> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1B3B13),
+        backgroundColor: const Color(0xFF082517),
         iconTheme: const IconThemeData(
           color: Color(0xFFB4E576),
         ),
@@ -127,7 +127,7 @@ class _UploadStateState extends State<UploadState> {
       ),
       drawer: CustomDrawer(),
       body: Container(
-        color: const Color(0xFF1B3B13),
+        color: const Color(0xFF082517),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(

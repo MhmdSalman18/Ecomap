@@ -1,5 +1,6 @@
 import 'package:ecomap/services/api_service.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -45,7 +46,11 @@ class _acState extends State<ac> {
       ),
       body: Center(
         child: _isLoading
-            ? CircularProgressIndicator()
+            ? Lottie.asset(
+                'assets/animations/main_scene.json',
+                width: 100, // Adjust the width as needed
+                height: 100, // Adjust the height as needed
+              )
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

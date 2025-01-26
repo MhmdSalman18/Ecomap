@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ecomap/BottomNavigationBar.dart';
 
 import 'package:ecomap/services/api_service.dart';
+import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
@@ -51,9 +52,11 @@ class _LoginPageState extends State<LoginPage> {
         barrierDismissible: false,
         builder: (BuildContext context) {
           return Center(
-            child: CircularProgressIndicator(
-              color: Color(0xFFD1F5A0),
-            ),
+            child: Lottie.asset(
+                'assets/animations/main_scene.json',
+                width: 100, // Adjust the width as needed
+                height: 100, // Adjust the height as needed
+              ),
           );
         },
       );
@@ -127,7 +130,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF1B3B13),
+      backgroundColor: Color(0xFF082517),
       body: Center(
         child: SingleChildScrollView(
           child: Column(

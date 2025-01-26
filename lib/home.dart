@@ -4,6 +4,7 @@ import 'package:ecomap/REGISTRATION/account.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:image_picker/image_picker.dart'; // Import for gallery access
+import 'package:lottie/lottie.dart';
 import 'uploadstate.dart'; // Import UploadState for navigation
 import 'package:geocoding/geocoding.dart'; // Import geocoding package
 
@@ -112,7 +113,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF1B3B13), // AppBar background color
+        backgroundColor: Color(0xFF082517), // AppBar background color
         iconTheme: IconThemeData(
           color: Color(0xFFB4E576),
         ),
@@ -126,7 +127,7 @@ class _HomePageState extends State<HomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>  ac(),
+                    builder: (context) =>  AccountPage(),
                   ),
                 );
               },
@@ -183,7 +184,11 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               )
-            : const CircularProgressIndicator(),
+            : Lottie.asset(
+                'assets/animations/main_scene.json',
+                width: 100, // Adjust the width as needed
+                height: 100, // Adjust the height as needed
+              ),
       ),
     );
   }

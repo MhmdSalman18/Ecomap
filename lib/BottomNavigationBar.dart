@@ -60,7 +60,7 @@ class _BottomNavigationBarExampleState
         selectedItemColor:
             _selectedIndex == 0 ? Color(0xFF5F7548) : Color(0xFFB4E576),
         unselectedItemColor:Color(0xFF5F7548),
-        backgroundColor: Color(0xFF1B3B13), // Set BottomNavigationBar background color to red
+        backgroundColor: Color(0xFF082517), // Set BottomNavigationBar background color to red
         onTap: _onItemTapped,
       ),
     );

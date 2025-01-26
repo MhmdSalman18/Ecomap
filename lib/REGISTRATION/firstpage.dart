@@ -15,7 +15,7 @@ class _FirstPageState extends State<FirstPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: Color(0xFF101C08),
+        color: Color(0xFF082517),
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(

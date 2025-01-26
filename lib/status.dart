@@ -18,7 +18,7 @@ class _StatusPageState extends State<StatusPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF1B3B13), // 
+        backgroundColor: Color(0xFF082517), // 
         iconTheme: IconThemeData(
           color: Color(0xFFB4E576),
         ),
@@ -32,7 +32,7 @@ class _StatusPageState extends State<StatusPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const AccountPage(title: 'Home'),
+                    builder: (context) => const AccountPage(),
                   ),
                 );
               },
@@ -46,7 +46,7 @@ class _StatusPageState extends State<StatusPage> {
       ),
       drawer: CustomDrawer(),
       body: Container(
-        color: Color(0xFF1B3B13),
+        color: Color(0xFF082517),
         child: Center(
           child: Column(
             children: [

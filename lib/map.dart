@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:location/location.dart';
 
@@ -25,7 +26,11 @@ class _HeatMapState extends State<HeatMap> {
     return Scaffold(
       appBar: AppBar(title: const Text("Kerala HeatMap Example")),
       body: currentLocation == null
-          ? const Center(child: CircularProgressIndicator())
+          ?  Center(child: Lottie.asset(
+                'assets/animations/main_scene.json',
+                width: 100, // Adjust the width as needed
+                height: 100, // Adjust the height as needed
+              ),)
           : SizedBox(
               height: MediaQuery.of(context).size.height,
               child: MapLibreMap(

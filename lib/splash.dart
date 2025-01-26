@@ -1,5 +1,6 @@
 import 'package:ecomap/REGISTRATION/firstpage.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -21,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     );
     _animation = CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeIn,
+      curve: Curves.easeInCubic,
     );
     _controller.forward();
     _navigateToHome();
@@ -36,7 +37,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   void _navigateToHome() async {
     await Future.delayed(const Duration(seconds: 5), () {});
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => FirstPage(title: '', imagePath: '',)),
+      MaterialPageRoute(builder: (context) => FirstPage(title: '', imagePath: '')),
     );
   }
 
@@ -45,25 +46,35 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     return Scaffold(
       backgroundColor: const Color(0xFF082517),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            FadeTransition(
-              opacity: _animation,
-              child: SizedBox(
-                width: 200, // Set the desired width
-                height: 200, // Set the desired height
-                child: Image.asset('assets/assets/ecomap_banner.png'),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FadeTransition(
+                opacity: _animation,
+                child: ScaleTransition(
+                  scale: _animation,
+                    child: SizedBox(
+                    width: 200, // Set the desired width
+                    height: 200, // Set the desired height
+                    child: Padding(
+                    padding: const EdgeInsets.only(left: 20.0), // Adjust the left padding as needed
+                    child: Image.asset('assets/assets/ecomap_banner.png'),
+                    ),
+                    ),
+                ),
               ),
-            ),
-            const SizedBox(height: 10),
-            ScaleTransition(
-              scale: _animation,
-              child: const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              const SizedBox(height: 10),
+              ScaleTransition(
+                scale: _animation,
+                child: Lottie.asset(
+                  'assets/animations/main_scene.json',
+                  width: 100, // Adjust the width as needed
+                  height: 100, // Adjust the height as needed
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

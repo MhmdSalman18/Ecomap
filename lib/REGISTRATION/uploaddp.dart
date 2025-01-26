@@ -29,9 +29,9 @@ class _UploadDpPageState extends State<UploadDpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1B3B13), // Background color
+      backgroundColor: const Color(0xFF082517), // Background color
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1B3B13),
+        backgroundColor: const Color(0xFF082517),
         elevation: 0,
         iconTheme: const IconThemeData(
           color: Color(0xFFD1F5A0), // Back icon color
@@ -99,7 +99,7 @@ class _UploadDpPageState extends State<UploadDpPage> {
                 "Register",
                 style: TextStyle(
                   fontSize: 18,
-                  color: Color(0xFF1B3B13), // Button text color
+                  color: Color(0xFF082517), // Button text color
                 ),
                 ),
             ),

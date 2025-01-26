@@ -1,6 +1,7 @@
 import 'package:ecomap/REGISTRATION/login.dart';
 import 'package:flutter/material.dart';
 import 'package:ecomap/services/api_service.dart';
+import 'package:lottie/lottie.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({Key? key}) : super(key: key);
@@ -233,7 +234,11 @@ void _verifyOtp() async {
         ElevatedButton(
           onPressed: _isLoading ? null : _sendOtp,
           child: _isLoading 
-            ? CircularProgressIndicator(color: Colors.white)
+            ? Lottie.asset(
+                'assets/animations/main_scene.json',
+                width: 100, // Adjust the width as needed
+                height: 100, // Adjust the height as needed
+              )
             : Text('Send OTP'),
           style: ElevatedButton.styleFrom(
             backgroundColor: Color(0xFFD1F5A0),
@@ -266,7 +271,11 @@ void _verifyOtp() async {
         ElevatedButton(
           onPressed: _isLoading ? null : _verifyOtp,
           child: _isLoading 
-            ? CircularProgressIndicator(color: Colors.white)
+            ? Lottie.asset(
+                'assets/animations/main_scene.json',
+                width: 100, // Adjust the width as needed
+                height: 100, // Adjust the height as needed
+              )
             : Text('Verify OTP'),
           style: ElevatedButton.styleFrom(
             backgroundColor: Color(0xFFD1F5A0),
@@ -303,7 +312,11 @@ void _verifyOtp() async {
         ElevatedButton(
           onPressed: _isLoading ? null : _resetPassword,
           child: _isLoading 
-            ? CircularProgressIndicator(color: Colors.white)
+            ? Lottie.asset(
+                'assets/animations/main_scene.json',
+                width: 100, // Adjust the width as needed
+                height: 100, // Adjust the height as needed
+              )
             : Text('Reset Password'),
           style: ElevatedButton.styleFrom(
             backgroundColor: Color(0xFFD1F5A0),
@@ -317,9 +330,9 @@ void _verifyOtp() async {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF1B3B13),
+      backgroundColor: Color(0xFF082517),
       appBar: AppBar(
-        backgroundColor: Color(0xFF1B3B13),
+        backgroundColor: Color(0xFF082517),
         title: Text('Reset Password', style: TextStyle(color: Color(0xFFD1F5A0))),
       ),
       body: Center(

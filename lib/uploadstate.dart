@@ -8,6 +8,7 @@ import 'package:ecomap/status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UploadState extends StatefulWidget {
@@ -113,7 +114,11 @@ class _UploadStateState extends State<UploadState> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
+      builder: (context) =>  Center(child: Lottie.asset(
+                'assets/animations/main_scene.json',
+                width: 100, // Adjust the width as needed
+                height: 100, // Adjust the height as needed
+              ),),
     );
 
     // Attempt upload
@@ -179,10 +184,10 @@ class _UploadStateState extends State<UploadState> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-            backgroundColor: Color(0xFF1B3B13),
+            backgroundColor: Color(0xFF082517),
 
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1B3B13), // AppBar background color
+        backgroundColor: const Color(0xFF082517), // AppBar background color
         iconTheme: const IconThemeData(
           color: Color(0xFFB4E576),
         ),
@@ -196,7 +201,7 @@ class _UploadStateState extends State<UploadState> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const AccountPage(title: 'Home'),
+                    builder: (context) => const AccountPage(),
                   ),
                 );
               },

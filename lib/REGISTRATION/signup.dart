@@ -116,7 +116,7 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: Color(0xFF1B3B13),
+      backgroundColor: Color(0xFF082517),
       body: Center(
         child: SingleChildScrollView(
           child: Padding(

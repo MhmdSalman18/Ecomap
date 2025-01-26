@@ -47,6 +47,8 @@ dependencies:
   maplibre_gl: ^0.20.0
   location: ^6.0.2
   shared_preferences: ^2.3.5
+  flutter_spinkit: ^5.2.1
+  lottie: ^3.2.0
 
 dev_dependencies:
   flutter_test:
@@ -99,6 +101,8 @@ flutter:
     - assets/assets/panther.jpg
     - assets/assets/ecomap_icon.png
     - assets/assets/ecomap_banner.png
+    - assets/animations/main_scene.json
+
 
 
 
