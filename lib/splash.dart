@@ -22,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     );
     _animation = CurvedAnimation(
       parent: _controller,
-      curve: Curves.easeInCubic,
+      curve: Curves.easeInOut,
     );
     _controller.forward();
     _navigateToHome();
@@ -65,13 +65,10 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 ),
               ),
               const SizedBox(height: 10),
-              ScaleTransition(
-                scale: _animation,
-                child: Lottie.asset(
-                  'assets/animations/main_scene.json',
-                  width: 100, // Adjust the width as needed
-                  height: 100, // Adjust the height as needed
-                ),
+              Lottie.asset(
+                'assets/animations/main_scene.json',
+                width: 100, // Adjust the width as needed
+                height: 100, // Adjust the height as needed
               ),
             ],
           ),

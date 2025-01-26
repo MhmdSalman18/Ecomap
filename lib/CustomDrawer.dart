@@ -1,8 +1,41 @@
 import 'package:ecomap/home.dart';
+import 'package:ecomap/services/api_service.dart';
 import 'package:flutter/material.dart';
 
-class CustomDrawer extends StatelessWidget {
-  const CustomDrawer({super.key});
+class CustomDrawer extends StatefulWidget {
+  CustomDrawer({super.key});
+
+  @override
+  _CustomDrawerState createState() => _CustomDrawerState();
+}
+
+class _CustomDrawerState extends State<CustomDrawer> {
+  String _email = '';
+  String _name = '';
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserDetails();
+  }
+
+  Future<void> _fetchUserDetails() async {
+    try {
+      final details = await ApiService().getUserDetails();
+      setState(() {
+        _email = details['email']!;
+        _name = details['name']!;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _email = 'Error fetching details';
+        _name = '';
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +45,7 @@ class CustomDrawer extends StatelessWidget {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(
+            DrawerHeader(
               decoration: BoxDecoration(
                 color: Color(0xFF101C08), // Background color for the header
               ),
@@ -24,19 +57,12 @@ class CustomDrawer extends StatelessWidget {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    "Your Name", // Add your name or user name
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  '$_name',
+                  style: TextStyle(fontSize: 20, color: Colors.white),
                   ),
                   Text(
-                    "example@email.com", // Add email or other details
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
+                  '$_email',
+                  style: TextStyle(fontSize: 20, color: Colors.white),
                   ),
                 ],
               ),
