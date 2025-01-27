@@ -58,11 +58,11 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   SizedBox(height: 10),
                   Text(
                   '$_name',
-                  style: TextStyle(fontSize: 20, color: Colors.white),
+                  style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
                   Text(
                   '$_email',
-                  style: TextStyle(fontSize: 20, color: Colors.white),
+                  style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ],
               ),
