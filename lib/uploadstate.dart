@@ -3,6 +3,7 @@ import 'package:ecomap/BottomNavigationBar.dart';
 import 'package:ecomap/CustomDrawer.dart';
 import 'package:ecomap/REGISTRATION/account.dart';
 import 'package:ecomap/home.dart';
+import 'package:ecomap/map.dart';
 import 'package:ecomap/services/api_service.dart';
 import 'package:ecomap/status.dart';
 import 'package:flutter/material.dart';
@@ -140,7 +141,7 @@ class _UploadStateState extends State<UploadState> {
         context,
         MaterialPageRoute(
           builder: (context) => 
-          StatusPage(title: '',)
+          HeatMap()
           // UploadSuccessPage(
           //   uploadDetails: result['data'],
           // ),

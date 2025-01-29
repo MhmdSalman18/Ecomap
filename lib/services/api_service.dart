@@ -4,11 +4,12 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 
 class ApiService {
   // Set the base URL for your API
   final String baseUrl =
-      'https://ecomap-zehf.onrender.com'; // Replace with your actual server URL
+      'http://192.168.1.5:3000'; // Replace with your actual server URL
 
   Future<Map<String, String>> getUserDetails() async {
     final prefs = await SharedPreferences.getInstance();
@@ -318,6 +319,11 @@ class ApiService {
 
 
 
+
+
+
+
+
 Future<Map<String, dynamic>> uploadData({
   required String title,
   required String description,
@@ -325,7 +331,6 @@ Future<Map<String, dynamic>> uploadData({
   required String imagePath,
   required String location,
 }) async {
-  // Input validation
   if (title.trim().isEmpty || description.trim().isEmpty || imagePath.trim().isEmpty) {
     return {
       'success': false,
@@ -335,7 +340,6 @@ Future<Map<String, dynamic>> uploadData({
   }
 
   try {
-    // Retrieve the authentication token
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
 
@@ -347,175 +351,107 @@ Future<Map<String, dynamic>> uploadData({
       };
     }
 
-    // Create a multipart request
     final request = http.MultipartRequest(
       'POST',
       Uri.parse('$baseUrl/user/upload-image'),
     );
 
-    // Add headers
     request.headers.addAll({
       'x-authtoken': token,
       'Content-Type': 'multipart/form-data',
     });
 
-    // Add basic fields
     request.fields.addAll({
       'title': title.trim(),
       'description': description.trim(),
       'date': date,
     });
 
-    // Parse and validate location coordinates
+    // Location validation and parsing
     try {
-      double latitude;
-      double longitude;
+      // Print the original location string for debugging
+      print('Received location: $location');
 
-      // Handle different location string formats
-      if (location.contains('Latitude:') && location.contains('Longitude:')) {
-        final latMatch = RegExp(r'Latitude:\s*([-+]?\d*\.?\d+)').firstMatch(location);
-        final longMatch = RegExp(r'Longitude:\s*([-+]?\d*\.?\d+)').firstMatch(location);
+      // Refined Regex to handle whitespace and robust parsing
+      final latRegex = RegExp(r'Latitude:\s*([-+]?[0-9]*\.?[0-9]+)');
+      final lngRegex = RegExp(r'Longitude:\s*([-+]?[0-9]*\.?[0-9]+)');
 
-        if (latMatch == null || longMatch == null) {
-          throw FormatException('Could not extract coordinates from location string');
-        }
+      final latitudeMatch = latRegex.firstMatch(location);
+      final longitudeMatch = lngRegex.firstMatch(location);
 
-        latitude = double.parse(latMatch.group(1)!);
-        longitude = double.parse(longMatch.group(1)!);
-      } else {
-        final coords = location.split(',');
-        if (coords.length != 2) {
-          throw FormatException('Location must have two comma-separated values');
-        }
-
-        latitude = double.parse(coords[0].trim());
-        longitude = double.parse(coords[1].trim());
+      if (latitudeMatch == null || longitudeMatch == null) {
+        throw FormatException(
+          'Invalid location format. Ensure it follows "Latitude:<value>, Longitude:<value>"',
+        );
       }
 
-      if (latitude < -90 || latitude > 90) {
-        throw FormatException('Latitude must be between -90 and 90 degrees');
+      final latitude = double.parse(latitudeMatch.group(1)!.trim());
+      final longitude = double.parse(longitudeMatch.group(1)!.trim());
+
+      if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+        throw FormatException('Latitude or longitude out of range');
       }
-      if (longitude < -180 || longitude > 180) {
-        throw FormatException('Longitude must be between -180 and 180 degrees');
-      }
+
+      // Print parsed latitude and longitude
+      print('Parsed latitude: $latitude, longitude: $longitude');
 
       request.fields['location.type'] = 'Point';
-      request.fields['location.coordinates'] = '[$longitude, $latitude]';
+      request.fields['location.coordinates[0]'] = longitude.toString();
+      request.fields['location.coordinates[1]'] = latitude.toString();
 
     } catch (e) {
-      print('Error parsing location: $e');
       return {
         'success': false,
-        'message': 'Invalid location coordinates',
+        'message': 'Invalid location coordinates: $location',
         'error': e.toString(),
       };
     }
 
-    // Add image file
-    if (imagePath.isNotEmpty) {
-      try {
-        final file = await http.MultipartFile.fromPath(
-          'image',
-          imagePath,
-          contentType: MediaType('image', 'jpeg'),
-        );
-        request.files.add(file);
-      } catch (e) {
-        print('Error adding image file: $e');
-        return {
-          'success': false,
-          'message': 'Error processing image file',
-          'error': e.toString(),
-        };
-      }
+    // Image file attachment
+    if (!File(imagePath).existsSync()) {
+      return {
+        'success': false,
+        'message': 'Image file not found',
+        'error': 'File does not exist at $imagePath',
+      };
     }
 
-    // Send request with timeout and retry logic
-    int retryCount = 0;
-    const maxRetries = 3;
-    const retryDelay = Duration(seconds: 2);
-
-    while (retryCount < maxRetries) {
-      try {
-        final streamedResponse = await request.send().timeout(
-          const Duration(seconds: 30),
-          onTimeout: () {
-            throw TimeoutException('Upload request timed out');
-          },
-        );
-
-        final response = await http.Response.fromStream(streamedResponse);
-        final responseBody = response.body;
-
-        print('Server response status: ${response.statusCode}');
-        print('Server response body: $responseBody');
-
-        // Handle different status codes
-        switch (response.statusCode) {
-          case 200:
-          case 201:
-            return {
-              'success': true,
-              'message': 'Upload successful',
-              'data': json.decode(responseBody),
-            };
-          
-          case 503:
-            if (retryCount < maxRetries - 1) {
-              print('Server unavailable, retrying in ${retryDelay.inSeconds} seconds...');
-              await Future.delayed(retryDelay);
-              retryCount++;
-              continue;
-            }
-            return {
-              'success': false,
-              'message': 'Server is temporarily unavailable. Please try again later.',
-              'error': 'Service Unavailable (503)',
-            };
-
-          case 401:
-            return {
-              'success': false,
-              'message': 'Authentication failed. Please log in again.',
-              'error': 'Unauthorized (401)',
-            };
-
-          case 413:
-            return {
-              'success': false,
-              'message': 'Image file is too large. Please choose a smaller image.',
-              'error': 'Payload Too Large (413)',
-            };
-
-          default:
-            return {
-              'success': false,
-              'message': 'Upload failed',
-              'error': 'Server returned status ❤️ ${response.statusCode}: $responseBody',
-            };
-        }
-      } catch (e) {
-        if (e is TimeoutException || retryCount >= maxRetries - 1) {
-          return {
-            'success': false,
-            'message': 'Network error occurred',
-            'error': e.toString(),
-          };
-        }
-        print('Attempt ${retryCount + 1} failed: $e');
-        await Future.delayed(retryDelay);
-        retryCount++;
-      }
+    try {
+      final mimeType = lookupMimeType(imagePath) ?? 'application/octet-stream';
+      final file = await http.MultipartFile.fromPath(
+        'image',
+        imagePath,
+        contentType: MediaType.parse(mimeType),
+      );
+      request.files.add(file);
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Error processing image file',
+        'error': e.toString(),
+      };
     }
 
-    return {
-      'success': false,
-      'message': 'Upload failed after $maxRetries attempts',
-      'error': 'Max retries exceeded',
-    };
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
 
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final responseBody = json.decode(response.body);
+
+      return {
+        'success': true,
+        'message': 'Image uploaded successfully!',
+        'upload': responseBody,
+      };
+    } else {
+      print('Response: ${response.statusCode} ${response.body}');
+      return {
+        'success': false,
+        'message': 'Upload failed',
+        'error': 'Server returned status ${response.statusCode}: ${response.body}',
+      };
+    }
   } catch (e) {
-    print('Unexpected error: $e');
     return {
       'success': false,
       'message': 'An unexpected error occurred',
@@ -523,4 +459,7 @@ Future<Map<String, dynamic>> uploadData({
     };
   }
 }
+
+
+
 }
