@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:location/location.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class HeatMap extends StatefulWidget {
   const HeatMap({super.key});
@@ -24,40 +26,89 @@ class _HeatMapState extends State<HeatMap> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Kerala HeatMap Example")),
-      body: currentLocation == null
-          ?  Center(child: Lottie.asset(
-                'assets/animations/main_scene.json',
-                width: 100, // Adjust the width as needed
-                height: 100, // Adjust the height as needed
-              ),)
-          : SizedBox(
-              height: MediaQuery.of(context).size.height,
-              child: MapLibreMap(
-                onMapCreated: _onMapCreated,
-                initialCameraPosition: const CameraPosition(
-                  target: LatLng(10.8505, 76.2711), // Center of Kerala
-                  zoom: 8, // Adjust zoom level for Kerala
+      appBar: AppBar(
+        title: const Text("World HeatMap Example"),
+      ),
+      body: Column(
+        children: [
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                TextButton(
+                  onPressed: _loadAllSpottings,
+                  child: const Text("View All Spottings", style: TextStyle(color: Colors.black)),
                 ),
-                styleString: "https://demotiles.maplibre.org/style.json",
-                myLocationEnabled: true,
-                myLocationRenderMode: MyLocationRenderMode.gps,
-                onStyleLoadedCallback: () {
-                  debugPrint("Map style loaded successfully!");
-                  _addHeatMapLayer();
-                  _addKeralaBorders();
-                },
-              ),
+                TextButton(
+                  onPressed: () {},
+                  child: const Text("View My Spottings", style: TextStyle(color: Colors.black)),
+                ),
+                TextButton(
+                  onPressed: () {},
+                  child: const Text("Select Animal", style: TextStyle(color: Colors.black)),
+                ),
+              ],
             ),
+          ),
+          Expanded(
+            child: currentLocation == null
+                ? Center(
+                    child: Lottie.asset(
+                      'assets/animations/main_scene.json',
+                      width: 100,
+                      height: 100,
+                    ),
+                  )
+                : SizedBox(
+                    height: MediaQuery.of(context).size.height,
+                    child: MapLibreMap(
+                      onMapCreated: _onMapCreated,
+                      initialCameraPosition: CameraPosition(
+                        target: currentLocation!,
+                        zoom: 10,
+                      ),
+                      styleString: "https://demotiles.maplibre.org/style.json",
+                      myLocationEnabled: true,
+                      myLocationRenderMode: MyLocationRenderMode.normal,
+                      onStyleLoadedCallback: () {
+                        debugPrint("Map style loaded successfully!");
+                        _addHeatMapLayer();
+                      },
+                    ),
+                  ),
+          ),
+        ],
+      ),
     );
   }
 
   void _onMapCreated(MapLibreMapController controller) {
     mapController = controller;
-    _setKeralaBounds();
   }
 
   void _getCurrentLocation() async {
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        debugPrint("Location services are disabled.");
+        return;
+      }
+    }
+
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        debugPrint("Location permission denied.");
+        return;
+      }
+    }
+
     try {
       final LocationData locationData = await location.getLocation();
       setState(() {
@@ -69,58 +120,34 @@ class _HeatMapState extends State<HeatMap> {
     }
   }
 
-  void _setKeralaBounds() {
-    // Define the bounding box for Kerala
-    LatLngBounds keralaBounds = LatLngBounds(
-      southwest: LatLng(8.0, 74.5), // Southwest corner of Kerala
-      northeast: LatLng(12.8, 77.5), // Northeast corner of Kerala
-    );
-
-    // Restrict the camera to these bounds
-    mapController.setCameraBounds(
-      west: keralaBounds.southwest.longitude,
-      north: keralaBounds.northeast.latitude,
-      south: keralaBounds.southwest.latitude,
-      east: keralaBounds.northeast.longitude,
-      padding: 0,
-    );
+  void _loadAllSpottings() async {
+    debugPrint("Fetching all spottings...");
+    final geoJsonData = await fetchHeatMapData();
+    if (geoJsonData != null) {
+      setState(() {
+        _addHeatMapLayer();
+      });
+    }
   }
 
   void _addHeatMapLayer() async {
-    try {
-      final List<Map<String, dynamic>> features = [
-        {
-          "type": "Feature",
-          "properties": {"weight": 1.0},
-          "geometry": {
-            "type": "Point",
-            "coordinates": [76.2711, 10.8505] // Example point in Kerala
-          }
-        },
-        {
-          "type": "Feature",
-          "properties": {"weight": 0.8},
-          "geometry": {
-            "type": "Point",
-            "coordinates": [76.5, 10.9] // Another example point in Kerala
-          }
-        },
-      ];
+    if (mapController == null) return;
 
-      await mapController.addSource(
-        "heat",
-        GeojsonSourceProperties(
-          data: {
-            "type": "FeatureCollection",
-            "features": features,
-          },
-        ),
-      );
+    try {
+      final response = await fetchHeatMapData();
+
+      if (response == null) {
+        debugPrint("Failed to fetch heatmap data.");
+        return;
+      }
+
+      await mapController.addGeoJsonSource("heat", response);
+
       debugPrint("GeoJSON source added!");
 
-      await mapController.addLayer(
+      await mapController.addHeatmapLayer(
         "heat",
-        "heatmap",
+        "heatmap-layer",
         HeatmapLayerProperties(
           heatmapWeight: [
             "interpolate",
@@ -134,7 +161,7 @@ class _HeatMapState extends State<HeatMap> {
             ["linear"],
             ["zoom"],
             0, 1,
-            15, 3//dadadas
+            15, 3,
           ],
           heatmapColor: [
             "interpolate",
@@ -157,53 +184,24 @@ class _HeatMapState extends State<HeatMap> {
           heatmapOpacity: 0.7,
         ),
       );
+
       debugPrint("Heatmap layer added!");
     } catch (e) {
       debugPrint("Error adding heatmap layer: $e");
     }
   }
 
-  void _addKeralaBorders() async {
+  Future<Map<String, dynamic>?> fetchHeatMapData() async {
     try {
-      final Map<String, dynamic> keralaBordersGeoJson = {
-        "type": "FeatureCollection",
-        "features": [
-          {
-            "type": "Feature",
-            "geometry": {
-              "type": "Polygon",
-              "coordinates": [
-                [
-                  [74.5, 8.0],
-                  [77.5, 8.0],
-                  [77.5, 12.8],
-                  [74.5, 12.8],
-                  [74.5, 8.0],
-                ]
-              ],
-            },
-            "properties": {},
-          },
-        ],
-      };
-
-      await mapController.addSource(
-        "keralaBorders",
-        GeojsonSourceProperties(data: keralaBordersGeoJson),
-      );
-      debugPrint("Kerala borders GeoJSON source added!");
-
-      await mapController.addLayer(
-        "keralaBorders",
-        "line",
-        LineLayerProperties(
-          lineColor: "rgba(0, 0, 0, 1)",
-          lineWidth: 2,
-        ),
-      );
-      debugPrint("Kerala borders layer added!");
+      final response = await http.get(Uri.parse("http://192.168.98.180:3000/map"));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data;
+      }
+      return null;
     } catch (e) {
-      debugPrint("Error adding Kerala borders layer: $e");
+      debugPrint("Error fetching heatmap data: $e");
+      return null;
     }
   }
 }

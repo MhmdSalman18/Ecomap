@@ -20,7 +20,7 @@ class EcomapApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(), // St with 
+      home: HeatMap(), // St with 
     );
   }
 }

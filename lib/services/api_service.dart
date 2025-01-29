@@ -9,7 +9,60 @@ import 'package:mime/mime.dart';
 class ApiService {
   // Set the base URL for your API
   final String baseUrl =
-      'http://192.168.1.5:3000'; // Replace with your actual server URL
+      'http://192.168.98.180:3000'; // Replace with your actual server URL
+
+
+
+      //create an api for map
+      Future<Map<String, dynamic>> getHeatMapData() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/map'), // Ensure correct route
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        
+        if (responseBody.containsKey('features')) {
+          return {
+            'success': true,
+            'message': 'Heatmap data retrieved successfully',
+            'data': responseBody['features'], // Extracting only relevant data
+          };
+        } else {
+          return {
+            'success': false,
+            'message': 'Unexpected response format',
+          };
+        }
+      } else {
+        return {
+          'success': false,
+          'message': response.statusCode == 404
+              ? 'No data found'
+              : 'Failed to retrieve data',
+        };
+      }
+    } on SocketException {
+      return {
+        'success': false,
+        'message': 'No internet connection. Please check your network.',
+      };
+    } catch (error) {
+      return {
+        'success': false,
+        'message': 'An error occurred: ${error.toString()}',
+      };
+    }
+  }
+
+
+
+
 
   Future<Map<String, String>> getUserDetails() async {
     final prefs = await SharedPreferences.getInstance();
