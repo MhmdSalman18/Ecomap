@@ -9,12 +9,10 @@ import 'package:mime/mime.dart';
 class ApiService {
   // Set the base URL for your API
   final String baseUrl =
-      'http://192.168.98.180:3000'; // Replace with your actual server URL
+      'http://localhost:3000'; // Replace with your actual server URL
 
-
-
-      //create an api for map
-      Future<Map<String, dynamic>> getHeatMapData() async {
+  //create an api for map
+  Future<Map<String, dynamic>> getHeatMapData() async {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/map'), // Ensure correct route
@@ -26,7 +24,7 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
-        
+
         if (responseBody.containsKey('features')) {
           return {
             'success': true,
@@ -60,18 +58,49 @@ class ApiService {
     }
   }
 
-
-
-
-
   Future<Map<String, String>> getUserDetails() async {
-    final prefs = await SharedPreferences.getInstance();
-    final email = prefs.getString('user_email') ?? 'No email found';
-    final name = prefs.getString('user_name') ?? 'No name found';
-    return {
-      'email': email,
-      'name': name,
-    };
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      if (token == null) {
+        throw Exception('User not authenticated. Please log in.');
+      }
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/user/get-user'),
+        headers: {
+          'Content-Type': 'application/json',
+          'x-authtoken': token, // Sending token in x-authtoken header
+        },
+      );
+
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseBody = jsonDecode(response.body);
+
+        // Extract name and email
+        final name = responseBody['name'] ?? 'No name found';
+        final email = responseBody['email'] ?? 'No email found';
+
+        // Optionally update local storage
+        await prefs.setString('user_name', name);
+        await prefs.setString('user_email', email);
+
+        return {
+          'name': name,
+          'email': email,
+        };
+      } else if (response.statusCode == 401) {
+        throw Exception('Unauthorized access. Please log in again.');
+      } else {
+        throw Exception('Failed to fetch user details. Please try again.');
+      }
+    } on Exception catch (error) {
+      throw Exception('An error occurred: ${error.toString()}');
+    }
   }
 
   Future<String> registerUser(
@@ -162,7 +191,9 @@ class ApiService {
         }
 
         // Return the token if it exists
+        // Return the token if it exists
         if (responseBody['token'] != null) {
+          await prefs.setString('auth_token', responseBody['token']);
           return responseBody['token'];
         } else {
           throw Exception('No authentication token received');
@@ -369,150 +400,145 @@ class ApiService {
     }
   }
 
-
-
-
-
-
-
-
-
-Future<Map<String, dynamic>> uploadData({
-  required String title,
-  required String description,
-  required String date,
-  required String imagePath,
-  required String location,
-}) async {
-  if (title.trim().isEmpty || description.trim().isEmpty || imagePath.trim().isEmpty) {
-    return {
-      'success': false,
-      'message': 'Title, description, and image are required',
-      'error': 'Missing required fields',
-    };
-  }
-
-  try {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
-
-    if (token == null || token.isEmpty) {
+  Future<Map<String, dynamic>> uploadData({
+    required String title,
+    required String description,
+    required String date,
+    required String imagePath,
+    required String location,
+  }) async {
+    if (title.trim().isEmpty ||
+        description.trim().isEmpty ||
+        imagePath.trim().isEmpty) {
       return {
         'success': false,
-        'message': 'Authentication required',
-        'error': 'No auth token found',
-      };
-    }
-
-    final request = http.MultipartRequest(
-      'POST',
-      Uri.parse('$baseUrl/user/upload-image'),
-    );
-
-    request.headers.addAll({
-      'x-authtoken': token,
-      'Content-Type': 'multipart/form-data',
-    });
-
-    request.fields.addAll({
-      'title': title.trim(),
-      'description': description.trim(),
-      'date': date,
-    });
-
-    // Location validation and parsing
-    try {
-      // Print the original location string for debugging
-      print('Received location: $location');
-
-      // Refined Regex to handle whitespace and robust parsing
-      final latRegex = RegExp(r'Latitude:\s*([-+]?[0-9]*\.?[0-9]+)');
-      final lngRegex = RegExp(r'Longitude:\s*([-+]?[0-9]*\.?[0-9]+)');
-
-      final latitudeMatch = latRegex.firstMatch(location);
-      final longitudeMatch = lngRegex.firstMatch(location);
-
-      if (latitudeMatch == null || longitudeMatch == null) {
-        throw FormatException(
-          'Invalid location format. Ensure it follows "Latitude:<value>, Longitude:<value>"',
-        );
-      }
-
-      final latitude = double.parse(latitudeMatch.group(1)!.trim());
-      final longitude = double.parse(longitudeMatch.group(1)!.trim());
-
-      if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
-        throw FormatException('Latitude or longitude out of range');
-      }
-
-      // Print parsed latitude and longitude
-      print('Parsed latitude: $latitude, longitude: $longitude');
-
-      request.fields['location.type'] = 'Point';
-      request.fields['location.coordinates[0]'] = longitude.toString();
-      request.fields['location.coordinates[1]'] = latitude.toString();
-
-    } catch (e) {
-      return {
-        'success': false,
-        'message': 'Invalid location coordinates: $location',
-        'error': e.toString(),
-      };
-    }
-
-    // Image file attachment
-    if (!File(imagePath).existsSync()) {
-      return {
-        'success': false,
-        'message': 'Image file not found',
-        'error': 'File does not exist at $imagePath',
+        'message': 'Title, description, and image are required',
+        'error': 'Missing required fields',
       };
     }
 
     try {
-      final mimeType = lookupMimeType(imagePath) ?? 'application/octet-stream';
-      final file = await http.MultipartFile.fromPath(
-        'image',
-        imagePath,
-        contentType: MediaType.parse(mimeType),
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
+
+      if (token == null || token.isEmpty) {
+        return {
+          'success': false,
+          'message': 'Authentication required',
+          'error': 'No auth token found',
+        };
+      }
+
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$baseUrl/user/upload-image'),
       );
-      request.files.add(file);
+
+      request.headers.addAll({
+        'x-authtoken': token,
+        'Content-Type': 'multipart/form-data',
+      });
+
+      request.fields.addAll({
+        'title': title.trim(),
+        'description': description.trim(),
+        'date': date,
+      });
+
+      // Location validation and parsing
+      try {
+        // Print the original location string for debugging
+        print('Received location: $location');
+
+        // Refined Regex to handle whitespace and robust parsing
+        final latRegex = RegExp(r'Latitude:\s*([-+]?[0-9]*\.?[0-9]+)');
+        final lngRegex = RegExp(r'Longitude:\s*([-+]?[0-9]*\.?[0-9]+)');
+
+        final latitudeMatch = latRegex.firstMatch(location);
+        final longitudeMatch = lngRegex.firstMatch(location);
+
+        if (latitudeMatch == null || longitudeMatch == null) {
+          throw const FormatException(
+            'Invalid location format. Ensure it follows "Latitude:<value>, Longitude:<value>"',
+          );
+        }
+
+        final latitude = double.parse(latitudeMatch.group(1)!.trim());
+        final longitude = double.parse(longitudeMatch.group(1)!.trim());
+
+        if (latitude < -90 ||
+            latitude > 90 ||
+            longitude < -180 ||
+            longitude > 180) {
+          throw const FormatException('Latitude or longitude out of range');
+        }
+
+        // Print parsed latitude and longitude
+        print('Parsed latitude: $latitude, longitude: $longitude');
+
+        request.fields['location.type'] = 'Point';
+        request.fields['location.coordinates[0]'] = longitude.toString();
+        request.fields['location.coordinates[1]'] = latitude.toString();
+      } catch (e) {
+        return {
+          'success': false,
+          'message': 'Invalid location coordinates: $location',
+          'error': e.toString(),
+        };
+      }
+
+      // Image file attachment
+      if (!File(imagePath).existsSync()) {
+        return {
+          'success': false,
+          'message': 'Image file not found',
+          'error': 'File does not exist at $imagePath',
+        };
+      }
+
+      try {
+        final mimeType =
+            lookupMimeType(imagePath) ?? 'application/octet-stream';
+        final file = await http.MultipartFile.fromPath(
+          'image',
+          imagePath,
+          contentType: MediaType.parse(mimeType),
+        );
+        request.files.add(file);
+      } catch (e) {
+        return {
+          'success': false,
+          'message': 'Error processing image file',
+          'error': e.toString(),
+        };
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseBody = json.decode(response.body);
+
+        return {
+          'success': true,
+          'message': 'Image uploaded successfully!',
+          'upload': responseBody,
+        };
+      } else {
+        print('Response: ${response.statusCode} ${response.body}');
+        return {
+          'success': false,
+          'message': 'Upload failed',
+          'error':
+              'Server returned status ${response.statusCode}: ${response.body}',
+        };
+      }
     } catch (e) {
       return {
         'success': false,
-        'message': 'Error processing image file',
+        'message': 'An unexpected error occurred',
         'error': e.toString(),
       };
     }
-
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final responseBody = json.decode(response.body);
-
-      return {
-        'success': true,
-        'message': 'Image uploaded successfully!',
-        'upload': responseBody,
-      };
-    } else {
-      print('Response: ${response.statusCode} ${response.body}');
-      return {
-        'success': false,
-        'message': 'Upload failed',
-        'error': 'Server returned status ${response.statusCode}: ${response.body}',
-      };
-    }
-  } catch (e) {
-    return {
-      'success': false,
-      'message': 'An unexpected error occurred',
-      'error': e.toString(),
-    };
   }
-}
-
-
-
 }
