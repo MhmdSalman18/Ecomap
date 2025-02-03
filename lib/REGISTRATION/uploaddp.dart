@@ -1,4 +1,5 @@
 import 'package:ecomap/BottomNavigationBar.dart';
+import 'package:ecomap/REGISTRATION/login.dart';
 import 'package:ecomap/home.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -84,7 +85,7 @@ class _UploadDpPageState extends State<UploadDpPage> {
                   // Navigate to HomePage
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => const BottomNavigationBarExample(title: '',)),
+                    MaterialPageRoute(builder: (context) => const LoginPage(title: "")),
                   );
                 }
               },
