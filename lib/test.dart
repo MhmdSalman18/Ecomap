@@ -1,11 +1,32 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:ecomap/home.dart';
 import 'package:ecomap/map.dart';
 import 'package:ecomap/status.dart';
 import 'package:ecomap/uploadstate.dart';
-import 'package:flutter/material.dart';
+
+class textPage extends StatefulWidget {
+  const textPage({super.key});
+
+  @override
+  State<textPage> createState() => _textPageState();
+}
+
+class _textPageState extends State<textPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Text Page'),
+      ),
+      body: const BottomNavigationBarExample(title: 'Bottom Navigation Example'),
+    );
+  }
+}
 
 class BottomNavigationBarExample extends StatefulWidget {
-  const BottomNavigationBarExample({super.key, required String title});
+  const BottomNavigationBarExample({super.key, required this.title});
+  final String title;
 
   @override
   State<BottomNavigationBarExample> createState() =>
@@ -16,12 +37,11 @@ class _BottomNavigationBarExampleState
     extends State<BottomNavigationBarExample> {
   int _selectedIndex = 0; // Default to 'HomePage'
 
-  // List of pages for BottomNavigationBar
+  // List of pages for BottomNavigationBa
   static const List<Widget> _widgetOptions = <Widget>[
     StatusPage(title: ''),
     HomePage(title: ''),
     HeatMap(),
-    UploadState(imagePath: '', title: '',),
   ];
 
   // Handle item selection
@@ -60,7 +80,7 @@ class _BottomNavigationBarExampleState
             : _selectedIndex - 1,
         selectedItemColor:
             _selectedIndex == 0 ? Color(0xFF5F7548) : Color(0xFFB4E576),
-        unselectedItemColor: Color(0xFF5F7548),
+        unselectedItemColor:Color(0xFF5F7548),
         backgroundColor: Color(0xFF082517), // Set BottomNavigationBar background color to red
         onTap: _onItemTapped,
       ),

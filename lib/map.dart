@@ -16,6 +16,7 @@ class _HeatMapState extends State<HeatMap> {
   late MapLibreMapController mapController;
   Location location = Location();
   LatLng? currentLocation;
+  bool heatmapAdded = false; // To prevent duplicate layers
 
   @override
   void initState() {
@@ -88,22 +89,22 @@ class _HeatMapState extends State<HeatMap> {
   }
 
   void _getCurrentLocation() async {
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
 
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
         debugPrint("Location services are disabled.");
         return;
       }
     }
 
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
         debugPrint("Location permission denied.");
         return;
       }
@@ -111,10 +112,13 @@ class _HeatMapState extends State<HeatMap> {
 
     try {
       final LocationData locationData = await location.getLocation();
-      setState(() {
-        currentLocation =
-            LatLng(locationData.latitude ?? 0.0, locationData.longitude ?? 0.0);
-      });
+      if (locationData.latitude != null && locationData.longitude != null) {
+        setState(() {
+          currentLocation = LatLng(locationData.latitude!, locationData.longitude!);
+        });
+      } else {
+        debugPrint("Invalid location data received.");
+      }
     } catch (e) {
       debugPrint("Error getting current location: $e");
     }
@@ -131,13 +135,13 @@ class _HeatMapState extends State<HeatMap> {
   }
 
   void _addHeatMapLayer() async {
-    if (mapController == null) return;
+    if (mapController == null || heatmapAdded) return; // Prevent duplicate layers
 
     try {
       final response = await fetchHeatMapData();
 
-      if (response == null) {
-        debugPrint("Failed to fetch heatmap data.");
+      if (response == null || !response.containsKey('type')) {
+        debugPrint("Invalid GeoJSON data received.");
         return;
       }
 
@@ -185,6 +189,7 @@ class _HeatMapState extends State<HeatMap> {
         ),
       );
 
+      heatmapAdded = true; // Mark heatmap as added
       debugPrint("Heatmap layer added!");
     } catch (e) {
       debugPrint("Error adding heatmap layer: $e");
@@ -193,11 +198,18 @@ class _HeatMapState extends State<HeatMap> {
 
   Future<Map<String, dynamic>?> fetchHeatMapData() async {
     try {
-      final response = await http.get(Uri.parse("http://192.168.98.180:3000/map"));
+      final response = await http.get(Uri.parse("http://192.168.1.6:3000/user/map"));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return data;
+
+        if (data is Map<String, dynamic> && data.containsKey('type')) {
+          return data;
+        } else {
+          debugPrint("Received data is not a valid GeoJSON.");
+          return null;
+        }
       }
+      debugPrint("Failed to fetch heatmap data. Status code: ${response.statusCode}");
       return null;
     } catch (e) {
       debugPrint("Error fetching heatmap data: $e");
