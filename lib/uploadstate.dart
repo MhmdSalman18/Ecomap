@@ -333,10 +333,9 @@ class _UploadStateState extends State<UploadState> {
                 ),
                 const SizedBox(height: 16.0),
                 // Date Field
-                  TextField(
-                  controller: _dateController..text = DateTime.now().toString().split(' ')[0],
-                  keyboardType: TextInputType.datetime,
-                  decoration: const InputDecoration(
+                    TextField(
+                    controller: _dateController..text = DateTime.now().toString().split(' ')[0],
+                    decoration: const InputDecoration(
                     labelText: 'Date',
                     hintText: 'YYYY-MM-DD',
                     labelStyle: TextStyle(color: Color(0xFFD1F5A0)),
@@ -344,24 +343,10 @@ class _UploadStateState extends State<UploadState> {
                     border: OutlineInputBorder(),
                     suffixIcon:
                       Icon(Icons.calendar_today, color: Color(0xFFD1F5A0)),
-                  ),
-                  style: const TextStyle(color: Color(0xFFD1F5A0)),
-                  onTap: () async {
-                    FocusScope.of(context).requestFocus(FocusNode());
-                    DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime(2101),
-                    );
-                    if (pickedDate != null) {
-                    setState(() {
-                      _dateController.text =
-                        pickedDate.toString().split(' ')[0];
-                    });
-                    }
-                  },
-                  ),
+                    ),
+                    style: const TextStyle(color: Color(0xFFD1F5A0)),
+                    readOnly: true,
+                    ),
           
                 const SizedBox(height: 24.0),
           

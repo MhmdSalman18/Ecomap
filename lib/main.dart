@@ -22,7 +22,7 @@ class EcomapApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: FirstPage(title: '', imagePath: '',), // St with 
+      home: SplashScreen(), // St with 
     );
   }
 }
