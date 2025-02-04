@@ -1,6 +1,8 @@
+import 'package:ecomap/REGISTRATION/firstpage.dart';
 import 'package:ecomap/home.dart';
 import 'package:ecomap/services/api_service.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomDrawer extends StatefulWidget {
   CustomDrawer({super.key});
@@ -117,16 +119,21 @@ class _CustomDrawerState extends State<CustomDrawer> {
               },
             ),
             const Divider(), // Add a horizontal line
-            ListTile(
-              leading: Icon(Icons.logout,
-                  color: Color(0xFFB4E576)), // Red icon color
-              title: const Text("Logout",
-                  style: TextStyle(color: Color(0xFFD1F5A0))),
-              onTap: () {
-                Navigator.pop(context);
-                // Add logout functionality
-              },
-            ),
+           ListTile(
+  leading: Icon(Icons.logout, color: Color(0xFFB4E576)),
+  title: const Text("Logout", style: TextStyle(color: Color(0xFFD1F5A0))),
+  onTap: () async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('auth_token'); // Recommended method to remove token
+    
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => FirstPage(title: '', imagePath: ''),
+      ),
+    );
+  },
+),
+
           ],
         ),
       ),
