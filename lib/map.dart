@@ -1,3 +1,4 @@
+import 'package:ecomap/selectanimal.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
@@ -42,8 +43,13 @@ class _HeatMapState extends State<HeatMap> {
                   child: const Text("View All Spottings", style: TextStyle(color: Colors.black)),
                 ),
                 TextButton(
-                  onPressed: () {},
-                  child: const Text("View My Spottings", style: TextStyle(color: Colors.black)),
+                  onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SelectAnimal(title: '',)),
+                  );
+                  },
+                  child: const Text("Select Animal", style: TextStyle(color: Colors.black)),
                 ),
                 TextButton(
                   onPressed: () {},
