@@ -1,6 +1,7 @@
 import 'package:ecomap/CustomDrawer.dart';
 import 'package:ecomap/REGISTRATION/account.dart';
 import 'package:ecomap/selectanimal.dart';
+import 'package:ecomap/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
@@ -201,7 +202,7 @@ class _HeatMapState extends State<HeatMap> {
 
   void _loadAllSpottings() async {
     debugPrint("Fetching all spottings...");
-    final geoJsonData = await fetchHeatMapData();
+    final geoJsonData = await ApiService().fetchHeatMapData();
     if (geoJsonData != null) {
       setState(() {
         _addHeatMapLayer();
@@ -209,19 +210,20 @@ class _HeatMapState extends State<HeatMap> {
     }
   }
 
-  void _addHeatMapLayer() async {
-    if (mapController == null || heatmapAdded)
-      return; // Prevent duplicate layers
 
-    try {
-      final response = await fetchHeatMapData();
+void _addHeatMapLayer() async {
+  if (mapController == null || heatmapAdded)
+    return; // Prevent duplicate layers
 
-      if (response == null || !response.containsKey('type')) {
-        debugPrint("Invalid GeoJSON data received.");
-        return;
-      }
+  try {
+    final response = await ApiService().fetchHeatMapData();
 
-      await mapController.addGeoJsonSource("heat", response);
+    if (response == null || !response.containsKey('type')) {
+      debugPrint("Invalid GeoJSON data received.");
+      return;
+    }
+
+    await mapController.addGeoJsonSource("heat", response);
 
       debugPrint("GeoJSON source added!");
 
@@ -277,33 +279,11 @@ class _HeatMapState extends State<HeatMap> {
         ),
       );
 
-      heatmapAdded = true; // Mark heatmap as added
-      debugPrint("Heatmap layer added!");
-    } catch (e) {
-      debugPrint("Error adding heatmap layer: $e");
-    }
+ 
+    heatmapAdded = true;
+    debugPrint("Heatmap layer added!");
+  } catch (e) {
+    debugPrint("Error adding heatmap layer: $e");
   }
-
-  Future<Map<String, dynamic>?> fetchHeatMapData() async {
-    try {
-      final response =
-          await http.get(Uri.parse("http://192.168.1.3:3000/user/map"));
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-
-        if (data is Map<String, dynamic> && data.containsKey('type')) {
-          return data;
-        } else {
-          debugPrint("Received data is not a valid GeoJSON.");
-          return null;
-        }
-      }
-      debugPrint(
-          "Failed to fetch heatmap data. Status code: ${response.statusCode}");
-      return null;
-    } catch (e) {
-      debugPrint("Error fetching heatmap data: $e");
-      return null;
-    }
-  }
+}
 }

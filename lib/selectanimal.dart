@@ -1,12 +1,8 @@
-import 'package:ecomap/CustomDrawer.dart';
-import 'package:ecomap/REGISTRATION/account.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:ecomap/services/api_service.dart'; // Update import path as needed
 
 class SelectAnimal extends StatefulWidget {
   const SelectAnimal({super.key, required this.title});
-
   final String title;
 
   @override
@@ -14,6 +10,7 @@ class SelectAnimal extends StatefulWidget {
 }
 
 class _SelectAnimalState extends State<SelectAnimal> {
+  final ApiService _apiService = ApiService();
   List<Map<String, dynamic>> speciesList = [];
   List<Map<String, dynamic>> filteredList = [];
   bool isLoading = true;
@@ -22,32 +19,30 @@ class _SelectAnimalState extends State<SelectAnimal> {
   @override
   void initState() {
     super.initState();
-    fetchSpecies();
+    _loadSpecies();
     searchController.addListener(_filterSpecies);
   }
 
-  Future<void> fetchSpecies() async {
+  Future<void> _loadSpecies() async {
     try {
-      final response =
-          await http.get(Uri.parse('http://192.168.1.3:3000/expert/get-species'));
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        print('API Response: $data'); // Debugging API response
-
-        setState(() {
-          speciesList = List<Map<String, dynamic>>.from(data);
-          filteredList = speciesList; // Initially, both lists are the same
-          isLoading = false;
-        });
-      } else {
-        throw Exception('Failed to load species');
-      }
+      setState(() {
+        isLoading = true;
+      });
+      
+      final species = await _apiService.fetchSpecies();
+      
+      setState(() {
+        speciesList = species;
+        filteredList = speciesList;
+        isLoading = false;
+      });
     } catch (e) {
       setState(() {
         isLoading = false;
       });
-      print('Error fetching species: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load species: $e')),
+      );
     }
   }
 
@@ -62,49 +57,32 @@ class _SelectAnimalState extends State<SelectAnimal> {
   }
 
   @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF082517), // AppBar background color
-        iconTheme: IconThemeData(
-          color: Color(0xFFB4E576),
-        ),
-        actions: [
-          Padding(
-            padding:
-                const EdgeInsets.only(right: 8.0), // Add padding to the right
-            child: GestureDetector(
-              onTap: () {
-                // Navigate to HomePage
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AccountPage(),
-                  ),
-                );
-              },
-              child: CircleAvatar(),
-            ),
-          ),
-        ],
+        title: Text(widget.title),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          children: [
-            // Search Bar
-            TextField(
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
               controller: searchController,
               decoration: InputDecoration(
-                hintText: "Search species...",
+                hintText: 'Search species...',
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
             ),
-            SizedBox(height: 10),
-
+          ),
             // Species Grid View
             Expanded(
               child: isLoading
@@ -186,7 +164,7 @@ class _SelectAnimalState extends State<SelectAnimal> {
             ),
           ],
         ),
-      ),
+      
     );
   }
 }

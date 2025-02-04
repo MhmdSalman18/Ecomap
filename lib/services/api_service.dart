@@ -9,7 +9,8 @@ import 'package:mime/mime.dart';
 class ApiService {
   // Set the base URL for your API
   final String baseUrl =
-      'http://192.168.1.3:3000'; // Replace with your actual server URL
+       'https://ecomap-zehf.onrender.com'; // Replace with your actual server URL
+ // Replace with your actual server URL
 
   //create an api for map
   
@@ -497,4 +498,76 @@ class ApiService {
       };
     }
   }
+
+
+
+Future<List<Map<String, dynamic>>> fetchSpecies() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    if (token == null) {
+      throw Exception('User not authenticated');
+    }
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/expert/get-species'),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-authtoken': token,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return List<Map<String, dynamic>>.from(data);
+    } else {
+      throw Exception('Failed to load species');
+    }
+  } catch (e) {
+    print('Error fetching species: $e');
+    rethrow;
+  }
+}
+
+
+//map route
+
+
+Future<Map<String, dynamic>?> fetchHeatMapData() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    if (token == null) {
+      throw Exception('User not authenticated');
+    }
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/user/map'),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-authtoken': token,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+
+      if (data is Map<String, dynamic> && data.containsKey('type')) {
+        return data;
+      } else {
+        throw Exception('Invalid GeoJSON data');
+      }
+    }
+
+    throw Exception('Failed to fetch heatmap data');
+  } catch (e) {
+    print('Error fetching heatmap data: $e');
+    rethrow;
+  }
+}
+
+
+
 }
