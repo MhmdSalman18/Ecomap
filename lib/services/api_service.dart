@@ -9,7 +9,7 @@ import 'package:mime/mime.dart';
 class ApiService {
   // Set the base URL for your API
   final String baseUrl =
-      'http://192.168.1.6:3000'; // Replace with your actual server URL
+      'https://ecomap-zehf.onrender.com'; // Replace with your actual server URL
 
   //create an api for map
   

@@ -1,6 +1,8 @@
+import 'package:ecomap/BottomNavigationBar.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ecomap/REGISTRATION/login.dart';
 import 'package:ecomap/REGISTRATION/signup.dart';
-import 'package:flutter/material.dart';
 
 class FirstPage extends StatefulWidget {
   const FirstPage(
@@ -12,8 +14,33 @@ class FirstPage extends StatefulWidget {
 
 class _FirstPageState extends State<FirstPage> {
   @override
+  void initState() {
+    super.initState();
+    checkTokenAndNavigate();
+  }
+
+  Future<void> checkTokenAndNavigate() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs
+        .getString('auth_token'); // Use the key you used when storing the token
+    print(token);
+    print("😍");
+    if (token != null && token.isNotEmpty) {
+      // If token exists, navigate directly to HomePage
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => BottomNavigationBarExample(
+            title: "",
+          ), // Replace with your actual HomePage
+        ),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Rest of your existing FirstPage build method remains the same
       body: Container(
         color: Color(0xFF082517),
         child: Padding(
@@ -54,60 +81,60 @@ class _FirstPageState extends State<FirstPage> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 40.0),
-                SizedBox(
+              SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LoginPage(
-                        title: '',
-                        )),
-                  );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => LoginPage(
+                                title: '',
+                              )),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFB4E576),
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
+                    backgroundColor: Color(0xFFB4E576),
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
                   ),
                   child: const Text(
-                  'Login',
-                  style: TextStyle(fontSize: 18),
+                    'Login',
+                    style: TextStyle(fontSize: 18),
                   ),
                 ),
-                ),
+              ),
               const SizedBox(height: 16.0),
-                SizedBox(
+              SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
                   onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SignUpPage(title: '',
-                        
-                        )),
-                  );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => SignUpPage(
+                                title: '',
+                              )),
+                    );
                   },
                   style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  side: const BorderSide(color: Color(0xFFB4E576)),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    side: const BorderSide(color: Color(0xFFB4E576)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
                   ),
                   child: const Text(
-                  'Sign Up',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Color(0xFFB4E576),
-                  ),
+                    'Sign Up',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Color(0xFFB4E576),
+                    ),
                   ),
                 ),
-                ),
+              ),
             ],
           ),
         ),
