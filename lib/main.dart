@@ -6,7 +6,7 @@ import 'package:ecomap/REGISTRATION/login.dart';
 import 'package:ecomap/REGISTRATION/signup.dart';
 import 'package:ecomap/home.dart';
 import 'package:ecomap/map.dart';
-import 'package:ecomap/selectanimal.dart';
+import 'package:ecomap/viewspecies.dart';
 import 'package:ecomap/splash.dart';
 import 'package:ecomap/status.dart';
 import 'package:ecomap/uploadstate.dart';

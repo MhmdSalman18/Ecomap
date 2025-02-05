@@ -1,6 +1,7 @@
 import 'package:ecomap/CustomDrawer.dart';
 import 'package:ecomap/REGISTRATION/account.dart';
-import 'package:ecomap/selectanimal.dart';
+import 'package:ecomap/myspottings.dart';
+import 'package:ecomap/viewspecies.dart';
 import 'package:ecomap/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
@@ -63,68 +64,69 @@ class _HeatMapState extends State<HeatMap> {
             scrollDirection: Axis.horizontal,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
+              children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => HeatMap(
-                      key: UniqueKey(),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MySpottingsPage(
+                            
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text("View my spotings",
+                        style: TextStyle(color: Color(0xFFB4E576))),
+                    style: TextButton.styleFrom(
+                      side: BorderSide(color: Color(0xFFB4E576)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
                     ),
-                    );
-                  },
-                  child: const Text("View All Map",
-                    style: TextStyle(color: Color(0xFFB4E576))),
-                  style: TextButton.styleFrom(
-                    side: BorderSide(color: Color(0xFFB4E576)),
-                    shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SelectAnimal(
-                      title: '',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ViewSpeciesPage(
+                            title: '',
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text("View species",
+                        style: TextStyle(color: Color(0xFFB4E576))),
+                    style: TextButton.styleFrom(
+                      side: BorderSide(color: Color(0xFFB4E576)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
                     ),
-                    );
-                  },
-                  child: const Text("Select Animal",
-                    style: TextStyle(color: Color(0xFFB4E576))),
-                  style: TextButton.styleFrom(
-                    side: BorderSide(color: Color(0xFFB4E576)),
-                    shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
                   ),
                 ),
                 Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 8.0, horizontal: 8.0),
                   child: TextButton(
-                  onPressed: _loadAllSpottings,
-                  child: const Text("View My Spottings",
-                    style: TextStyle(color: Color(0xFFB4E576))),
-                  style: TextButton.styleFrom(
-                    side: BorderSide(color: Color(0xFFB4E576)),
-                    shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
+                    onPressed: _loadAllSpottings,
+                    child: const Text("View map",
+                        style: TextStyle(color: Color(0xFFB4E576))),
+                    style: TextButton.styleFrom(
+                      side: BorderSide(color: Color(0xFFB4E576)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
                     ),
                   ),
-                  ),
                 ),
-                ],
+              ],
             ),
           ),
           Expanded(
@@ -210,20 +212,19 @@ class _HeatMapState extends State<HeatMap> {
     }
   }
 
+  void _addHeatMapLayer() async {
+    if (mapController == null || heatmapAdded)
+      return; // Prevent duplicate layers
 
-void _addHeatMapLayer() async {
-  if (mapController == null || heatmapAdded)
-    return; // Prevent duplicate layers
+    try {
+      final response = await ApiService().fetchHeatMapData();
 
-  try {
-    final response = await ApiService().fetchHeatMapData();
+      if (response == null || !response.containsKey('type')) {
+        debugPrint("Invalid GeoJSON data received.");
+        return;
+      }
 
-    if (response == null || !response.containsKey('type')) {
-      debugPrint("Invalid GeoJSON data received.");
-      return;
-    }
-
-    await mapController.addGeoJsonSource("heat", response);
+      await mapController.addGeoJsonSource("heat", response);
 
       debugPrint("GeoJSON source added!");
 
@@ -279,11 +280,10 @@ void _addHeatMapLayer() async {
         ),
       );
 
- 
-    heatmapAdded = true;
-    debugPrint("Heatmap layer added!");
-  } catch (e) {
-    debugPrint("Error adding heatmap layer: $e");
+      heatmapAdded = true;
+      debugPrint("Heatmap layer added!");
+    } catch (e) {
+      debugPrint("Error adding heatmap layer: $e");
+    }
   }
-}
 }
