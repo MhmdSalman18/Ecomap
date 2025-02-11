@@ -6,6 +6,7 @@ import 'package:ecomap/REGISTRATION/login.dart';
 import 'package:ecomap/REGISTRATION/signup.dart';
 import 'package:ecomap/home.dart';
 import 'package:ecomap/map.dart';
+import 'package:ecomap/services/database_helper.dart';
 import 'package:ecomap/viewspecies.dart';
 import 'package:ecomap/splash.dart';
 import 'package:ecomap/status.dart';
@@ -13,7 +14,12 @@ import 'package:ecomap/uploadstate.dart';
 
 import 'package:flutter/material.dart';
 
-void main() => runApp(const EcomapApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Required for path_provider
+  await DatabaseHelper().database; // Initialize the database
+  runApp(EcomapApp());
+}
+
 
 class EcomapApp extends StatelessWidget {
   const EcomapApp({super.key});

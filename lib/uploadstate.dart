@@ -5,17 +5,20 @@ import 'package:ecomap/REGISTRATION/account.dart';
 import 'package:ecomap/home.dart';
 import 'package:ecomap/map.dart';
 import 'package:ecomap/services/api_service.dart';
+import 'package:ecomap/services/database_helper.dart';
 import 'package:ecomap/status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:lottie/lottie.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class UploadState extends StatefulWidget {
-  final String imagePath; // Add imagePath parameter
+  final String imagePath;
+  final int? draftId;
+
   const UploadState(
-      {super.key, required this.imagePath, required String title});
+      {Key? key, required this.imagePath, required String title, this.draftId})
+      : super(key: key);
 
   @override
   State<UploadState> createState() => _UploadStateState();
@@ -27,83 +30,122 @@ class _UploadStateState extends State<UploadState> {
   final TextEditingController _dateController = TextEditingController();
 
   final ApiService apiService = ApiService();
+  final DatabaseHelper dbHelper = DatabaseHelper();
 
   String? _currentImagePath;
   String _locationMessage = "Fetching location...";
-  
+  int? _draftId;
+
   @override
   void initState() {
     super.initState();
     _currentImagePath = widget.imagePath;
-    _getLocation(); // Fetch location on initialization
-  }
-
-  Future<void> _getLocation() async {
-  bool serviceEnabled;
-  LocationPermission permission;
-
-  // Check if location services are enabled
-  serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  if (!serviceEnabled) {
-    setState(() {
-      _locationMessage = "Please enable location services.";
-    });
-    return;
-  }
-
-  // Check for location permissions
-  permission = await Geolocator.checkPermission();
-  if (permission == LocationPermission.denied) {
-    permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied) {
-      setState(() {
-        _locationMessage = "Location permissions are denied.";
-      });
-      return;
+    _getLocation();
+    if (widget.draftId != null) {
+      _loadDraft(widget.draftId!);
     }
   }
 
-  if (permission == LocationPermission.deniedForever) {
-    setState(() {
-      _locationMessage = "Location permissions are permanently denied.";
-    });
-    return;
+  Future<void> _getLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      setState(() {
+        _locationMessage = "Please enable location services.";
+      });
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        setState(() {
+          _locationMessage = "Location permissions are denied.";
+        });
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      setState(() {
+        _locationMessage = "Location permissions are permanently denied.";
+      });
+      return;
+    }
+
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      setState(() {
+        _locationMessage =
+            "Latitude: ${position.latitude}, Longitude: ${position.longitude}";
+      });
+    } catch (e) {
+      setState(() {
+        _locationMessage = "Error fetching location: $e";
+      });
+    }
   }
 
-  // Fetch the current position
-  try {
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high, // Use high accuracy for precision
-    );
-    setState(() {
-      _locationMessage =
-          "Latitude: ${position.latitude}, Longitude: ${position.longitude}";
-    });
-  } catch (e) {
-    setState(() {
-      _locationMessage = "Error fetching location: $e";
-    });
+  Future<void> _loadDraft(int draftId) async {
+    final draft = await dbHelper.getDraft(draftId);
+    if (draft != null) {
+      setState(() {
+        _draftId = draft['id'] as int;
+        _titleController.text = draft['title'] ?? '';
+        _descriptionController.text = draft['description'] ?? '';
+        _dateController.text = draft['date'] ?? '';
+        _currentImagePath = draft['imagePath'] ?? _currentImagePath;
+        _locationMessage = draft['location'] ?? _locationMessage;
+      });
+    }
   }
-}
 
+  Future<void> _saveDraft() async {
+    final draftData = {
+      'title': _titleController.text,
+      'description': _descriptionController.text,
+      'date': _dateController.text,
+      'imagePath': _currentImagePath ?? '',
+      'location': _locationMessage,
+    };
 
-  void _resetFields() {
+    if (_draftId == null) {
+      int id = await dbHelper.insertDraft(draftData);
+      setState(() {
+        _draftId = id;
+      });
+    } else {
+      await dbHelper.updateDraft(_draftId!, draftData);
+    }
+  }
+
+  void _resetFields() async {
     setState(() {
       _titleController.clear();
       _descriptionController.clear();
       _dateController.clear();
+      _currentImagePath = null;
+      _locationMessage = "Fetching location...";
     });
+
+    if (_draftId != null) {
+      await dbHelper.deleteDraft(_draftId!);
+      setState(() {
+        _draftId = null;
+      });
+    }
   }
-
-  
-
 
   void _sendData() async {
     final title = _titleController.text;
     final description = _descriptionController.text;
     final date = _dateController.text;
 
-    // Validate fields
     if (title.isEmpty || description.isEmpty || date.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please fill in all fields")),
@@ -111,18 +153,17 @@ class _UploadStateState extends State<UploadState> {
       return;
     }
 
-    // Show loading indicator
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) =>  Center(child: Lottie.asset(
-                'assets/animations/main_scene.json',
-                width: 100, // Adjust the width as needed
-                height: 100, // Adjust the height as needed
-              ),),
+      builder: (context) => Center(
+          child: Lottie.asset(
+        'assets/animations/main_scene.json',
+        width: 100,
+        height: 100,
+      )),
     );
 
-    // Attempt upload
     final result = await apiService.uploadData(
       title: title,
       description: description,
@@ -131,31 +172,22 @@ class _UploadStateState extends State<UploadState> {
       location: _locationMessage,
     );
 
-    // Dismiss loading indicator
     Navigator.of(context).pop();
 
-    // Handle response
     if (result['success']) {
-      // Navigate to success page or show success message
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => 
-          HeatMap()
-          // UploadSuccessPage(
-          //   uploadDetails: result['data'],
-          // ),
+          builder: (context) =>
+              BottomNavigationBarExample(title: "Home Page"),
         ),
       );
     } else {
-      // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(result['message'])),
       );
     }
   }
-
-
 
   void _retryUpload() {
     Navigator.pushReplacement(
@@ -171,10 +203,10 @@ class _UploadStateState extends State<UploadState> {
     setState(() {
       _currentImagePath = null;
     });
+    _saveDraft();
   }
 
   void _uploadFromGallery() {
-    // Logic to pick an image from the gallery
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text("Upload from gallery functionality coming soon!"),
@@ -185,20 +217,17 @@ class _UploadStateState extends State<UploadState> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-            backgroundColor: Color(0xFF082517),
-
+      backgroundColor: Color(0xFF082517),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF082517), // AppBar background color
+        backgroundColor: const Color(0xFF082517),
         iconTheme: const IconThemeData(
           color: Color(0xFFB4E576),
         ),
         actions: [
           Padding(
-            padding:
-                const EdgeInsets.only(right: 8.0), // Add padding to the right
+            padding: const EdgeInsets.only(right: 8.0),
             child: GestureDetector(
               onTap: () {
-                // Navigate to HomePage
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -207,8 +236,7 @@ class _UploadStateState extends State<UploadState> {
                 );
               },
               child: const CircleAvatar(
-                // Replace with your image URL
-                radius: 18, // Adjust the size
+                radius: 18,
               ),
             ),
           ),
@@ -223,8 +251,6 @@ class _UploadStateState extends State<UploadState> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 16.0),
-          
-                // Image Container with Retry, Recapture, and Remove Buttons
                 Stack(
                   alignment: Alignment.center,
                   children: [
@@ -304,10 +330,7 @@ class _UploadStateState extends State<UploadState> {
                       ),
                   ],
                 ),
-          
                 const SizedBox(height: 16.0),
-          
-                // Title Field
                 TextField(
                   controller: _titleController,
                   decoration: const InputDecoration(
@@ -316,11 +339,11 @@ class _UploadStateState extends State<UploadState> {
                     border: OutlineInputBorder(),
                   ),
                   style: const TextStyle(color: Color(0xFFD1F5A0)),
+                  onChanged: (text) {
+                    _saveDraft();
+                  },
                 ),
-          
                 const SizedBox(height: 16.0),
-          
-                // Description Field
                 TextField(
                   controller: _descriptionController,
                   maxLines: 3,
@@ -330,26 +353,30 @@ class _UploadStateState extends State<UploadState> {
                     border: OutlineInputBorder(),
                   ),
                   style: const TextStyle(color: Color(0xFFD1F5A0)),
+                  onChanged: (text) {
+                    _saveDraft();
+                  },
                 ),
                 const SizedBox(height: 16.0),
-                // Date Field
-                    TextField(
-                    controller: _dateController..text = DateTime.now().toString().split(' ')[0],
-                    decoration: const InputDecoration(
+                TextField(
+                  controller: _dateController
+                    ..text = DateTime.now().toString().split(' ')[0],
+                  decoration: const InputDecoration(
                     labelText: 'Date',
                     hintText: 'YYYY-MM-DD',
                     labelStyle: TextStyle(color: Color(0xFFD1F5A0)),
                     hintStyle: TextStyle(color: Color(0xFFD1F5A0)),
                     border: OutlineInputBorder(),
-                    suffixIcon:
-                      Icon(Icons.calendar_today, color: Color(0xFFD1F5A0)),
-                    ),
-                    style: const TextStyle(color: Color(0xFFD1F5A0)),
-                    readOnly: true,
-                    ),
-          
+                    suffixIcon: Icon(Icons.calendar_today,
+                        color: Color(0xFFD1F5A0)),
+                  ),
+                  style: const TextStyle(color: Color(0xFFD1F5A0)),
+                  readOnly: true,
+                  onChanged: (text) {
+                    _saveDraft();
+                  },
+                ),
                 const SizedBox(height: 24.0),
-          
                 GestureDetector(
                   onLongPress: () {
                     Clipboard.setData(ClipboardData(text: _locationMessage));
@@ -364,44 +391,49 @@ class _UploadStateState extends State<UploadState> {
                     style: const TextStyle(color: Color(0xFFD1F5A0)),
                   ),
                 ),
-          
                 const SizedBox(height: 24.0),
-          
-                // Buttons for Reset and Send
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     ElevatedButton(
                       onPressed: _resetFields,
                       style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 40, vertical: 10),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                        backgroundColor: Colors.grey,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                       child: const Text('Reset',
-                        style: TextStyle(color: Colors.white, fontSize: 15)),
+                          style: TextStyle(color: Colors.white, fontSize: 15)),
                     ),
-                    SizedBox(width: 80,),
+                    SizedBox(
+                      width: 80,
+                    ),
                     ElevatedButton(
                       onPressed: _sendData,
                       style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 40, vertical: 10),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                        backgroundColor: Colors.green,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                       child: const Text('Send',
-                        style: TextStyle(color: Colors.white, fontSize: 15)),
+                          style: TextStyle(color: Colors.white, fontSize: 15)),
                     ),
                   ],
                 ),
-          
                 const SizedBox(height: 16.0),
+                ElevatedButton(
+                  onPressed: () async {
+                    await _saveDraft();
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Save as Draft and Go Back'),
+                ),
               ],
             ),
           ),

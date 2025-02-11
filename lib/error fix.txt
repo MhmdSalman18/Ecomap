@@ -13,3 +13,72 @@ password add special symbol
 add user profile image upload as another route
 sttaus code for replies
 token after registeration
+
+
+
+frontend
+add confirmation for upload
+
+
+
+BAKCEND
+
+user/getpendinglist
+
+token will be passed in json.body
+
+expected output:
+
+list of pending uploads, upload should contain uploadID, name of animal, date
+sample op:
+{
+    {
+        "uploadID": 1,
+        "name": "dog",
+        date:12/12/2222
+    },
+    {
+        "uploadID": 2,
+        "name": "cat",
+        date:12/12/2222
+    }
+}
+
+
+
+
+user/getpendingdata
+uploadID will be passed in json.body
+
+expected op
+full data in uploadID
+{
+    {
+        uploadID
+        image
+        date
+        location
+
+    }
+}
+
+
+user/upload_history
+token will be passed in json.body
+
+expected op
+all user uploads which are confirmed or decilined by user, status should be passed(confiemd or declined)
+{
+    {
+        "uploadID": 1,
+        status: confirmed
+        "name": "dog",
+        date:12/12/2222
+    },
+    {
+        "uploadID": 2,
+        status: declined
+        "name": "cat",
+        date:12/12/2222
+    }
+}
