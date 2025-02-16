@@ -1,5 +1,5 @@
 import 'package:ecomap/map.dart';
-import 'package:ecomap/map2.dart';
+import 'package:ecomap/mapmyspottings.dart';
 import 'package:flutter/material.dart';
 import 'package:ecomap/services/api_service.dart'; // Update import path as needed
 

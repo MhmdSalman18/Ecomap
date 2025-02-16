@@ -1,7 +1,8 @@
-import 'package:ecomap/map2.dart';
+import 'package:ecomap/mapmyspottings.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MySpottingsPage extends StatefulWidget {
   const MySpottingsPage({super.key});
@@ -14,20 +15,45 @@ class _MySpottingsPageState extends State<MySpottingsPage> {
   List<dynamic> occurrences = [];
   bool isLoading = true;
   String? errorMessage;
+  String? loggedInUserId; // Store logged-in user ID
 
   @override
   void initState() {
     super.initState();
-    fetchOccurrences();
+    loadUserId();
+  }
+
+  Future<void> loadUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('user_id'); // Get user ID from local storage
+    if (userId != null) {
+      setState(() {
+        loggedInUserId = userId;
+      });
+      fetchOccurrences();
+    } else {
+      setState(() {
+        errorMessage = 'User ID not found. Please log in again.';
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> fetchOccurrences() async {
-    const url = 'http://192.168.216.180:3000/expert/get-occurance';
+    const url = 'https://ecomap-zehf.onrender.com/expert/get-occurance';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+
+        // Filter occurrences by logged-in user ID
+        List<dynamic> userOccurrences = data.where((occurrence) {
+          return occurrence['userId'] != null &&
+              occurrence['userId']['_id'] == loggedInUserId;
+        }).toList();
+
         setState(() {
-          occurrences = json.decode(response.body);
+          occurrences = userOccurrences;
           isLoading = false;
         });
       } else {
@@ -66,10 +92,12 @@ class _MySpottingsPageState extends State<MySpottingsPage> {
                   itemBuilder: (context, index) {
                     final occurrence = occurrences[index];
                     final spot = occurrence['spotId'] ?? {};
+                    final species = occurrence['speciesId'] ?? {};
+                    final user = occurrence['userId'] ?? {};
+                    final expert = occurrence['expertId'] ?? {};
                     final location = spot['location'] ?? {};
                     final coordinates = location['coordinates'];
 
-                    // Extract latitude and longitude properly
                     final double? latitude = (coordinates is List && coordinates.length == 2)
                         ? (coordinates[1] as num?)?.toDouble()
                         : null;
@@ -80,6 +108,7 @@ class _MySpottingsPageState extends State<MySpottingsPage> {
                     return Card(
                       margin: const EdgeInsets.all(8.0),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           ListTile(
                             leading: spot['image'] != null && spot['image'].isNotEmpty
@@ -96,7 +125,63 @@ class _MySpottingsPageState extends State<MySpottingsPage> {
                             subtitle: Text(
                               'Description: ${spot['description'] ?? 'No Description'}\n'
                               'Status: ${spot['status'] ?? 'Unknown'}\n'
-                              'Date: ${spot['date'] ?? 'Unknown Date'}',
+                              'Date: ${spot['date']?.split("T")[0] ?? 'Unknown Date'}',
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                species['image'] != null
+                                    ? Image.network(
+                                        species['image'],
+                                        width: 50,
+                                        height: 50,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) =>
+                                            const Icon(Icons.broken_image),
+                                      )
+                                    : const Icon(Icons.nature),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Species: ${species['common_name'] ?? 'Unknown'}',
+                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                      ),
+                                      Text(
+                                        'Scientific Name: ${species['scientific_name'] ?? 'N/A'}',
+                                      ),
+                                      Text(
+                                        'Conservation Status: ${species['conservation_status'] ?? 'Unknown'}',
+                                        style: TextStyle(
+                                          color: species['conservation_status'] == 'Least Concern'
+                                              ? Colors.green
+                                              : Colors.red,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Reported by: ${user['name'] ?? 'Unknown'}'),
+                                Text('Email: ${user['email'] ?? 'N/A'}'),
+                                const SizedBox(height: 5),
+                                Text(
+                                  'Reviewed by: ${expert['name'] ?? 'Unknown'}',
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text('Expert Email: ${expert['email'] ?? 'N/A'}'),
+                              ],
                             ),
                           ),
                           if (latitude != null && longitude != null)

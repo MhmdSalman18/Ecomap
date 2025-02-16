@@ -562,4 +562,8 @@ class ApiService {
       rethrow;
     }
   }
+
+
+  //route for myspottings
+  
 }
