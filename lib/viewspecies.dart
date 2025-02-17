@@ -1,5 +1,6 @@
 import 'package:ecomap/map.dart';
 import 'package:ecomap/mapmyspottings.dart';
+import 'package:ecomap/mapviewspecies.dart';
 import 'package:flutter/material.dart';
 import 'package:ecomap/services/api_service.dart'; // Update import path as needed
 
@@ -79,9 +80,9 @@ void _viewOnMap(Map<String, dynamic> species) {
   Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => MySpottingsMapPage(
+      builder: (context) => MapViewSpeciesPage(
         latitude: coordinates[1], // Latitude is the second value
-        longitude: coordinates[0], // Longitude is the first value
+        longitude: coordinates[0],  // Longitude is the first value
       ),
     ),
   );

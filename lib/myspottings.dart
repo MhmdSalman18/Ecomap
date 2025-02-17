@@ -1,203 +1,157 @@
+import 'dart:convert';
 import 'package:ecomap/mapmyspottings.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class MySpottingsPage extends StatefulWidget {
-  const MySpottingsPage({super.key});
+class Upload {
+  final String image;
+  final String title;
+  final String description;
+  final String status;
+  final String date;
+    final Map<String, dynamic>? location; // Keep location as a Map
 
-  @override
-  State<MySpottingsPage> createState() => _MySpottingsPageState();
+  
+
+  Upload({
+    required this.image,
+    required this.title,
+    required this.description,
+    required this.status,
+    required this.date,
+        this.location,
+
+  });
+
+  factory Upload.fromJson(Map<String, dynamic> json) {
+    return Upload(
+      image: json['image'],
+      title: json['title'],
+      description: json['description'],
+      status: json['status'],
+      date: json['date'],
+            location: json['location'] != null ? json['location'] as Map<String, dynamic> : null,
+
+    );
+  }
 }
 
-class _MySpottingsPageState extends State<MySpottingsPage> {
-  List<dynamic> occurrences = [];
+class MySpottingsPage extends StatefulWidget {
+  @override
+  _UserUploadsScreenState createState() => _UserUploadsScreenState();
+}
+
+class _UserUploadsScreenState extends State<MySpottingsPage> {
+  List<Upload> uploads = [];
   bool isLoading = true;
-  String? errorMessage;
-  String? loggedInUserId; // Store logged-in user ID
 
   @override
   void initState() {
     super.initState();
-    loadUserId();
+    fetchUploads();
   }
 
-  Future<void> loadUserId() async {
+  Future<void> fetchUploads() async {
     final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString('user_id'); // Get user ID from local storage
-    if (userId != null) {
-      setState(() {
-        loggedInUserId = userId;
-      });
-      fetchOccurrences();
-    } else {
-      setState(() {
-        errorMessage = 'User ID not found. Please log in again.';
-        isLoading = false;
-      });
-    }
-  }
+    final token = prefs.getString('auth_token');
 
-  Future<void> fetchOccurrences() async {
-    const url = 'https://ecomap-zehf.onrender.com/expert/get-occurance';
+    if (token == null || token.isEmpty) {
+      setState(() => isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No authentication token found.')),
+      );
+      return;
+    }
+
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await http.get(
+        Uri.parse('https://ecomap-zehf.onrender.com/user/uploads'),
+        headers: {'x-authtoken': token},
+      );
+
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
-
-        // Filter occurrences by logged-in user ID
-        List<dynamic> userOccurrences = data.where((occurrence) {
-          return occurrence['userId'] != null &&
-              occurrence['userId']['_id'] == loggedInUserId;
-        }).toList();
-
         setState(() {
-          occurrences = userOccurrences;
+          uploads = data.map((item) => Upload.fromJson(item)).toList();
           isLoading = false;
         });
       } else {
-        setState(() {
-          errorMessage = 'Failed to load data: ${response.statusCode}';
-          isLoading = false;
-        });
+        setState(() => isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to fetch uploads.')),
+        );
       }
     } catch (e) {
-      setState(() {
-        errorMessage = 'An error occurred: $e';
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Network error occurred.')),
+      );
     }
   }
+void viewOnMap(Upload upload) {
+  if (upload.location != null && upload.location?['coordinates'] != null && 
+      upload.location?['coordinates'] is List && 
+      upload.location?['coordinates'].length == 2) {
+    
+    double? latitude = double.tryParse(upload.location!['coordinates'][1].toString());
+    double? longitude = double.tryParse(upload.location!['coordinates'][0].toString());
 
-  void _viewOnMap(BuildContext context, double latitude, double longitude) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MySpottingsMapPage(latitude: latitude, longitude: longitude),
-      ),
+    if (latitude != null && longitude != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MySpottingsMapPage(
+            latitude: latitude,
+            longitude: longitude,
+            title: upload.title,
+            imageUrl: upload.image, // Pass image URL here
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Invalid location data')),
+      );
+    }
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('No location data available')),
     );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('My Spottings')),
+      appBar: AppBar(title: Text('My Uploads')),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : errorMessage != null
-              ? Center(child: Text(errorMessage!))
+          ? Center(child: CircularProgressIndicator())
+          : uploads.isEmpty
+              ? Center(child: Text('No uploads found.'))
               : ListView.builder(
-                  itemCount: occurrences.length,
+                  itemCount: uploads.length,
                   itemBuilder: (context, index) {
-                    final occurrence = occurrences[index];
-                    final spot = occurrence['spotId'] ?? {};
-                    final species = occurrence['speciesId'] ?? {};
-                    final user = occurrence['userId'] ?? {};
-                    final expert = occurrence['expertId'] ?? {};
-                    final location = spot['location'] ?? {};
-                    final coordinates = location['coordinates'];
-
-                    final double? latitude = (coordinates is List && coordinates.length == 2)
-                        ? (coordinates[1] as num?)?.toDouble()
-                        : null;
-                    final double? longitude = (coordinates is List && coordinates.length == 2)
-                        ? (coordinates[0] as num?)?.toDouble()
-                        : null;
-
+                    final upload = uploads[index];
                     return Card(
-                      margin: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ListTile(
-                            leading: spot['image'] != null && spot['image'].isNotEmpty
-                                ? Image.network(
-                                    spot['image'],
-                                    width: 50,
-                                    height: 50,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) =>
-                                        const Icon(Icons.broken_image),
-                                  )
-                                : const Icon(Icons.image),
-                            title: Text(spot['title'] ?? 'Unknown Title'),
-                            subtitle: Text(
-                              'Description: ${spot['description'] ?? 'No Description'}\n'
-                              'Status: ${spot['status'] ?? 'Unknown'}\n'
-                              'Date: ${spot['date']?.split("T")[0] ?? 'Unknown Date'}',
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                species['image'] != null
-                                    ? Image.network(
-                                        species['image'],
-                                        width: 50,
-                                        height: 50,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) =>
-                                            const Icon(Icons.broken_image),
-                                      )
-                                    : const Icon(Icons.nature),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Species: ${species['common_name'] ?? 'Unknown'}',
-                                        style: const TextStyle(fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(
-                                        'Scientific Name: ${species['scientific_name'] ?? 'N/A'}',
-                                      ),
-                                      Text(
-                                        'Conservation Status: ${species['conservation_status'] ?? 'Unknown'}',
-                                        style: TextStyle(
-                                          color: species['conservation_status'] == 'Least Concern'
-                                              ? Colors.green
-                                              : Colors.red,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Reported by: ${user['name'] ?? 'Unknown'}'),
-                                Text('Email: ${user['email'] ?? 'N/A'}'),
-                                const SizedBox(height: 5),
-                                Text(
-                                  'Reviewed by: ${expert['name'] ?? 'Unknown'}',
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                Text('Expert Email: ${expert['email'] ?? 'N/A'}'),
-                              ],
-                            ),
-                          ),
-                          if (latitude != null && longitude != null)
-                            TextButton(
-                              onPressed: () => _viewOnMap(context, latitude, longitude),
-                              child: const Text('View in Map'),
-                            ),
-                          if (latitude == null || longitude == null)
-                            const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Text(
-                                'Location not available',
-                                style: TextStyle(color: Colors.red),
-                              ),
-                            ),
-                        ],
+                      margin: EdgeInsets.all(10),
+                      child: ListTile(
+                        leading: Image.network(
+                          upload.image,
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(Icons.image_not_supported);
+                          },
+                        ),
+                        title: Text(upload.title),
+                        subtitle: Text(upload.description),
+                        trailing: ElevatedButton(
+                          onPressed: () => viewOnMap(upload),
+                          child: Text('View in Map'),
+                        ),
                       ),
                     );
                   },
@@ -205,3 +159,4 @@ class _MySpottingsPageState extends State<MySpottingsPage> {
     );
   }
 }
+

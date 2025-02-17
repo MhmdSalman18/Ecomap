@@ -1,12 +1,13 @@
-import 'package:ecomap/CustomDrawer.dart';
 import 'package:ecomap/REGISTRATION/account.dart';
 import 'package:ecomap/myspottings.dart';
 import 'package:ecomap/viewspecies.dart';
-import 'package:ecomap/services/api_service.dart';
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:http/http.dart' as http;
 import 'package:location/location.dart';
+import 'package:lottie/lottie.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:maplibre_gl/maplibre_gl.dart';
 
 class HeatMap extends StatefulWidget {
   const HeatMap({super.key});
@@ -61,8 +62,7 @@ class _HeatMapState extends State<HeatMap> {
               children: [
                 _buildNavButton("View my spottings", MySpottingsPage()),
                 _buildNavButton("View species", ViewSpeciesPage(title: '')),
-                _buildNavButton("View map", null, _loadMap),
-                _buildNavButton("View Heatmap", null, _viewHeatmap), // New Heatmap button
+                _buildNavButton("View Heatmap", null, _viewHeatmap),
               ],
             ),
           ),
@@ -151,30 +151,77 @@ class _HeatMapState extends State<HeatMap> {
     }
   }
 
-  void _loadMap() async {
-    debugPrint("Loading map...");
+  Future<Map<String, dynamic>?> fetchHeatMapData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('auth_token');
 
-    if (currentLocation == null) {
-      debugPrint("Current location is not available yet.");
-      await _getCurrentLocation();
-      if (currentLocation == null) {
-        debugPrint("Failed to get current location.");
-        return;
+      if (token == null) {
+        throw Exception('User not authenticated');
       }
-    }
 
-    // Move the map to the current location
-    mapController.moveCamera(CameraUpdate.newLatLngZoom(currentLocation!, 12));
+      final response = await http.get(
+        Uri.parse('https://ecomap-zehf.onrender.com/user/map'),
+        headers: {
+          'Content-Type': 'application/json',
+          'x-authtoken': token,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        if (data is Map<String, dynamic> && data.containsKey('type')) {
+          return data;
+        } else {
+          throw Exception('Invalid GeoJSON data');
+        }
+      }
+
+      throw Exception('Failed to fetch heatmap data');
+    } catch (e) {
+      print('Error fetching heatmap data: $e');
+      rethrow;
+    }
   }
 
-  // New function to handle the Heatmap button press
-  void _viewHeatmap() {
-    debugPrint("Loading Heatmap...");
+  void _viewHeatmap() async {
+    try {
+      final heatmapData = await fetchHeatMapData();
+      if (heatmapData != null) {
+        _addHeatmapLayer(heatmapData);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error fetching heatmap data: $e")));
+    }
+  }
 
-    // You can implement heatmap display logic here
-    // For now, you can just log a message or add functionality to load a heatmap layer
-    // Example:
-    // mapController.addSource('heatmap-source', ...);
-    // mapController.addLayer('heatmap-layer', ...);
+  void _addHeatmapLayer(Map<String, dynamic> heatmapData) {
+    try {
+      // Add GeoJSON source for the heatmap data
+      mapController.addSource(
+        'heatmap-source',
+        GeojsonSourceProperties(data: json.encode(heatmapData)),
+      );
+
+      // Add Heatmap Layer
+      mapController.addHeatmapLayer(
+        'heatmap-layer',
+        'heatmap-source',
+        HeatmapLayerProperties(
+          heatmapColor: [
+            [0, 'rgba(33,102,172,0)'],
+            [0.2, 'rgb(103,169,207)'],
+            [0.4, 'rgb(209,229,240)'],
+            [0.6, 'rgb(253,219,199)'],
+            [0.8, 'rgb(239,138,98)'],
+            [1, 'rgb(178,24,43)']
+          ],
+          heatmapRadius: 15,
+        ),
+      );
+    } catch (e) {
+      print("Error adding heatmap layer: $e");
+    }
   }
 }

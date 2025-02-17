@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class ApiService {
   // Set the base URL for your API
@@ -118,68 +119,73 @@ class ApiService {
   }
 
   Future<String> loginUser(String email, String password) async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/user/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-        }),
-      );
+  try {
+    final response = await http.post(
+      Uri.parse('$baseUrl/user/login'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+      }),
+    );
 
-      print('Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
+    print('Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
 
-      // Parse the response body
-      final responseBody = jsonDecode(response.body);
+    final responseBody = jsonDecode(response.body);
 
-      // Successful login
-      if (response.statusCode == 200) {
-        final prefs = await SharedPreferences.getInstance();
+    if (response.statusCode == 200) {
+      final prefs = await SharedPreferences.getInstance();
 
-        // Save email to SharedPreferences
-        await prefs.setString('user_email', email);
+      // Save email
+      await prefs.setString('user_email', email);
 
-        // Save name if it exists in the response
-        if (responseBody['name'] != null) {
-          await prefs.setString('user_name', responseBody['name']);
-        }
-
-        // Return the token if it exists
-        // Return the token if it exists
-        if (responseBody['token'] != null) {
-          await prefs.setString('auth_token', responseBody['token']);
-          return responseBody['token'];
-        } else {
-          throw Exception('No authentication token received');
-        }
+      // Save name if exists
+      if (responseBody['name'] != null) {
+        await prefs.setString('user_name', responseBody['name']);
       }
-      // Handle errors
-      else if (response.statusCode >= 400 && response.statusCode < 410) {
-        if (responseBody != null && responseBody['message'] != null) {
-          throw Exception(responseBody['message']);
-        }
-        throw Exception('Invalid credentials or login failed');
+
+      // Extract token and decode it
+      if (responseBody['token'] != null) {
+        String token = responseBody['token'];
+        await prefs.setString('auth_token', token);
+
+        // Decode JWT token to extract userId
+        Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+        String userId = decodedToken['id']; // Extract user ID
+
+        await prefs.setString('user_id', userId);
+
+        print("User ID: $userId");
+        return userId; // Return the user ID
+      } else {
+        throw Exception('No authentication token received');
       }
-      // Handle server-side errors
-      else if (response.statusCode >= 500) {
-        throw Exception('Server error. Please try again later.');
-      }
-      // Unexpected status codes
-      else {
-        throw Exception('An unexpected error occurred. Please try again.');
-      }
-    } on SocketException catch (_) {
-      throw Exception('No internet connection. Please check your network.');
-    } on FormatException catch (_) {
-      throw Exception('Error processing server response');
-    } on HttpException catch (_) {
-      throw Exception('Could not connect to the server');
-    } catch (error) {
-      throw Exception('An unexpected error occurred: ${error.toString()}');
+    } 
+    // Handle errors
+    else if (response.statusCode >= 400 && response.statusCode < 410) {
+      throw Exception(responseBody['message'] ?? 'Invalid credentials or login failed');
+    } 
+    // Handle server-side errors
+    else if (response.statusCode >= 500) {
+      throw Exception('Server error. Please try again later.');
+    } 
+    // Unexpected status codes
+    else {
+      throw Exception('An unexpected error occurred. Please try again.');
     }
+  } 
+  // Handle different exceptions
+  on SocketException {
+    throw Exception('No internet connection. Please check your network.');
+  } on FormatException {
+    throw Exception('Error processing server response');
+  } on HttpException {
+    throw Exception('Could not connect to the server');
+  } catch (error) {
+    throw Exception('An unexpected error occurred: ${error.toString()}');
   }
+}
 
   Future<Map<String, dynamic>> sendOtp(String email) async {
     try {
@@ -529,39 +535,7 @@ class ApiService {
 
 //map route
 
-  Future<Map<String, dynamic>?> fetchHeatMapData() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
-
-      if (token == null) {
-        throw Exception('User not authenticated');
-      }
-
-      final response = await http.get(
-        Uri.parse('$baseUrl/user/map'),
-        headers: {
-          'Content-Type': 'application/json',
-          'x-authtoken': token,
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-
-        if (data is Map<String, dynamic> && data.containsKey('type')) {
-          return data;
-        } else {
-          throw Exception('Invalid GeoJSON data');
-        }
-      }
-
-      throw Exception('Failed to fetch heatmap data');
-    } catch (e) {
-      print('Error fetching heatmap data: $e');
-      rethrow;
-    }
-  }
+ 
 
 
   //route for myspottings
