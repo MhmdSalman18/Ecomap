@@ -141,7 +141,6 @@ class _HeatMapState extends State<HeatMap> {
           currentLocation = LatLng(locationData.latitude!, locationData.longitude!);
         });
 
-        // Move camera to new location if map is initialized
         if (mapController != null) {
           mapController.moveCamera(CameraUpdate.newLatLngZoom(currentLocation!, 12));
         }
@@ -170,7 +169,6 @@ class _HeatMapState extends State<HeatMap> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-
         if (data is Map<String, dynamic> && data.containsKey('type')) {
           return data;
         } else {
@@ -198,14 +196,36 @@ class _HeatMapState extends State<HeatMap> {
 
   void _addHeatmapLayer(Map<String, dynamic> heatmapData) {
     try {
-      // Add GeoJSON source for the heatmap data
+      List<dynamic> features = heatmapData['features'];
+      List<Map<String, dynamic>> points = [];
+
+      for (var feature in features) {
+        if (feature['geometry']['type'] == 'Point') {
+          var coordinates = feature['geometry']['coordinates'];
+          points.add({
+            "type": "Feature",
+            "geometry": {
+              "type": "Point",
+              "coordinates": [coordinates[0], coordinates[1]]
+            },
+            "properties": {
+              "weight": 1
+            }
+          });
+        }
+      }
+
       mapController.addSource(
         'heatmap-source',
-        GeojsonSourceProperties(data: json.encode(heatmapData)),
+        GeojsonSourceProperties(
+          data: json.encode({
+            "type": "FeatureCollection",
+            "features": points
+          }),
+        ),
       );
 
-      // Add Heatmap Layer
-      mapController.addHeatmapLayer(
+      mapController.addLayer(
         'heatmap-layer',
         'heatmap-source',
         HeatmapLayerProperties(
@@ -217,6 +237,7 @@ class _HeatMapState extends State<HeatMap> {
             [0.8, 'rgb(239,138,98)'],
             [1, 'rgb(178,24,43)']
           ],
+          heatmapIntensity: 1,
           heatmapRadius: 15,
         ),
       );

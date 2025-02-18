@@ -22,7 +22,7 @@ class _BottomNavigationBarExampleState
   static const List<Widget> _widgetOptions = <Widget>[
     StatusPage(title: 'Status'),
     HomePage(title: "title"),
-    HeatMap(),
+    MapPage(),
   ];
 
   @override

@@ -1,18 +1,16 @@
-import 'package:ecomap/map.dart';
-import 'package:ecomap/mapmyspottings.dart';
 import 'package:ecomap/mapviewspecies.dart';
 import 'package:flutter/material.dart';
-import 'package:ecomap/services/api_service.dart'; // Update import path as needed
+import 'package:ecomap/services/api_service.dart'; // Ensure correct path
 
 class ViewSpeciesPage extends StatefulWidget {
   const ViewSpeciesPage({super.key, required this.title});
   final String title;
 
   @override
-  State<ViewSpeciesPage> createState() => _SelectAnimalState();
+  State<ViewSpeciesPage> createState() => _ViewSpeciesPageState();
 }
 
-class _SelectAnimalState extends State<ViewSpeciesPage> {
+class _ViewSpeciesPageState extends State<ViewSpeciesPage> {
   final ApiService _apiService = ApiService();
   List<Map<String, dynamic>> speciesList = [];
   List<Map<String, dynamic>> filteredList = [];
@@ -32,7 +30,7 @@ class _SelectAnimalState extends State<ViewSpeciesPage> {
         isLoading = true;
       });
 
-      final species = await _apiService.fetchSpecies();
+      final species = await _apiService.fetchSpeciesWithLocations();
 
       setState(() {
         speciesList = species;
@@ -59,36 +57,35 @@ class _SelectAnimalState extends State<ViewSpeciesPage> {
     });
   }
 
-void _viewOnMap(Map<String, dynamic> species) {
-  final spot = species['spotId']; // Check if spotId exists
-  if (spot == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("No location available for this species")),
-    );
-    return;
-  }
+  void _viewOnMap(Map<String, dynamic> species) {
+    if (!species.containsKey('location') || species['location'] == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("No location available for this species")),
+      );
+      return;
+    }
 
-  final location = spot['location']; // Check if location exists
-  if (location == null || location['coordinates'] == null || location['coordinates'].length < 2) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Invalid location data")),
-    );
-    return;
-  }
+    final location = species['location'];
 
-  final coordinates = location['coordinates'];
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => MapViewSpeciesPage(
-        latitude: coordinates[1], // Latitude is the second value
-        longitude: coordinates[0],  // Longitude is the first value
+    if (!location.containsKey('coordinates') || location['coordinates'].length < 2) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Invalid location data")),
+      );
+      return;
+    }
+
+    final coordinates = location['coordinates'];
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MapViewSpeciesPage(
+          latitude: coordinates[1], // Latitude
+          longitude: coordinates[0], // Longitude
+          speciesImage: species['image'], // Pass correct image URL
+        ),
       ),
-    ),
-  );
-}
-
-
+    );
+  }
 
   @override
   void dispose() {

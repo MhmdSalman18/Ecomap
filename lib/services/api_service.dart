@@ -504,7 +504,7 @@ class ApiService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> fetchSpecies() async {
+ Future<List<Map<String, dynamic>>> fetchSpeciesWithLocations() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('auth_token');
@@ -513,20 +513,49 @@ class ApiService {
         throw Exception('User not authenticated');
       }
 
-      final response = await http.get(
+      // Fetch species list
+      final speciesResponse = await http.get(
         Uri.parse('$baseUrl/expert/get-species'),
-        headers: {
-          'Content-Type': 'application/json',
-          'x-authtoken': token,
-        },
+        headers: {'Content-Type': 'application/json', 'x-authtoken': token},
       );
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        return List<Map<String, dynamic>>.from(data);
-      } else {
-        throw Exception('Failed to load species');
+      // Fetch species locations
+      final locationsResponse = await http.get(
+        Uri.parse('$baseUrl/user/map'),
+        headers: {'Content-Type': 'application/json', 'x-authtoken': token},
+      );
+
+      if (speciesResponse.statusCode != 200 || locationsResponse.statusCode != 200) {
+        throw Exception('Failed to fetch data');
       }
+
+      List<dynamic> speciesData = json.decode(speciesResponse.body);
+      Map<String, dynamic> locationsData = json.decode(locationsResponse.body);
+
+      List<Map<String, dynamic>> speciesList = List<Map<String, dynamic>>.from(speciesData);
+      List<dynamic> features = locationsData['features'];
+
+      // Mapping species locations to species list
+      Map<String, Map<String, dynamic>> speciesLocations = {};
+
+      for (var feature in features) {
+        final props = feature['properties'];
+        final geo = feature['geometry'];
+        if (props != null && geo != null) {
+          speciesLocations[props['speciesId']] = geo;
+        }
+      }
+
+      for (var species in speciesList) {
+        String speciesId = species['_id'];
+        if (speciesLocations.containsKey(speciesId)) {
+          species['location'] = speciesLocations[speciesId];
+        } else {
+          species['location'] = null;
+        }
+      }
+
+      return speciesList;
     } catch (e) {
       print('Error fetching species: $e');
       rethrow;

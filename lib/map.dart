@@ -1,5 +1,6 @@
 import 'package:ecomap/CustomDrawer.dart';
 import 'package:ecomap/REGISTRATION/account.dart';
+import 'package:ecomap/heatmap.dart';
 import 'package:ecomap/myspottings.dart';
 import 'package:ecomap/viewspecies.dart';
 import 'package:ecomap/services/api_service.dart';
@@ -8,14 +9,14 @@ import 'package:lottie/lottie.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:location/location.dart';
 
-class HeatMap extends StatefulWidget {
-  const HeatMap({super.key});
+class MapPage extends StatefulWidget {
+  const MapPage({super.key});
 
   @override
-  State<HeatMap> createState() => _HeatMapState();
+  State<MapPage> createState() => _HeatMapState();
 }
 
-class _HeatMapState extends State<HeatMap> {
+class _HeatMapState extends State<MapPage> {
   late MapLibreMapController mapController;
   Location location = Location();
   LatLng? currentLocation;
@@ -62,7 +63,8 @@ class _HeatMapState extends State<HeatMap> {
                 _buildNavButton("View my spottings", MySpottingsPage()),
                 _buildNavButton("View species", ViewSpeciesPage(title: '')),
                 _buildNavButton("View map", null, _loadMap),
-                _buildNavButton("View Heatmap", null, _viewHeatmap), // New Heatmap button
+                _buildNavButton(
+                    "View Heat Map", HeatMap()), // Navigate to MapPage widget
               ],
             ),
           ),
@@ -98,14 +100,15 @@ class _HeatMapState extends State<HeatMap> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: TextButton(
-        onPressed: onPressed ?? () {
-          if (page != null) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => page),
-            );
-          }
-        },
+        onPressed: onPressed ??
+            () {
+              if (page != null) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => page),
+                );
+              }
+            },
         child: Text(text, style: TextStyle(color: Color(0xFFB4E576))),
         style: TextButton.styleFrom(
           side: BorderSide(color: Color(0xFFB4E576)),
@@ -138,12 +141,14 @@ class _HeatMapState extends State<HeatMap> {
       final LocationData locationData = await location.getLocation();
       if (locationData.latitude != null && locationData.longitude != null) {
         setState(() {
-          currentLocation = LatLng(locationData.latitude!, locationData.longitude!);
+          currentLocation =
+              LatLng(locationData.latitude!, locationData.longitude!);
         });
 
         // Move camera to new location if map is initialized
         if (mapController != null) {
-          mapController.moveCamera(CameraUpdate.newLatLngZoom(currentLocation!, 12));
+          mapController
+              .moveCamera(CameraUpdate.newLatLngZoom(currentLocation!, 12));
         }
       }
     } catch (e) {
@@ -167,14 +172,14 @@ class _HeatMapState extends State<HeatMap> {
     mapController.moveCamera(CameraUpdate.newLatLngZoom(currentLocation!, 12));
   }
 
-  // New function to handle the Heatmap button press
+  // New function to handle the MapPage button press
   void _viewHeatmap() {
-    debugPrint("Loading Heatmap...");
+    debugPrint("Loading MapPage...");
 
-    // You can implement heatmap display logic here
-    // For now, you can just log a message or add functionality to load a heatmap layer
+    // You can implement MapPage display logic here
+    // For now, you can just log a message or add functionality to load a MapPage layer
     // Example:
-    // mapController.addSource('heatmap-source', ...);
-    // mapController.addLayer('heatmap-layer', ...);
+    // mapController.addSource('MapPage-source', ...);
+    // mapController.addLayer('MapPage-layer', ...);
   }
 }

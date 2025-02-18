@@ -41,7 +41,7 @@ class _BottomNavigationBarExampleState
   static const List<Widget> _widgetOptions = <Widget>[
     StatusPage(title: ''),
     HomePage(title: ''),
-    HeatMap(),
+    MapPage(),
   ];
 
   // Handle item selection
