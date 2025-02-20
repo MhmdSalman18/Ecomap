@@ -1,4 +1,10 @@
+import 'package:ecomap/REGISTRATION/account.dart';
+import 'package:ecomap/heatmap.dart';
+import 'package:ecomap/map.dart';
+import 'package:ecomap/myspottings.dart';
+import 'package:ecomap/viewspecies.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
 class MySpottingsMapPage extends StatefulWidget {
@@ -6,6 +12,8 @@ class MySpottingsMapPage extends StatefulWidget {
   final double longitude;
   final String title;
   final String imageUrl; // Add image URL parameter
+  final String description; // Add description parameter
+  final String date; // Add date parameter
 
   const MySpottingsMapPage({
     super.key,
@@ -13,6 +21,8 @@ class MySpottingsMapPage extends StatefulWidget {
     required this.longitude,
     required this.title,
     required this.imageUrl, // Initialize image URL
+    required this.description, // Initialize description
+    required this.date, // Initialize date
   });
 
   @override
@@ -27,12 +37,90 @@ class _MySpottingsMapPageState extends State<MySpottingsMapPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFF082517),
       appBar: AppBar(
-        backgroundColor: Colors.green,
-        title: Text(widget.title.isNotEmpty ? widget.title : 'Spotting Location'),
+        backgroundColor: Color(0xFF082517),
+        iconTheme: IconThemeData(
+          color: Color(0xFFB4E576),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AccountPage(),
+                  ),
+                );
+              },
+              child: CircleAvatar(),
+            ),
+          ),
+        ],
       ),
       body: Stack(
         children: [
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 10.0),
+            decoration: BoxDecoration(
+              color: Color(0xFF082517),
+              borderRadius: BorderRadius.circular(10.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MySpottingsPage()),
+                      );
+                    },
+                    child: Text("My Spottings"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ViewSpeciesPage(title: '')),
+                      );
+                    },
+                    child: Text("Explore Species"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => HeatMap()),
+                      );
+                    },
+                    child: Text("Heatmap of Sightings"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MapPage()),
+                      );
+                    },
+                    child: Text("Open Map"),
+                  ),
+                ],
+              ),
+            ),
+          ),
           MapLibreMap(
             onMapCreated: _onMapCreated,
             onStyleLoadedCallback: _onStyleLoaded,
@@ -40,38 +128,49 @@ class _MySpottingsMapPageState extends State<MySpottingsMapPage> {
               target: LatLng(widget.latitude, widget.longitude),
               zoom: 14,
             ),
-            styleString: 'https://demotiles.maplibre.org/style.json',
+            // Updated style URL that should include labels
+            styleString: 'https://api.maptiler.com/maps/basic/style.json?key=wUaEpt2AO8gpj04Sev8J',
             myLocationEnabled: true,
             myLocationRenderMode: MyLocationRenderMode.normal,
           ),
           if (!isMapReady)
-            const Center(child: CircularProgressIndicator()),
-
+            Center(
+              child: Lottie.asset(
+                'assets/animations/main_scene.json',
+                width: 100,
+                height: 100,
+              ),
+            ),
           // Positioned widget to display the image and text
           Positioned(
             bottom: 20,
             left: 20,
             right: 20,
             child: Container(
-              padding: EdgeInsets.all(10),
+              padding: EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
+                gradient: LinearGradient(
+                  colors: [Color(0xFF082517), Color(0xFF082517)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(15),
                 boxShadow: [
-                  BoxShadow(color: Colors.black26, blurRadius: 5),
+                  BoxShadow(color: Colors.black26, blurRadius: 10),
                 ],
               ),
               child: Row(
                 children: [
-                  // Image on the left
+                  // Image on the left with shadow
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: Image.network(
                       widget.imageUrl,
-                      width: 100,  // Set a fixed width for the image
-                      height: 100, // Set a fixed height for the image
-                      fit: BoxFit.fill, // To display it without scaling
-                      errorBuilder: (context, error, stackTrace) => Icon(Icons.image_not_supported, size: 50),
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.fill,
+                      errorBuilder: (context, error, stackTrace) =>
+                          Icon(Icons.image_not_supported, size: 50),
                     ),
                   ),
                   SizedBox(width: 10), // Add space between image and text
@@ -81,18 +180,33 @@ class _MySpottingsMapPageState extends State<MySpottingsMapPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          widget.title,
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
+                        Row(
+                          children: [
+                            Icon(Icons.pets_rounded, color: Colors.white, size: 18),
+                            SizedBox(width: 5),
+                            Text(
+                              widget.title,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: Colors.white,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                            ),
+                          ],
                         ),
                         SizedBox(height: 5),
                         Text(
-                          'Description of the sighting goes here.',
-                          style: TextStyle(color: Colors.grey, fontSize: 14),
+                          widget.description, // Use the passed description
+                          style: TextStyle(color: Colors.white70, fontSize: 14),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 3,
+                        ),
+                        SizedBox(height: 5),
+                        Text(
+                          widget.date, // Display the date
+                          style: TextStyle(color: Colors.white54, fontSize: 12),
                         ),
                       ],
                     ),
@@ -134,7 +248,7 @@ class _MySpottingsMapPageState extends State<MySpottingsMapPage> {
       debugPrint('Error adding marker: $e');
     }
     mapController?.animateCamera(
-      CameraUpdate.newLatLngZoom(LatLng(widget.latitude, widget.longitude), 14),
+      CameraUpdate.newLatLngZoom(LatLng(widget.latitude, widget.longitude), 8),
     );
     setState(() {});
   }

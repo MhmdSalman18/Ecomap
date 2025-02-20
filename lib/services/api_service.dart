@@ -505,62 +505,57 @@ class ApiService {
   }
 
  Future<List<Map<String, dynamic>>> fetchSpeciesWithLocations() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
 
-      if (token == null) {
-        throw Exception('User not authenticated');
-      }
-
-      // Fetch species list
-      final speciesResponse = await http.get(
-        Uri.parse('$baseUrl/expert/get-species'),
-        headers: {'Content-Type': 'application/json', 'x-authtoken': token},
-      );
-
-      // Fetch species locations
-      final locationsResponse = await http.get(
-        Uri.parse('$baseUrl/user/map'),
-        headers: {'Content-Type': 'application/json', 'x-authtoken': token},
-      );
-
-      if (speciesResponse.statusCode != 200 || locationsResponse.statusCode != 200) {
-        throw Exception('Failed to fetch data');
-      }
-
-      List<dynamic> speciesData = json.decode(speciesResponse.body);
-      Map<String, dynamic> locationsData = json.decode(locationsResponse.body);
-
-      List<Map<String, dynamic>> speciesList = List<Map<String, dynamic>>.from(speciesData);
-      List<dynamic> features = locationsData['features'];
-
-      // Mapping species locations to species list
-      Map<String, Map<String, dynamic>> speciesLocations = {};
-
-      for (var feature in features) {
-        final props = feature['properties'];
-        final geo = feature['geometry'];
-        if (props != null && geo != null) {
-          speciesLocations[props['speciesId']] = geo;
-        }
-      }
-
-      for (var species in speciesList) {
-        String speciesId = species['_id'];
-        if (speciesLocations.containsKey(speciesId)) {
-          species['location'] = speciesLocations[speciesId];
-        } else {
-          species['location'] = null;
-        }
-      }
-
-      return speciesList;
-    } catch (e) {
-      print('Error fetching species: $e');
-      rethrow;
+    if (token == null) {
+      throw Exception('User not authenticated');
     }
+
+    // Fetch species list
+    final speciesResponse = await http.get(
+      Uri.parse('$baseUrl/expert/get-species'),
+      headers: {'Content-Type': 'application/json', 'x-authtoken': token},
+    );
+
+    if (speciesResponse.statusCode != 200) {
+      throw Exception('Failed to fetch species list');
+    }
+
+    List<dynamic> speciesData = json.decode(speciesResponse.body);
+    List<Map<String, dynamic>> speciesList = List<Map<String, dynamic>>.from(speciesData);
+
+    // Fetch location data for each species
+    for (var species in speciesList) {
+      String speciesId = species['_id'];
+
+      final locationResponse = await http.get(
+        Uri.parse('$baseUrl/expert/species-map/$speciesId'),
+        headers: {'Content-Type': 'application/json', 'x-authtoken': token},
+      );
+
+      if (locationResponse.statusCode == 200) {
+        Map<String, dynamic> locationData = json.decode(locationResponse.body);
+
+        if (locationData.containsKey('features') && (locationData['features'] as List).isNotEmpty) {
+          // Use the first feature's geometry as the main location
+          species['location'] = locationData['features'][0]['geometry'];
+        } else {
+          species['location'] = null; // No location data
+        }
+      } else {
+        species['location'] = null; // If API fails, keep location null
+      }
+    }
+
+    return speciesList;
+  } catch (e) {
+    print('Error fetching species with locations: $e');
+    rethrow;
   }
+}
+
 
 //map route
 

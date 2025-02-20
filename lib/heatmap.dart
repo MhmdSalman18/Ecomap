@@ -1,13 +1,28 @@
 import 'package:ecomap/REGISTRATION/account.dart';
-import 'package:ecomap/myspottings.dart';
-import 'package:ecomap/viewspecies.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:location/location.dart';
 import 'package:lottie/lottie.dart';
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+Future<Map<String, dynamic>> fetchGeoJsonData() async {
+  final response = await http.get(Uri.parse('https://ecomap-zehf.onrender.com/user/map'));
+
+  if (response.statusCode == 200) {
+    final Map<String, dynamic> data = json.decode(response.body);
+
+    // Ensure each feature has a weight property
+    List<dynamic> features = data["features"];
+    for (var feature in features) {
+      feature["properties"] ??= {}; // Ensure properties exist
+      feature["properties"]["weight"] ??= 1.0; // Set default weight if missing
+    }
+
+    return data;
+  } else {
+    throw Exception('Failed to load GeoJSON data');
+  }
+}
 
 class HeatMap extends StatefulWidget {
   const HeatMap({super.key});
@@ -18,19 +33,29 @@ class HeatMap extends StatefulWidget {
 
 class _HeatMapState extends State<HeatMap> {
   late MapLibreMapController mapController;
-  Location location = Location();
-  LatLng? currentLocation;
+  Map<String, dynamic>? geoJsonData;
 
   @override
   void initState() {
     super.initState();
-    _getCurrentLocation();
+    _loadGeoJsonData();
+  }
+
+  void _loadGeoJsonData() async {
+    try {
+      final data = await fetchGeoJsonData();
+      setState(() {
+        geoJsonData = data;
+      });
+    } catch (e) {
+      debugPrint("Error loading GeoJSON data: $e");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF082517),
+   backgroundColor: Color(0xFF082517),
       appBar: AppBar(
         backgroundColor: Color(0xFF082517),
         iconTheme: IconThemeData(
@@ -53,67 +78,25 @@ class _HeatMapState extends State<HeatMap> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildNavButton("View my spottings", MySpottingsPage()),
-                _buildNavButton("View species", ViewSpeciesPage(title: '')),
-                _buildNavButton("View Heatmap", null, _viewHeatmap),
-              ],
+      body: geoJsonData == null
+          ?  Center(child:  Lottie.asset(
+                'assets/animations/main_scene.json',
+                width: 100, // Adjust the width as needed
+                height: 100, // Adjust the height as needed
+              ),) // Show loading spinner
+          : MapLibreMap(
+              onMapCreated: _onMapCreated,
+              initialCameraPosition: const CameraPosition(
+                target: LatLng(10.8505, 76.2711), // Default center of Kerala
+                zoom: 8,
+              ),
+              styleString: "https://demotiles.maplibre.org/style.json",
+              onStyleLoadedCallback: () {
+                debugPrint("Map style loaded successfully!");
+                _addHeatMapLayer();
+                _moveToHeatmapArea();
+              },
             ),
-          ),
-          Expanded(
-            child: currentLocation == null
-                ? Center(
-                    child: Lottie.asset(
-                      'assets/animations/main_scene.json',
-                      width: 100,
-                      height: 100,
-                    ),
-                  )
-                : SizedBox(
-                    height: MediaQuery.of(context).size.height,
-                    child: MapLibreMap(
-                      onMapCreated: _onMapCreated,
-                      initialCameraPosition: CameraPosition(
-                        target: currentLocation!,
-                        zoom: 12,
-                      ),
-                      styleString: "https://demotiles.maplibre.org/style.json",
-                      myLocationEnabled: true,
-                      myLocationRenderMode: MyLocationRenderMode.normal,
-                    ),
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavButton(String text, Widget? page, [VoidCallback? onPressed]) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: TextButton(
-        onPressed: onPressed ?? () {
-          if (page != null) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => page),
-            );
-          }
-        },
-        child: Text(text, style: TextStyle(color: Color(0xFFB4E576))),
-        style: TextButton.styleFrom(
-          side: BorderSide(color: Color(0xFFB4E576)),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-        ),
-      ),
     );
   }
 
@@ -121,128 +104,94 @@ class _HeatMapState extends State<HeatMap> {
     mapController = controller;
   }
 
-  Future<void> _getCurrentLocation() async {
-    bool serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) return;
-    }
-
-    PermissionStatus permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) return;
-    }
-
+  void _addHeatMapLayer() async {
     try {
-      final LocationData locationData = await location.getLocation();
-      if (locationData.latitude != null && locationData.longitude != null) {
-        setState(() {
-          currentLocation = LatLng(locationData.latitude!, locationData.longitude!);
-        });
+      if (geoJsonData == null) return;
 
-        if (mapController != null) {
-          mapController.moveCamera(CameraUpdate.newLatLngZoom(currentLocation!, 12));
-        }
-      }
-    } catch (e) {
-      debugPrint("Error getting current location: $e");
-    }
-  }
-
-  Future<Map<String, dynamic>?> fetchHeatMapData() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
-
-      if (token == null) {
-        throw Exception('User not authenticated');
-      }
-
-      final response = await http.get(
-        Uri.parse('https://ecomap-zehf.onrender.com/user/map'),
-        headers: {
-          'Content-Type': 'application/json',
-          'x-authtoken': token,
-        },
+      await mapController.addSource(
+        "heat",
+        GeojsonSourceProperties(data: geoJsonData!),
       );
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data is Map<String, dynamic> && data.containsKey('type')) {
-          return data;
-        } else {
-          throw Exception('Invalid GeoJSON data');
-        }
-      }
-
-      throw Exception('Failed to fetch heatmap data');
-    } catch (e) {
-      print('Error fetching heatmap data: $e');
-      rethrow;
-    }
-  }
-
-  void _viewHeatmap() async {
-    try {
-      final heatmapData = await fetchHeatMapData();
-      if (heatmapData != null) {
-        _addHeatmapLayer(heatmapData);
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error fetching heatmap data: $e")));
-    }
-  }
-
-  void _addHeatmapLayer(Map<String, dynamic> heatmapData) {
-    try {
-      List<dynamic> features = heatmapData['features'];
-      List<Map<String, dynamic>> points = [];
-
-      for (var feature in features) {
-        if (feature['geometry']['type'] == 'Point') {
-          var coordinates = feature['geometry']['coordinates'];
-          points.add({
-            "type": "Feature",
-            "geometry": {
-              "type": "Point",
-              "coordinates": [coordinates[0], coordinates[1]]
-            },
-            "properties": {
-              "weight": 1
-            }
-          });
-        }
-      }
-
-      mapController.addSource(
-        'heatmap-source',
-        GeojsonSourceProperties(
-          data: json.encode({
-            "type": "FeatureCollection",
-            "features": points
-          }),
-        ),
-      );
-
-      mapController.addLayer(
-        'heatmap-layer',
-        'heatmap-source',
+      await mapController.addLayer(
+        "heat",
+        "heatmap",
         HeatmapLayerProperties(
-          heatmapColor: [
-            [0, 'rgba(33,102,172,0)'],
-            [0.2, 'rgb(103,169,207)'],
-            [0.4, 'rgb(209,229,240)'],
-            [0.6, 'rgb(253,219,199)'],
-            [0.8, 'rgb(239,138,98)'],
-            [1, 'rgb(178,24,43)']
+          heatmapWeight: [
+            "interpolate",
+            ["linear"],
+            ["get", "weight"],
+            0, 0,
+            1, 1,
           ],
-          heatmapIntensity: 1,
-          heatmapRadius: 15,
+          heatmapIntensity: [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            0, 1,
+            15, 3,
+          ],
+          heatmapColor: [
+            "interpolate",
+            ["linear"],
+            ["heatmap-density"],
+            0, "rgba(33,102,172,0)",
+            0.2, "rgb(103,169,207)",
+            0.4, "rgb(209,229,240)",
+            0.6, "rgb(253,219,199)",
+            0.8, "rgb(239,138,98)",
+            1, "rgb(178,24,43)",
+          ],
+          heatmapRadius: [
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            0, 5,
+            15, 40,
+          ],
+          heatmapOpacity: 0.7,
         ),
       );
+      debugPrint("Heatmap layer added!");
     } catch (e) {
-      print("Error adding heatmap layer: $e");
+      debugPrint("Error adding heatmap layer: $e");
     }
+  }
+
+  void _moveToHeatmapArea() {
+    if (geoJsonData == null) return;
+
+    List<dynamic> features = geoJsonData!["features"];
+    if (features.isEmpty) return;
+
+    // Find the bounding box of the heatmap data
+    double minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
+
+    for (var feature in features) {
+      if (feature["geometry"]["type"] == "Point") {
+        List<dynamic> coordinates = feature["geometry"]["coordinates"];
+        double lng = coordinates[0];
+        double lat = coordinates[1];
+
+        if (lat < minLat) minLat = lat;
+        if (lat > maxLat) maxLat = lat;
+        if (lng < minLng) minLng = lng;
+        if (lng > maxLng) maxLng = lng;
+      }
+    }
+
+    if (minLat == 90 || maxLat == -90 || minLng == 180 || maxLng == -180) {
+      debugPrint("No valid heatmap points found.");
+      return;
+    }
+
+    // Set camera to the bounding box of the heatmap
+    LatLngBounds bounds = LatLngBounds(
+      southwest: LatLng(minLat, minLng),
+      northeast: LatLng(maxLat, maxLng),
+    );
+
+    mapController.moveCamera(CameraUpdate.newLatLngBounds(bounds));
+    debugPrint("Moved to heatmap area!");
   }
 }

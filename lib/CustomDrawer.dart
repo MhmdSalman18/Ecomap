@@ -1,3 +1,4 @@
+import 'package:ecomap/BottomNavigationBar.dart';
 import 'package:ecomap/REGISTRATION/firstpage.dart';
 import 'package:ecomap/home.dart';
 import 'package:ecomap/services/api_service.dart';
@@ -79,7 +80,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => HomePage(
+                    builder: (context) => BottomNavigationBarExample(
 
                       title: '',
                     ),
@@ -120,8 +121,8 @@ class _CustomDrawerState extends State<CustomDrawer> {
             ),
             const Divider(), // Add a horizontal line
            ListTile(
-  leading: Icon(Icons.logout, color: Color(0xFFB4E576)),
-  title: const Text("Logout", style: TextStyle(color: Color(0xFFD1F5A0))),
+  leading: Icon(Icons.logout, color: Color.fromARGB(255, 255, 0, 0)),
+  title: const Text("Logout", style: TextStyle(color: Color.fromARGB(255, 255, 0, 0))),
   onTap: () async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token'); // Recommended method to remove token

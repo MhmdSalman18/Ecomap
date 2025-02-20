@@ -1,3 +1,4 @@
+import 'package:ecomap/heatmap.dart';
 import 'package:ecomap/home.dart';
 import 'package:ecomap/map.dart';
 import 'package:ecomap/status.dart';

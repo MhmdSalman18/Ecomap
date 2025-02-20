@@ -1,6 +1,8 @@
+import 'package:ecomap/REGISTRATION/account.dart';
 import 'package:ecomap/mapviewspecies.dart';
 import 'package:flutter/material.dart';
-import 'package:ecomap/services/api_service.dart'; // Ensure correct path
+import 'package:ecomap/services/api_service.dart';
+import 'package:lottie/lottie.dart';
 
 class ViewSpeciesPage extends StatefulWidget {
   const ViewSpeciesPage({super.key, required this.title});
@@ -65,6 +67,11 @@ class _ViewSpeciesPageState extends State<ViewSpeciesPage> {
       return;
     }
 
+    if (!species.containsKey('_id')) {
+      debugPrint("Species ID is missing!");
+      return;
+    }
+
     final location = species['location'];
 
     if (!location.containsKey('coordinates') || location['coordinates'].length < 2) {
@@ -75,13 +82,20 @@ class _ViewSpeciesPageState extends State<ViewSpeciesPage> {
     }
 
     final coordinates = location['coordinates'];
+
+    debugPrint("Navigating to map with speciesId: ${species['_id']}");
+
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => MapViewSpeciesPage(
+          speciesId: species['_id'],
           latitude: coordinates[1], // Latitude
           longitude: coordinates[0], // Longitude
-          speciesImage: species['image'], // Pass correct image URL
+          speciesImage: species['image'],
+          commonName: species['common_name'],
+          scientificName: species['scientific_name'],
+          conservationStatus: species['conservation_status'],
         ),
       ),
     );
@@ -96,8 +110,28 @@ class _ViewSpeciesPageState extends State<ViewSpeciesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFF082517),
       appBar: AppBar(
-        title: Text(widget.title),
+        backgroundColor: Color(0xFF082517),
+        title: Text(
+          'Explore Species',
+          style: TextStyle(color: Color(0xFFB4E576), fontWeight: FontWeight.bold),
+        ),
+        iconTheme: IconThemeData(color: Color(0xFFB4E576)),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AccountPage()),
+                );
+              },
+              child: CircleAvatar(backgroundColor: Colors.green[200]),
+            ),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -105,66 +139,113 @@ class _ViewSpeciesPageState extends State<ViewSpeciesPage> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               controller: searchController,
+              style: TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 hintText: 'Search species...',
-                prefixIcon: Icon(Icons.search),
+                hintStyle: TextStyle(color: Colors.white70),
+                prefixIcon: Icon(Icons.search, color: Colors.white70),
+                filled: true,
+                fillColor: Color(0xFF0E3B2C),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
                 ),
               ),
             ),
           ),
           Expanded(
             child: isLoading
-                ? Center(child: CircularProgressIndicator())
+                ? Center(
+                    child: Lottie.asset(
+                      'assets/animations/main_scene.json',
+                      width: 100,
+                      height: 100,
+                    ),
+                  )
                 : filteredList.isEmpty
                     ? Center(
                         child: Text(
                           'No species found',
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: Colors.white70, fontSize: 18),
                         ),
                       )
                     : ListView.builder(
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                         itemCount: filteredList.length,
                         itemBuilder: (context, index) {
-                          return ListTile(
-                            leading: Image.network(
-                              filteredList[index]['image'],
-                              width: 50,
-                              height: 50,
-                              fit: BoxFit.cover,
-                              headers: {"User-Agent": "Flutter-App"},
-                              errorBuilder: (context, error, stackTrace) {
-                                return Icon(Icons.broken_image,
-                                    size: 50, color: Colors.red);
-                              },
+                          final species = filteredList[index];
+
+                          return Card(
+                            color: Color(0xFF0E3B2C), // Dark Greenish
+                            elevation: 5,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            title: Text(filteredList[index]['common_name']),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(filteredList[index]['scientific_name'],
-                                    style: TextStyle(
-                                        fontStyle: FontStyle.italic,
-                                        color: Colors.grey[700])),
-                                Text("Class: ${filteredList[index]['taxonomy_class']}",
-                                    style:
-                                        TextStyle(fontSize: 12, color: Colors.black54)),
-                                Text(
-                                    "Conservation: ${filteredList[index]['conservation_status']}",
-                                    style:
-                                        TextStyle(fontSize: 12, color: Colors.black54)),
-                              ],
-                            ),
-                            trailing: ElevatedButton(
-                              onPressed: () => _viewOnMap(filteredList[index]),
-                              child: Text("View in Map",
-                                  style: TextStyle(fontSize: 12)),
-                              style: ElevatedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
-                                minimumSize: Size(80, 30),
+                            margin: EdgeInsets.symmetric(vertical: 8),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Row(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.network(
+                                      species['image'],
+                                      width: 70,
+                                      height: 70,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Container(
+                                          width: 70,
+                                          height: 70,
+                                          color: Colors.grey[300],
+                                          child: Icon(Icons.image_not_supported, color: Colors.grey[600]),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          species['common_name'],
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        SizedBox(height: 5),
+                                        Text(
+                                          species['scientific_name'],
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 14,
+                                            fontStyle: FontStyle.italic,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(width: 12),
+                                  ElevatedButton.icon(
+                                    onPressed: () => _viewOnMap(species),
+                                    icon: Icon(Icons.location_pin, color: Color(0xFF082517)),
+                                    label: Text(
+                                      "View",
+                                      style: TextStyle(color: Color(0xFF082517)),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Color(0xFFB4E576),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           );
