@@ -55,7 +55,14 @@ class _MySpottingsMapPageState extends State<MySpottingsMapPage> {
                   ),
                 );
               },
-              child: CircleAvatar(),
+               child: Padding(
+              padding: const EdgeInsets.only(right: 12.0), // Add padding to the left and right
+              child: Image.asset(
+                'assets/assets/ecomap_banner.png',
+                width: 100, // Adjust the width as needed
+                height: 50, // Adjust the height as needed
+              ),
+              ),
             ),
           ),
         ],
@@ -112,7 +119,7 @@ class _MySpottingsMapPageState extends State<MySpottingsMapPage> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => MapPage()),
+                        MaterialPageRoute(builder: (context) => MapPage(title: '',)),
                       );
                     },
                     child: Text("Open Map"),

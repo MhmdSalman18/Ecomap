@@ -1,8 +1,9 @@
+// ignore_for_file: unused_import, file_names
+
 import 'package:ecomap/heatmap.dart';
 import 'package:ecomap/home.dart';
 import 'package:ecomap/map.dart';
-import 'package:ecomap/status.dart';
-
+import 'package:ecomap/statushistory.dart';
 import 'package:flutter/material.dart';
 
 class BottomNavigationBarExample extends StatefulWidget {
@@ -17,13 +18,13 @@ class BottomNavigationBarExample extends StatefulWidget {
 
 class _BottomNavigationBarExampleState
     extends State<BottomNavigationBarExample> {
-  int _selectedIndex = 0; // Default to 'StatusPage'
+  int _selectedIndex = 1; // Default to 'HomePage'
 
-  // List of pages for BottomNavigationBar
+  // List of pages for BottomNavigationBar without DraftPage
   static const List<Widget> _widgetOptions = <Widget>[
-    StatusPage(title: 'Status'),
-    HomePage(title: "title"),
-    MapPage(),
+    StatusHistoryPage(title: 'Status'),
+    HomePage(title: 'Homepage'),
+    MapPage(title: "Map"),
   ];
 
   @override
@@ -45,12 +46,12 @@ class _BottomNavigationBarExampleState
     switch (title) {
       case 'Status':
         return 0;
-      case 'CamPage':
+      case 'Homepage':
         return 1;
       case 'Map':
         return 2;
       default:
-        return 1; // Default to StatusPage if title is invalid
+        return 1; // Default to 'HomePage' if title is invalid
     }
   }
 
@@ -77,10 +78,10 @@ class _BottomNavigationBarExampleState
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Color(0xFFB4E576),
-        unselectedItemColor: Color(0xFF5F7548),
+        selectedItemColor: const Color(0xFFB4E576),
+        unselectedItemColor: const Color(0xFF5F7548),
         backgroundColor:
-            Color(0xFF082517), // Set BottomNavigationBar background color
+            const Color(0xFF082517), // Set BottomNavigationBar background color
         onTap: _onItemTapped,
       ),
     );

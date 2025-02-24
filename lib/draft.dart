@@ -1,21 +1,22 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, unused_import
 
 import 'package:ecomap/BottomNavigationBar.dart';
 import 'package:ecomap/CustomDrawer.dart';
 import 'package:ecomap/REGISTRATION/account.dart';
+import 'package:ecomap/home.dart';
 import 'package:ecomap/services/database_helper.dart'; // Import DatabaseHelper
 import 'package:ecomap/statushistory.dart';
 import 'package:ecomap/UploadState.dart'; // Import UploadState
 import 'package:flutter/material.dart';
 
-class StatusPage extends StatefulWidget {
-  const StatusPage({Key? key, required String title}) : super(key: key);
+class DraftPage extends StatefulWidget {
+  const DraftPage({Key? key, required String title}) : super(key: key);
 
   @override
-  State<StatusPage> createState() => _StatusPageState();
+  State<DraftPage> createState() => _StatusPageState();
 }
 
-class _StatusPageState extends State<StatusPage> {
+class _StatusPageState extends State<DraftPage> {
   List<Map<String, dynamic>> _drafts = [];
   final DatabaseHelper dbHelper = DatabaseHelper(); // DatabaseHelper instance
 
@@ -26,7 +27,8 @@ class _StatusPageState extends State<StatusPage> {
   }
 
   Future<void> _loadDrafts() async {
-    final drafts = await dbHelper.getDrafts(); // Fetch all drafts from the database
+    final drafts =
+        await dbHelper.getDrafts(); // Fetch all drafts from the database
     setState(() {
       _drafts = drafts;
     });
@@ -100,12 +102,18 @@ class _StatusPageState extends State<StatusPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const AccountPage(),
+                    builder: (context) => const BottomNavigationBarExample(title: 'HomePage',),
                   ),
                 );
               },
-              child: CircleAvatar(
-                radius: 18,
+              child: Padding(
+                padding: const EdgeInsets.only(
+                    right: 12.0), // Add padding to the left and right
+                child: Image.asset(
+                  'assets/assets/ecomap_banner.png',
+                  width: 100, // Adjust the width as needed
+                  height: 50, // Adjust the height as needed
+                ),
               ),
             ),
           ),
@@ -121,40 +129,30 @@ class _StatusPageState extends State<StatusPage> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const StatusHistoryPage(),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.all(10.0),
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 5.0, horizontal: 16.0),
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 251, 233, 233),
-                        borderRadius: BorderRadius.circular(5.0),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.history),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Text(
-                            'History',
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 122, 73, 73),
-                              fontWeight: FontWeight.bold,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const StatusHistoryPage(
+                              title: '',
                             ),
                           ),
+                        );
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment
+                            .center, // Align items to the center
+                        children: [
+                          // First Container
+                          
+
+                          SizedBox(
+                              width: 12), // Adjusted spacing between containers
+
+                          // Second Container
+                          
                         ],
-                      ),
-                    ),
-                  ),
+                      )),
                 ],
               ),
               Expanded(
@@ -165,7 +163,8 @@ class _StatusPageState extends State<StatusPage> {
                     final status = draft['status'] ??
                         'pending'; // Assuming 'status' field exists in your draft data
 
-                    return GestureDetector( // Wrap the container with GestureDetector
+                    return GestureDetector(
+                      // Wrap the container with GestureDetector
                       onTap: () {
                         Navigator.push(
                           context,
@@ -203,13 +202,14 @@ class _StatusPageState extends State<StatusPage> {
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         draft['title'] ?? 'No Title',
                                         style: TextStyle(
-                                            color:
-                                                Color.fromARGB(255, 255, 255, 255),
+                                            color: Color.fromARGB(
+                                                255, 255, 255, 255),
                                             fontSize: 18.0,
                                             fontWeight: FontWeight.bold),
                                       ),
@@ -232,18 +232,22 @@ class _StatusPageState extends State<StatusPage> {
                                               SizedBox(width: 10),
                                               Container(
                                                 alignment: Alignment.center,
-                                                padding: const EdgeInsets.symmetric(
-                                                    vertical: 5.0,
-                                                    horizontal: 16.0),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 5.0,
+                                                        horizontal: 16.0),
                                                 decoration: BoxDecoration(
-                                                  color: _getContainerColor(status),
+                                                  color: _getContainerColor(
+                                                      status),
                                                   borderRadius:
-                                                      BorderRadius.circular(5.0),
+                                                      BorderRadius.circular(
+                                                          5.0),
                                                 ),
                                                 child: Text(
                                                   _getStatusText(status),
                                                   style: TextStyle(
-                                                    color: _getStatusColor(status),
+                                                    color:
+                                                        _getStatusColor(status),
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
@@ -258,8 +262,8 @@ class _StatusPageState extends State<StatusPage> {
                                 CircleAvatar(
                                   backgroundColor: _getStatusColor(status),
                                   child: Icon(_getStatusIcon(status),
-                                      color:
-                                          const Color.fromARGB(255, 245, 245, 245)),
+                                      color: const Color.fromARGB(
+                                          255, 245, 245, 245)),
                                 ),
                               ],
                             ),

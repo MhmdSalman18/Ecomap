@@ -90,7 +90,7 @@ class _HeatMapState extends State<HeatMap> {
                 target: LatLng(10.8505, 76.2711), // Default center of Kerala
                 zoom: 8,
               ),
-              styleString: "https://demotiles.maplibre.org/style.json",
+              styleString: "https://api.maptiler.com/maps/basic/style.json?key=wUaEpt2AO8gpj04Sev8J",
               onStyleLoadedCallback: () {
                 debugPrint("Map style loaded successfully!");
                 _addHeatMapLayer();

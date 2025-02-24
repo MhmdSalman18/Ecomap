@@ -107,8 +107,14 @@ class _MapViewSpeciesPageState extends State<MapViewSpeciesPage> {
                   ),
                 );
               },
-              child: CircleAvatar(),
-            ),
+ child: Padding(
+              padding: const EdgeInsets.only(right: 12.0), // Add padding to the left and right
+              child: Image.asset(
+                'assets/assets/ecomap_banner.png',
+                width: 100, // Adjust the width as needed
+                height: 50, // Adjust the height as needed
+              ),
+              ),            ),
           ),
         ],
       ),

@@ -120,21 +120,27 @@ class _HomePageState extends State<HomePage> {
         actions: [
           Padding(
             padding:
-                const EdgeInsets.only(right: 8.0), // Add padding to the right
+                const EdgeInsets.only(right: 5.0,top: 10), // Add padding to the right
             child: GestureDetector(
               onTap: () {
-                // Navigate to HomePage
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>  AccountPage(),
-                  ),
-                );
+              // Navigate to HomePage
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                builder: (context) => AccountPage(),
+                ),
+              );
               },
-              child: CircleAvatar(
-               
+              child: Padding(
+              padding: const EdgeInsets.only(right: 12.0), // Add padding to the left and right
+              child: Image.asset(
+                'assets/assets/ecomap_banner.png',
+                width: 100, // Adjust the width as needed
+                height: 50, // Adjust the height as needed
+              ),
               ),
             ),
+            
           ),
         ],
       ),

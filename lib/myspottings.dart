@@ -167,8 +167,14 @@ class _UserUploadsScreenState extends State<MySpottingsPage> {
                   MaterialPageRoute(builder: (context) => AccountPage()),
                 );
               },
-              child: CircleAvatar(backgroundColor: Colors.green[200]),
-            ),
+ child: Padding(
+              padding: const EdgeInsets.only(right: 12.0), // Add padding to the left and right
+              child: Image.asset(
+                'assets/assets/ecomap_banner.png',
+                width: 100, // Adjust the width as needed
+                height: 50, // Adjust the height as needed
+              ),
+              ),            ),
           ),
         ],
       ),

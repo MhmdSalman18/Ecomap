@@ -6,7 +6,6 @@ import 'package:ecomap/home.dart';
 import 'package:ecomap/map.dart';
 import 'package:ecomap/services/api_service.dart';
 import 'package:ecomap/services/database_helper.dart';
-import 'package:ecomap/status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -178,8 +177,7 @@ class _UploadStateState extends State<UploadState> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              BottomNavigationBarExample(title: "Home Page"),
+          builder: (context) => BottomNavigationBarExample(title: "Home Page"),
         ),
       );
     } else {
@@ -219,12 +217,11 @@ class _UploadStateState extends State<UploadState> {
       // Delete existing draft
       await dbHelper.deleteDraft(_draftId!);
     }
-     Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BottomNavigationBarExample(title: "Status")
-                          ),
-                        );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => BottomNavigationBarExample(title: "Status")),
+    );
   }
 
   @override
@@ -258,9 +255,15 @@ class _UploadStateState extends State<UploadState> {
                     ),
                   );
                 },
-                child: const CircleAvatar(
-                  radius: 18,
-                ),
+ child: Padding(
+              padding: const EdgeInsets.only(right: 12.0), // Add padding to the left and right
+              child: Image.asset(
+                'assets/assets/ecomap_banner.png',
+                width: 100, // Adjust the width as needed
+                height: 50, // Adjust the height as needed
+              ),
+              ),
+                
               ),
             ),
           ],
@@ -386,8 +389,8 @@ class _UploadStateState extends State<UploadState> {
                       labelStyle: TextStyle(color: Color(0xFFD1F5A0)),
                       hintStyle: TextStyle(color: Color(0xFFD1F5A0)),
                       border: OutlineInputBorder(),
-                      suffixIcon: Icon(Icons.calendar_today,
-                          color: Color(0xFFD1F5A0)),
+                      suffixIcon:
+                          Icon(Icons.calendar_today, color: Color(0xFFD1F5A0)),
                     ),
                     style: const TextStyle(color: Color(0xFFD1F5A0)),
                     readOnly: true,
@@ -423,7 +426,8 @@ class _UploadStateState extends State<UploadState> {
                           ),
                         ),
                         child: const Text('Reset',
-                            style: TextStyle(color: Colors.white, fontSize: 15)),
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 15)),
                       ),
                       SizedBox(
                         width: 80,
@@ -439,7 +443,8 @@ class _UploadStateState extends State<UploadState> {
                           ),
                         ),
                         child: const Text('Send',
-                            style: TextStyle(color: Colors.white, fontSize: 15)),
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 15)),
                       ),
                     ],
                   ),

@@ -15,50 +15,64 @@ class ApiService {
 
   //create an api for map
 
-  Future<Map<String, String>> getUserDetails() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
+Future<Map<String, String>> getUserDetails() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
 
-      if (token == null) {
-        throw Exception('User not authenticated. Please log in.');
-      }
-
-      final response = await http.get(
-        Uri.parse('$baseUrl/user/get-user'),
-        headers: {
-          'Content-Type': 'application/json',
-          'x-authtoken': token, // Sending token in x-authtoken header
-        },
-      );
-
-      print('Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final responseBody = jsonDecode(response.body);
-
-        // Extract name and email
-        final name = responseBody['name'] ?? 'No name found';
-        final email = responseBody['email'] ?? 'No email found';
-
-        // Optionally update local storage
-        await prefs.setString('user_name', name);
-        await prefs.setString('user_email', email);
-
-        return {
-          'name': name,
-          'email': email,
-        };
-      } else if (response.statusCode == 401) {
-        throw Exception('Unauthorized access. Please log in again.');
-      } else {
-        throw Exception('Failed to fetch user details. Please try again.');
-      }
-    } on Exception catch (error) {
-      throw Exception('An error occurred: ${error.toString()}');
+    if (token == null || token.isEmpty) {
+      throw Exception('User not authenticated. Please log in.');
     }
+
+    final String apiUrl = '$baseUrl/user/get-user';
+    print('Fetching user details from: $apiUrl');
+    print('Auth Token: $token');
+
+    final response = await http.get(
+      Uri.parse(apiUrl),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-authtoken': token,
+      },
+    ).timeout(const Duration(seconds: 10)); // Timeout after 10 seconds
+
+    print('Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+
+      // Validate response data
+      if (responseBody is! Map || !responseBody.containsKey('name') || !responseBody.containsKey('email')) {
+        throw Exception('Invalid response format.');
+      }
+
+      final name = responseBody['name']?.toString() ?? 'No name found';
+      final email = responseBody['email']?.toString() ?? 'No email found';
+
+      // Save to local storage
+      await prefs.setString('user_name', name);
+      await prefs.setString('user_email', email);
+
+      return {
+        'name': name,
+        'email': email,
+      };
+    } else if (response.statusCode == 401) {
+      throw Exception('Unauthorized access. Please log in again.');
+    } else {
+      throw Exception('Failed to fetch user details. Server error: ${response.statusCode}');
+    }
+  } on http.ClientException catch (error) {
+    throw Exception('Network error: ${error.toString()}');
+  } on FormatException {
+    throw Exception('Invalid response format. Please try again later.');
+  } on Exception catch (error) {
+    throw Exception('An error occurred: ${error.toString()}');
   }
+}
+
+
 
   Future<String> registerUser(
       String name, String email, String password) async {
@@ -145,38 +159,29 @@ class ApiService {
         await prefs.setString('user_name', responseBody['name']);
       }
 
-      // Extract token and decode it
+      // Extract and store token
       if (responseBody['token'] != null) {
         String token = responseBody['token'];
         await prefs.setString('auth_token', token);
 
         // Decode JWT token to extract userId
         Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
-        String userId = decodedToken['id']; // Extract user ID
-
+        String userId = decodedToken['id'] ?? ""; // Ensure userId is not null
         await prefs.setString('user_id', userId);
 
         print("User ID: $userId");
-        return userId; // Return the user ID
+        return token; // Return token instead of userId
       } else {
         throw Exception('No authentication token received');
       }
-    } 
-    // Handle errors
-    else if (response.statusCode >= 400 && response.statusCode < 410) {
+    } else if (response.statusCode >= 400 && response.statusCode < 410) {
       throw Exception(responseBody['message'] ?? 'Invalid credentials or login failed');
-    } 
-    // Handle server-side errors
-    else if (response.statusCode >= 500) {
+    } else if (response.statusCode >= 500) {
       throw Exception('Server error. Please try again later.');
-    } 
-    // Unexpected status codes
-    else {
+    } else {
       throw Exception('An unexpected error occurred. Please try again.');
     }
-  } 
-  // Handle different exceptions
-  on SocketException {
+  } on SocketException {
     throw Exception('No internet connection. Please check your network.');
   } on FormatException {
     throw Exception('Error processing server response');
@@ -186,6 +191,7 @@ class ApiService {
     throw Exception('An unexpected error occurred: ${error.toString()}');
   }
 }
+
 
   Future<Map<String, dynamic>> sendOtp(String email) async {
     try {

@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
 class MapPage extends StatefulWidget {
-  const MapPage({super.key});
+  const MapPage({super.key, required String title});
 
   @override
   State<MapPage> createState() => _MapPageState();
@@ -43,7 +43,14 @@ class _MapPageState extends State<MapPage> {
                   ),
                 );
               },
-              child: CircleAvatar(),
+              child:   Padding(
+              padding: const EdgeInsets.only(right: 12.0), // Add padding to the left and right
+              child: Image.asset(
+                'assets/assets/ecomap_banner.png',
+                width: 100, // Adjust the width as needed
+                height: 50, // Adjust the height as needed
+              ),
+              ),
             ),
           ),
         ],
@@ -58,7 +65,7 @@ class _MapPageState extends State<MapPage> {
               target: LatLng(10.0, 76.0), // Default location (adjust if needed)
               zoom: 5,
             ),
-            styleString: "https://demotiles.maplibre.org/style.json",
+            styleString: "https://api.maptiler.com/maps/basic/style.json?key=wUaEpt2AO8gpj04Sev8J",
           ),
           // Left-aligned vertical navigation bar
           Positioned(

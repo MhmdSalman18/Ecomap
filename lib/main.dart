@@ -9,7 +9,7 @@ import 'package:ecomap/map.dart';
 import 'package:ecomap/services/database_helper.dart';
 import 'package:ecomap/viewspecies.dart';
 import 'package:ecomap/splash.dart';
-import 'package:ecomap/status.dart';
+import 'package:ecomap/draft.dart';
 import 'package:ecomap/uploadstate.dart';
 
 import 'package:flutter/material.dart';
