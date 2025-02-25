@@ -56,43 +56,47 @@ class _UserUploadsScreenState extends State<MySpottingsPage> {
   }
 
   Future<void> fetchUploads() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('auth_token');
 
-    if (token == null || token.isEmpty) {
-      setState(() => isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No authentication token found.')),
-      );
-      return;
-    }
-
-    try {
-      final response = await http.get(
-        Uri.parse('https://ecomap-zehf.onrender.com/user/uploads'),
-        headers: {'x-authtoken': token},
-      );
-
-      if (response.statusCode == 200) {
-        List<dynamic> data = json.decode(response.body);
-        setState(() {
-          uploads = data.map((item) => Upload.fromJson(item)).toList();
-          filteredUploads = uploads;
-          isLoading = false;
-        });
-      } else {
-        setState(() => isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to fetch uploads: ${response.reasonPhrase}')),
-        );
-      }
-    } catch (e) {
-      setState(() => isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Network error occurred: $e')),
-      );
-    }
+  if (token == null || token.isEmpty) {
+    setState(() => isLoading = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('No authentication token found.')),
+    );
+    return;
   }
+
+  try {
+    final response = await http.get(
+      Uri.parse('https://ecomap-zehf.onrender.com/user/uploads'),
+      headers: {'x-authtoken': token},
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = json.decode(response.body);
+      setState(() {
+        uploads = data
+            .map((item) => Upload.fromJson(item))
+            .where((upload) => upload.status.toLowerCase() == "approved")
+            .toList();
+        filteredUploads = uploads;
+        isLoading = false;
+      });
+    } else {
+      setState(() => isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to fetch uploads: ${response.reasonPhrase}')),
+      );
+    }
+  } catch (e) {
+    setState(() => isLoading = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Network error occurred: $e')),
+    );
+  }
+}
+
 
   void _filterUploads() {
     String query = searchController.text.toLowerCase();
