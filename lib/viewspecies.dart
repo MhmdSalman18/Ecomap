@@ -26,28 +26,36 @@ class _ViewSpeciesPageState extends State<ViewSpeciesPage> {
     searchController.addListener(_filterSpecies);
   }
 
-  Future<void> _loadSpecies() async {
-    try {
+ Future<void> _loadSpecies() async {
+  try {
+    if (mounted) {
       setState(() {
         isLoading = true;
       });
+    }
 
-      final species = await _apiService.fetchSpeciesWithLocations();
+    final species = await _apiService.fetchSpeciesWithLocations();
 
+    if (mounted) {
       setState(() {
         speciesList = species;
         filteredList = speciesList;
         isLoading = false;
       });
-    } catch (e) {
+    }
+  } catch (e) {
+    if (mounted) {
       setState(() {
         isLoading = false;
       });
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to load species: $e')),
       );
     }
   }
+}
+
 
   void _filterSpecies() {
     String query = searchController.text.toLowerCase();

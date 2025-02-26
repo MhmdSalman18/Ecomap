@@ -25,21 +25,42 @@ class _CustomDrawerState extends State<CustomDrawer> {
   }
 
   Future<void> _fetchUserDetails() async {
-    try {
-      final details = await ApiService().getUserDetails();
+  final prefs = await SharedPreferences.getInstance();
+
+  // Load cached data first
+  if (mounted) {
+    setState(() {
+      _email = prefs.getString('cached_email') ?? '';
+      _name = prefs.getString('cached_name') ?? '';
+      _isLoading = _email.isEmpty || _name.isEmpty; // Show loader if no cache
+    });
+  }
+
+  try {
+    final details = await ApiService().getUserDetails();
+
+    if (mounted) {
       setState(() {
         _email = details['email']!;
         _name = details['name']!;
         _isLoading = false;
       });
-    } catch (e) {
+
+      // Save to cache
+      await prefs.setString('cached_email', _email);
+      await prefs.setString('cached_name', _name);
+    }
+  } catch (e) {
+    if (mounted) {
       setState(() {
-        _email = 'Error fetching details';
-        _name = '';
+        _email = _email.isEmpty ? 'Error fetching details' : _email;
+        _name = _name.isEmpty ? '' : _name;
         _isLoading = false;
       });
     }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

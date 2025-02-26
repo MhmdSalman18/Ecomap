@@ -28,32 +28,36 @@ class _StatusHistoryPageState extends State<StatusHistoryPage> {
   }
 
   Future<void> fetchUploads() async {
-    const String apiUrl = 'https://ecomap-zehf.onrender.com/user/uploads';
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
-      if (token == null) throw Exception('Authentication token not found');
-      
-      final response = await http.get(
-        Uri.parse(apiUrl),
-        headers: {'Content-Type': 'application/json', 'x-authtoken': token},
-      );
-      
-      if (response.statusCode == 200) {
-        setState(() {
-          uploads = jsonDecode(response.body);
-          uploads.sort((a, b) => DateTime.parse(b['date']).compareTo(DateTime.parse(a['date'])));
-          filteredUploads = uploads;
-          isLoading = false;
-        });
-      } else {
-        throw Exception('Failed to load uploads');
-      }
-    } catch (e) {
-      setState(() => isLoading = false);
-      print('Error fetching data: $e');
+  const String apiUrl = 'https://ecomap-zehf.onrender.com/user/uploads';
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+    if (token == null) throw Exception('Authentication token not found');
+    
+    final response = await http.get(
+      Uri.parse(apiUrl),
+      headers: {'Content-Type': 'application/json', 'x-authtoken': token},
+    );
+    
+    if (response.statusCode == 200) {
+      if (!mounted) return; // Check if widget is still in the tree
+
+      setState(() {
+        uploads = jsonDecode(response.body);
+        uploads.sort((a, b) => DateTime.parse(b['date']).compareTo(DateTime.parse(a['date'])));
+        filteredUploads = uploads;
+        isLoading = false;
+      });
+    } else {
+      throw Exception('Failed to load uploads');
     }
+  } catch (e) {
+    if (!mounted) return; // Check before updating state
+    setState(() => isLoading = false);
+    print('Error fetching data: $e');
   }
+}
+
 
   void filterResults() {
     setState(() {

@@ -9,14 +9,15 @@ import 'package:ecomap/statushistory.dart';
 import 'package:ecomap/UploadState.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
+
 class DraftPage extends StatefulWidget {
   const DraftPage({Key? key, required String title}) : super(key: key);
 
   @override
-  State<DraftPage> createState() => _StatusPageState();
+  State<DraftPage> createState() => _DraftPageState();
 }
 
-class _StatusPageState extends State<DraftPage> {
+class _DraftPageState extends State<DraftPage> {
   List<Map<String, dynamic>> _drafts = [];
   final DatabaseHelper dbHelper = DatabaseHelper();
 
@@ -36,7 +37,7 @@ class _StatusPageState extends State<DraftPage> {
   String _getStatusText(String status) {
     switch (status) {
       case 'sent':
-        return 'Send';
+        return 'Sent';
       case 'pending':
         return 'Pending';
       case 'cancelled':
@@ -49,11 +50,11 @@ class _StatusPageState extends State<DraftPage> {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'sent':
-        return Color.fromARGB(255, 0, 255, 26);
+        return Colors.greenAccent;
       case 'pending':
-        return Color.fromARGB(255, 0, 174, 255);
+        return Colors.blueAccent;
       case 'cancelled':
-        return Color.fromARGB(255, 255, 0, 0);
+        return Colors.redAccent;
       default:
         return Colors.grey;
     }
@@ -75,7 +76,8 @@ class _StatusPageState extends State<DraftPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const BottomNavigationBarExample(title: 'HomePage'),
+                    builder: (context) =>
+                        const BottomNavigationBarExample(title: 'HomePage'),
                   ),
                 );
               },
@@ -91,7 +93,6 @@ class _StatusPageState extends State<DraftPage> {
           ),
         ],
       ),
-      drawer: CustomDrawer(),
       body: Container(
         color: Color(0xFF082517),
         child: Column(
@@ -108,116 +109,153 @@ class _StatusPageState extends State<DraftPage> {
               ),
             ),
             Expanded(
-              child: GridView.builder(
-                padding: EdgeInsets.all(8),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  childAspectRatio: 0.75,
-                ),
-                itemCount: _drafts.length,
-                itemBuilder: (context, index) {
-                  final draft = _drafts[index];
-                  final status = draft['status'] ?? 'pending';
-                  
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => UploadState(
-                            imagePath: draft['imagePath'] ?? '',
-                            title: 'Edit Draft',
-                            draftId: draft['id'] as int,
+              child: _drafts.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.folder_open,
+                            size: 80,
+                            color: Colors.white54,
                           ),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Color.fromARGB(255, 49, 106, 35),
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: Offset(0, 3),
+                          SizedBox(height: 10),
+                          Text(
+                            "No drafts available",
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            "Captured images will appear here.",
+                            style: TextStyle(
+                              color: Colors.white38,
+                              fontSize: 14,
+                            ),
                           ),
                         ],
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-                              child: draft['imagePath'] != null && draft['imagePath'].isNotEmpty
-                                  ? Image.file(
-                                      File(draft['imagePath']),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Container(
-                                      color: Colors.grey.shade300,
-                                      child: Icon(
-                                        Icons.image_not_supported,
-                                        size: 50,
-                                        color: Colors.grey.shade700,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  draft['title'] ?? 'No Title',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                    )
+                  : GridView.builder(
+                      padding: EdgeInsets.all(12),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        childAspectRatio: 0.8,
+                      ),
+                      itemCount: _drafts.length,
+                      itemBuilder: (context, index) {
+                        final draft = _drafts[index];
+                        final status = draft['status'] ?? 'pending';
+
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => UploadState(
+                                  imagePath: draft['imagePath'] ?? '',
+                                  title: 'Edit Draft',
+                                  draftId: draft['id'] as int,
                                 ),
-                                SizedBox(height: 4),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: _getStatusColor(status).withOpacity(0.2),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Text(
-                                        _getStatusText(status),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white12,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  spreadRadius: 2,
+                                  blurRadius: 5,
+                                  offset: Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(12)),
+                                    child: draft['imagePath'] != null &&
+                                            draft['imagePath'].isNotEmpty
+                                        ? Image.file(
+                                            File(draft['imagePath']),
+                                            fit: BoxFit.cover,
+                                          )
+                                        : Container(
+                                            color: Colors.grey.shade800,
+                                            child: Icon(
+                                              Icons.image_not_supported,
+                                              size: 50,
+                                              color: Colors.white54,
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        draft['title'] ?? 'No Title',
                                         style: TextStyle(
-                                          color: _getStatusColor(status),
-                                          fontSize: 12,
+                                          color: Colors.white,
                                           fontWeight: FontWeight.bold,
+                                          fontSize: 14,
                                         ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                    ),
-                                    Icon(
-                                      Icons.arrow_forward_ios,
-                                      size: 14,
-                                      color: Colors.white70,
-                                    ),
-                                  ],
+                                      SizedBox(height: 6),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 8, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: _getStatusColor(status)
+                                                  .withOpacity(0.2),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            child: Text(
+                                              _getStatusText(status),
+                                              style: TextStyle(
+                                                color: _getStatusColor(status),
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                          Icon(
+                                            Icons.arrow_forward_ios,
+                                            size: 14,
+                                            color: Colors.white54,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
             ),
           ],
         ),
@@ -225,5 +263,3 @@ class _StatusPageState extends State<DraftPage> {
     );
   }
 }
-
-// Add this import at the top of your file

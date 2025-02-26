@@ -1,12 +1,10 @@
 import 'package:ecomap/CustomDrawer.dart';
-import 'package:ecomap/REGISTRATION/ac.dart';
 import 'package:ecomap/REGISTRATION/account.dart';
+import 'package:ecomap/draft.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:image_picker/image_picker.dart'; // Import for gallery access
 import 'package:lottie/lottie.dart';
-import 'uploadstate.dart'; // Import UploadState for navigation
-import 'package:geocoding/geocoding.dart'; // Import geocoding package
+import 'uploadstate.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required String title});
@@ -17,8 +15,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   CameraController? _cameraController;
-  final ImagePicker _picker = ImagePicker(); // Create an ImagePicker instance
   bool _isCameraInitialized = false;
+  bool _cameraError = false;
+  bool _isFlashOn = false; // Track flash state
 
   @override
   void initState() {
@@ -33,73 +32,59 @@ class _HomePageState extends State<HomePage> {
 
       _cameraController = CameraController(
         cameras.first,
-        ResolutionPreset.high, // Use a high resolution for full-body shots
+        ResolutionPreset.high,
         enableAudio: false,
       );
       await _cameraController!.initialize();
       if (!mounted) return;
+
+      // Ensure flash is OFF by default
+      await _cameraController!.setFlashMode(FlashMode.off);
+
       setState(() => _isCameraInitialized = true);
     } on CameraException {
-      // Handle exception
+      setState(() => _cameraError = true);
+    }
+  }
+
+  Future<void> _toggleFlash() async {
+    if (_cameraController == null || !_cameraController!.value.isInitialized) return;
+
+    try {
+      if (_isFlashOn) {
+        await _cameraController!.setFlashMode(FlashMode.off);
+      } else {
+        await _cameraController!.setFlashMode(FlashMode.torch); // Force flash ON
+      }
+      setState(() {
+        _isFlashOn = !_isFlashOn;
+      });
+    } catch (e) {
+      print("Error toggling flash: $e");
     }
   }
 
   Future<void> _takePicture() async {
-    if (_cameraController == null || !_cameraController!.value.isInitialized)
-      return;
+    if (_cameraController == null || !_cameraController!.value.isInitialized) return;
 
-    final image = await _cameraController!.takePicture();
+    try {
+      // Ensure flash mode is correctly applied before capturing
+      await _cameraController!.setFlashMode(_isFlashOn ? FlashMode.torch : FlashMode.off);
 
-    // Get current location and address
-    String address = await _getAddressFromCoordinates(0.0, 0.0);
-    print('Address: $address'); // Debugging address
+      final image = await _cameraController!.takePicture();
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => UploadState(imagePath: image.path, title: 'Captured Image',
-          
-        ),
-      ),
-    );
-  }
-
-  Future<void> _openGallery() async {
-    final XFile? pickedImage =
-        await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedImage != null) {
-      // Get current location and address
-      String address = await _getAddressFromCoordinates(0.0, 0.0);
-      print('Address: $address'); // Debugging address
+      // Ensure flash is turned OFF after taking the picture
+      await _cameraController!.setFlashMode(FlashMode.off);
+      setState(() => _isFlashOn = false);
 
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              UploadState(imagePath: '', title: '',
-                
-              ),
+          builder: (context) => UploadState(imagePath: image.path, title: 'Captured Image'),
         ),
       );
-    }
-  }
-
-  Future<String> _getAddressFromCoordinates(
-      double latitude, double longitude) async {
-    try {
-      // Get the list of placemarks from coordinates using geocoding
-      List<Placemark> placemarks =
-          await placemarkFromCoordinates(latitude, longitude);
-      if (placemarks.isEmpty) {
-        return 'No address found';
-      }
-      Placemark placemark = placemarks[0]; // Get the first placemark
-
-      // Construct address
-      return '${placemark.name}, ${placemark.locality}, ${placemark.country}';
     } catch (e) {
-      print('Error fetching address: $e'); // Log any errors
-      return 'Unable to get address';
+      print("Error taking picture: $e");
     }
   }
 
@@ -113,88 +98,88 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF082517), // AppBar background color
-        iconTheme: IconThemeData(
-          color: Color(0xFFB4E576),
-        ),
+        backgroundColor: Color(0xFF082517),
+        iconTheme: IconThemeData(color: Color(0xFFB4E576)),
         actions: [
           Padding(
-            padding:
-                const EdgeInsets.only(right: 5.0,top: 10), // Add padding to the right
+            padding: const EdgeInsets.only(right: 5.0, top: 10),
             child: GestureDetector(
               onTap: () {
-              // Navigate to HomePage
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                builder: (context) => AccountPage(),
-                ),
-              );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AccountPage()),
+                );
               },
               child: Padding(
-              padding: const EdgeInsets.only(right: 12.0), // Add padding to the left and right
-              child: Image.asset(
-                'assets/assets/ecomap_banner.png',
-                width: 100, // Adjust the width as needed
-                height: 50, // Adjust the height as needed
-              ),
+                padding: const EdgeInsets.only(right: 12.0),
+                child: Image.asset(
+                  'assets/assets/ecomap_banner.png',
+                  width: 100,
+                  height: 50,
+                ),
               ),
             ),
-            
           ),
         ],
       ),
       drawer: CustomDrawer(),
       body: Center(
-        child: _isCameraInitialized
-            ? Stack(
-                children: [
-                  Positioned.fill(
-                    child: CameraPreview(_cameraController!),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 20.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          IconButton(
-                            onPressed: _openGallery,
-                            icon: const Icon(Icons.photo_library,
-                                color: Color(0xFF5F7548)),
-                          ),
-                          GestureDetector(
-                            onTap: _takePicture,
-                            child: Container(
-                              width: 70.0,
-                              height: 70.0,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Color(0xFF5F7548),
-                              ),
-                              child: const Icon(Icons.camera_alt,
-                                  color: Colors.white, size: 30.0),
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () {
-                              // Add functionality if needed
-                            },
-                            icon: const Icon(Icons.settings,
-                                color: Color(0xFF5F7548)),
-                          ),
-                        ],
+        child: _cameraError
+            ? Text("Error initializing camera", style: TextStyle(color: Colors.red))
+            : _isCameraInitialized
+                ? Stack(
+                    children: [
+                      Positioned.fill(
+                        child: CameraPreview(_cameraController!),
                       ),
-                    ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 20.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => DraftPage(title: ''),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.photo_library, color: Color(0xFF5F7548)),
+                              ),
+                              GestureDetector(
+                                onTap: _takePicture,
+                                child: Container(
+                                  width: 70.0,
+                                  height: 70.0,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Color(0xFF5F7548),
+                                  ),
+                                  child: const Icon(Icons.camera_alt, color: Colors.white, size: 30.0),
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: _toggleFlash,
+                                icon: Icon(
+                                  _isFlashOn ? Icons.flash_on : Icons.flash_off,
+                                  color: Color(0xFF5F7548),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : Lottie.asset(
+                    'assets/animations/main_scene.json',
+                    width: 100,
+                    height: 100,
                   ),
-                ],
-              )
-            : Lottie.asset(
-                'assets/animations/main_scene.json',
-                width: 100, // Adjust the width as needed
-                height: 100, // Adjust the height as needed
-              ),
       ),
     );
   }

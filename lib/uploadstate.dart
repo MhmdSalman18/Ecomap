@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:ecomap/BottomNavigationBar.dart';
 import 'package:ecomap/CustomDrawer.dart';
 import 'package:ecomap/REGISTRATION/account.dart';
+import 'package:ecomap/draft.dart';
 import 'package:ecomap/home.dart';
 import 'package:ecomap/map.dart';
 import 'package:ecomap/services/api_service.dart';
@@ -26,7 +27,9 @@ class UploadState extends StatefulWidget {
 class _UploadStateState extends State<UploadState> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController(
+    text: DateTime.now().toString().split(' ')[0],
+  );
 
   final ApiService apiService = ApiService();
   final DatabaseHelper dbHelper = DatabaseHelper();
@@ -45,50 +48,60 @@ class _UploadStateState extends State<UploadState> {
     }
   }
 
-  Future<void> _getLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
+Future<void> _getLocation() async {
+  bool serviceEnabled;
+  LocationPermission permission;
 
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
+  serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) {
+    if (mounted) {
       setState(() {
         _locationMessage = "Please enable location services.";
       });
-      return;
     }
+    return;
+  }
 
-    permission = await Geolocator.checkPermission();
+  permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
     if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
+      if (mounted) {
         setState(() {
           _locationMessage = "Location permissions are denied.";
         });
-        return;
       }
+      return;
     }
+  }
 
-    if (permission == LocationPermission.deniedForever) {
+  if (permission == LocationPermission.deniedForever) {
+    if (mounted) {
       setState(() {
         _locationMessage = "Location permissions are permanently denied.";
       });
-      return;
     }
+    return;
+  }
 
-    try {
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.medium,
-      );
+  try {
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.medium,
+    );
+    if (mounted) {
       setState(() {
-        _locationMessage =
-            "Latitude: ${position.latitude}, Longitude: ${position.longitude}";
+        _locationMessage = "Latitude: ${position.latitude}, Longitude: ${position.longitude}";
       });
-    } catch (e) {
+    }
+  } catch (e) {
+    if (mounted) {
       setState(() {
         _locationMessage = "Error fetching location: $e";
       });
     }
   }
+}
+
 
   Future<void> _loadDraft(int draftId) async {
     final draft = await dbHelper.getDraft(draftId);
@@ -220,7 +233,7 @@ class _UploadStateState extends State<UploadState> {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => BottomNavigationBarExample(title: "Status")),
+          builder: (context) => DraftPage(title: 'Drafts')),
     );
   }
 
@@ -282,7 +295,7 @@ class _UploadStateState extends State<UploadState> {
                     height: 420,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                        color: Colors.transparent,
+                      color: Colors.transparent,
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.2),
@@ -338,63 +351,57 @@ class _UploadStateState extends State<UploadState> {
                             bottom: 20,
                             child: Column(
                               children: [
-                                ElevatedButton.icon(
-                                  onPressed: _retryUpload,
-                                  icon: const Icon(Icons.refresh, size: 20),
-                                  label: const Text("Retry"),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.orange,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 24, vertical: 12),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    elevation: 5,
-                                  ),
-                                ),
                                 const SizedBox(height: 10),
-                                ElevatedButton.icon(
-                                  onPressed: _uploadFromGallery,
-                                  icon:
-                                      const Icon(Icons.photo_library, size: 20),
-                                  label: const Text("Upload from Gallery"),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blue,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 12),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    elevation: 5,
-                                  ),
-                                ),
                               ],
                             ),
                           ),
 
-                        // Remove Button (When Image is Uploaded)
+                        // Retry Button (When Image is Uploaded)
                         if (_currentImagePath != null)
                           Positioned(
-                            bottom: 16,
-                            right: 16,
+                            bottom: 1,
+                            right: 0,
                             child: ElevatedButton.icon(
-                              onPressed: _removeImage,
-                              icon: const Icon(Icons.delete, size: 22),
-                              label: const Text("Remove"),
+                              onPressed:
+                                  _retryUpload, // Call the retry function
+                              icon: const Icon(Icons.refresh,
+                                  size: 22), // Changed to retry icon
+                              label: const Text("Retry"),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
+                                backgroundColor: Colors
+                                    .orange, // Changed to orange for retry action
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 10),
+                                    horizontal: 10, vertical: 10),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 elevation: 5,
                               ),
                             ),
                           ),
+                          // Delete Button (Bottom-Left of Image)
+if (_currentImagePath != null)
+  Positioned(
+    top: 1,
+    right: 0,
+    child: ElevatedButton.icon(
+      onPressed: _delete,
+      icon: const Icon(Icons.delete, size: 22),
+      label: const Text("Delete"),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.red,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        elevation: 5,
+      ),
+    ),
+  ),
+
+
                       ],
                     ),
                   ),
@@ -422,21 +429,21 @@ class _UploadStateState extends State<UploadState> {
                     // REMOVE onChanged: (text) { _saveDraft(); },
                   ),
                   const SizedBox(height: 16.0),
-                  TextField(
-                    controller: _dateController
-                      ..text = DateTime.now().toString().split(' ')[0],
-                    decoration: const InputDecoration(
-                      labelText: 'Date',
-                      hintText: 'YYYY-MM-DD',
-                      labelStyle: TextStyle(color: Color(0xFFD1F5A0)),
-                      hintStyle: TextStyle(color: Color(0xFFD1F5A0)),
-                      border: OutlineInputBorder(),
-                      suffixIcon:
-                          Icon(Icons.calendar_today, color: Color(0xFFD1F5A0)),
-                    ),
-                    style: const TextStyle(color: Color(0xFFD1F5A0)),
-                    readOnly: true,
-                    // REMOVE onChanged: (text) { _saveDraft(); },
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.calendar_today,
+                          color: Color(0xFFD1F5A0), size: 20),
+                      const SizedBox(width: 8), // Spacing between icon and text
+                      Text(
+                        _dateController.text,
+                        style: const TextStyle(
+                          color: Color(0xFFD1F5A0),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 24.0),
                   GestureDetector(
@@ -445,12 +452,31 @@ class _UploadStateState extends State<UploadState> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text("Location copied to clipboard"),
+                          behavior:
+                              SnackBarBehavior.floating, // Makes it look better
+                          duration: Duration(seconds: 2),
                         ),
                       );
                     },
-                    child: Text(
-                      "Location is: $_locationMessage",
-                      style: const TextStyle(color: Color(0xFFD1F5A0)),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.location_on,
+                            color: Color(0xFFD1F5A0), size: 20),
+                        const SizedBox(
+                            width: 8), // Spacing between icon and text
+                        Expanded(
+                          child: Text(
+                            "$_locationMessage",
+                            style: const TextStyle(
+                              color: Color(0xFFD1F5A0),
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow
+                                .ellipsis, // Handles long text gracefully
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 24.0),
