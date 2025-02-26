@@ -2,7 +2,6 @@ import 'package:ecomap/BottomNavigationBar.dart';
 import 'package:ecomap/REGISTRATION/account.dart';
 import 'package:ecomap/REGISTRATION/firstpage.dart';
 import 'package:ecomap/draft.dart';  // Import DraftPage
-import 'package:ecomap/draft1.dart';
 import 'package:ecomap/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';

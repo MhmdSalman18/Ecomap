@@ -77,7 +77,7 @@ class _UploadStateState extends State<UploadState> {
 
     try {
       Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        desiredAccuracy: LocationAccuracy.medium,
       );
       setState(() {
         _locationMessage =
@@ -255,15 +255,15 @@ class _UploadStateState extends State<UploadState> {
                     ),
                   );
                 },
- child: Padding(
-              padding: const EdgeInsets.only(right: 12.0), // Add padding to the left and right
-              child: Image.asset(
-                'assets/assets/ecomap_banner.png',
-                width: 100, // Adjust the width as needed
-                height: 50, // Adjust the height as needed
-              ),
-              ),
-                
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                      right: 12.0), // Add padding to the left and right
+                  child: Image.asset(
+                    'assets/assets/ecomap_banner.png',
+                    width: 100, // Adjust the width as needed
+                    height: 50, // Adjust the height as needed
+                  ),
+                ),
               ),
             ),
           ],
@@ -277,84 +277,126 @@ class _UploadStateState extends State<UploadState> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 16.0),
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width * 1,
-                        height: MediaQuery.of(context).size.height * 0.3,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(12),
-                          image: _currentImagePath != null
-                              ? DecorationImage(
-                                  image: FileImage(File(_currentImagePath!)),
-                                  fit: BoxFit.cover,
+                  Container(
+                    width: double.infinity,
+                    height: 420,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                        color: Colors.transparent,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // Image Container
+                        Container(
+                          width: MediaQuery.of(context).size.width * 0.5,
+                          height: MediaQuery.of(context).size.height * 0.55,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(6),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 6,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                            image: _currentImagePath != null
+                                ? DecorationImage(
+                                    image: FileImage(File(_currentImagePath!)),
+                                    fit: BoxFit.cover,
+                                  )
+                                : const DecorationImage(
+                                    image: AssetImage(
+                                        'assets/images/bg_image.png'),
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
+                          child: _currentImagePath == null
+                              ? const Center(
+                                  child: Text(
+                                    'No Image Available',
+                                    style: TextStyle(
+                                      color: Colors.black54,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
                                 )
                               : null,
                         ),
-                        child: _currentImagePath == null
-                            ? const Center(
-                                child: Text(
-                                  'No Image Available',
-                                  style: TextStyle(
-                                      color: Colors.black54, fontSize: 18),
+
+                        // Upload & Retry Buttons (When No Image)
+                        if (_currentImagePath == null)
+                          Positioned(
+                            bottom: 20,
+                            child: Column(
+                              children: [
+                                ElevatedButton.icon(
+                                  onPressed: _retryUpload,
+                                  icon: const Icon(Icons.refresh, size: 20),
+                                  label: const Text("Retry"),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.orange,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 24, vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    elevation: 5,
+                                  ),
                                 ),
-                              )
-                            : null,
-                      ),
-                      if (_currentImagePath == null)
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ElevatedButton.icon(
-                              onPressed: _retryUpload,
-                              icon: const Icon(Icons.refresh),
-                              label: const Text("Retry"),
+                                const SizedBox(height: 10),
+                                ElevatedButton.icon(
+                                  onPressed: _uploadFromGallery,
+                                  icon:
+                                      const Icon(Icons.photo_library, size: 20),
+                                  label: const Text("Upload from Gallery"),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 20, vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    elevation: 5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                        // Remove Button (When Image is Uploaded)
+                        if (_currentImagePath != null)
+                          Positioned(
+                            bottom: 16,
+                            right: 16,
+                            child: ElevatedButton.icon(
+                              onPressed: _removeImage,
+                              icon: const Icon(Icons.delete, size: 22),
+                              label: const Text("Remove"),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.orange,
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 20, vertical: 10),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                              ),
-                            ),
-                            const SizedBox(height: 8.0),
-                            ElevatedButton.icon(
-                              onPressed: _uploadFromGallery,
-                              icon: const Icon(Icons.photo_library),
-                              label: const Text("Upload from Gallery"),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 10),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      if (_currentImagePath != null)
-                        Positioned(
-                          bottom: 8.0,
-                          right: 8.0,
-                          child: ElevatedButton.icon(
-                            onPressed: _removeImage,
-                            icon: const Icon(Icons.delete),
-                            label: const Text("Remove"),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                elevation: 5,
                               ),
                             ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 16.0),
                   TextField(
