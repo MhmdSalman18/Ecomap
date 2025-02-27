@@ -48,60 +48,60 @@ class _UploadStateState extends State<UploadState> {
     }
   }
 
-Future<void> _getLocation() async {
-  bool serviceEnabled;
-  LocationPermission permission;
+  Future<void> _getLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
 
-  serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  if (!serviceEnabled) {
-    if (mounted) {
-      setState(() {
-        _locationMessage = "Please enable location services.";
-      });
-    }
-    return;
-  }
-
-  permission = await Geolocator.checkPermission();
-  if (permission == LocationPermission.denied) {
-    permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied) {
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
       if (mounted) {
         setState(() {
-          _locationMessage = "Location permissions are denied.";
+          _locationMessage = "Please enable location services.";
         });
       }
       return;
     }
-  }
 
-  if (permission == LocationPermission.deniedForever) {
-    if (mounted) {
-      setState(() {
-        _locationMessage = "Location permissions are permanently denied.";
-      });
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        if (mounted) {
+          setState(() {
+            _locationMessage = "Location permissions are denied.";
+          });
+        }
+        return;
+      }
     }
-    return;
-  }
 
-  try {
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.medium,
-    );
-    if (mounted) {
-      setState(() {
-        _locationMessage = "Latitude: ${position.latitude}, Longitude: ${position.longitude}";
-      });
+    if (permission == LocationPermission.deniedForever) {
+      if (mounted) {
+        setState(() {
+          _locationMessage = "Location permissions are permanently denied.";
+        });
+      }
+      return;
     }
-  } catch (e) {
-    if (mounted) {
-      setState(() {
-        _locationMessage = "Error fetching location: $e";
-      });
+
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.medium,
+      );
+      if (mounted) {
+        setState(() {
+          _locationMessage =
+              "Latitude: ${position.latitude}, Longitude: ${position.longitude}";
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _locationMessage = "Error fetching location: $e";
+        });
+      }
     }
   }
-}
-
 
   Future<void> _loadDraft(int draftId) async {
     final draft = await dbHelper.getDraft(draftId);
@@ -232,8 +232,7 @@ Future<void> _getLocation() async {
     }
     Navigator.push(
       context,
-      MaterialPageRoute(
-          builder: (context) => DraftPage(title: 'Drafts')),
+      MaterialPageRoute(builder: (context) => DraftPage(title: 'Drafts')),
     );
   }
 
@@ -290,9 +289,61 @@ Future<void> _getLocation() async {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 16.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: ElevatedButton.icon(
+                          onPressed: _delete,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          icon: const Icon(
+                            Icons.cancel,
+                            color: Color.fromARGB(255, 254, 1, 1),
+                            size: 24,
+                          ),
+                          label: const Text(
+                            'Cancel',
+                            style: TextStyle(
+                                color: Color.fromARGB(255, 255, 1, 1),
+                                fontSize: 15),
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: ElevatedButton.icon(
+                          onPressed: () async {
+                            await _saveDraft();
+                            Navigator.pop(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          icon: const Icon(Icons.save,
+                              color: Color(0xFFD1F5A0), size: 24),
+                          label: const Text('Save as Draft',
+                              style: TextStyle(
+                                  color: Color(0xFFD1F5A0), fontSize: 15)),
+                        ),
+                      ),
+                    ],
+                  ),
                   Container(
                     width: double.infinity,
-                    height: 420,
+                    height: 360,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: Colors.transparent,
@@ -309,8 +360,8 @@ Future<void> _getLocation() async {
                       children: [
                         // Image Container
                         Container(
-                          width: MediaQuery.of(context).size.width * 0.5,
-                          height: MediaQuery.of(context).size.height * 0.55,
+                          width: MediaQuery.of(context).size.width * 0.4,
+                          height: MediaQuery.of(context).size.height * 0.38,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(6),
                             boxShadow: [
@@ -359,121 +410,141 @@ Future<void> _getLocation() async {
                         // Retry Button (When Image is Uploaded)
                         if (_currentImagePath != null)
                           Positioned(
-                            bottom: 1,
+                            bottom: 0,
                             right: 0,
-                            child: ElevatedButton.icon(
-                              onPressed:
-                                  _retryUpload, // Call the retry function
-                              icon: const Icon(Icons.refresh,
-                                  size: 22), // Changed to retry icon
-                              label: const Text("Retry"),
+                            child: ElevatedButton(
+                              onPressed: _retryUpload,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors
-                                    .orange, // Changed to orange for retry action
+                                backgroundColor: Colors.blueAccent,
                                 foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 10),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
+                                padding: const EdgeInsets.all(10),
+                                shape: const CircleBorder(),
                                 elevation: 5,
                               ),
+                              child: const Icon(Icons.refresh, size: 20),
                             ),
                           ),
-                          // Delete Button (Bottom-Left of Image)
-if (_currentImagePath != null)
-  Positioned(
-    top: 1,
-    right: 0,
-    child: ElevatedButton.icon(
-      onPressed: _delete,
-      icon: const Icon(Icons.delete, size: 22),
-      label: const Text("Delete"),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.red,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-        elevation: 5,
-      ),
-    ),
-  ),
-
-
+                        // Delete Button (Bottom-Left of Image)
                       ],
                     ),
                   ),
                   const SizedBox(height: 16.0),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Text(
+                      'Animal Name',
+                      style: TextStyle(
+                        color: Color(0xFFD1F5A0),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8.0),
                   TextField(
                     controller: _titleController,
-                    decoration: const InputDecoration(
-                      labelText: 'Name of the animal',
-                      labelStyle: TextStyle(color: Color(0xFFD1F5A0)),
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: _titleController.text.isEmpty
+                          ? 'e.g. Red Panda'
+                          : null,
+                      labelStyle: const TextStyle(
+                          color: Color.fromARGB(255, 142, 144, 141)),
+                      border: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                        borderSide: BorderSide(color: Colors.grey),
+                      ),
+                      filled: true,
+                      fillColor: const Color.fromARGB(48, 0, 0, 0),
                     ),
-                    style: const TextStyle(color: Color(0xFFD1F5A0)),
-                    // REMOVE onChanged: (text) { _saveDraft(); },
+                    style: const TextStyle(color: Colors.grey),
+                    onChanged: (text) {
+                      setState(() {});
+                    },
                   ),
                   const SizedBox(height: 16.0),
-                  TextField(
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Text(
+                      'Description',
+                      style: TextStyle(
+                        color: Color(0xFFD1F5A0),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8.0),
+                    TextField(
                     controller: _descriptionController,
                     maxLines: 3,
-                    decoration: const InputDecoration(
-                      labelText: 'Description',
-                      labelStyle: TextStyle(color: Color(0xFFD1F5A0)),
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: 'Describe what you observed...',
+                      alignLabelWithHint: true,
+                      labelStyle: const TextStyle(color: Colors.grey),
+                      border: const OutlineInputBorder(),
+                      filled: true,
+                      fillColor: const Color.fromARGB(48, 0, 0, 0),
                     ),
-                    style: const TextStyle(color: Color(0xFFD1F5A0)),
-                    // REMOVE onChanged: (text) { _saveDraft(); },
-                  ),
-                  const SizedBox(height: 16.0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      const Icon(Icons.calendar_today,
-                          color: Color(0xFFD1F5A0), size: 20),
-                      const SizedBox(width: 8), // Spacing between icon and text
-                      Text(
-                        _dateController.text,
-                        style: const TextStyle(
-                          color: Color(0xFFD1F5A0),
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24.0),
-                  GestureDetector(
-                    onLongPress: () {
-                      Clipboard.setData(ClipboardData(text: _locationMessage));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Location copied to clipboard"),
-                          behavior:
-                              SnackBarBehavior.floating, // Makes it look better
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
+                    style: const TextStyle(color: Colors.grey),
+                    onChanged: (text) {
+                      setState(() {});
                     },
-                    child: Row(
+                    ),
+                  const SizedBox(height: 16.0),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.1), // Subtle background
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.location_on,
-                            color: Color(0xFFD1F5A0), size: 20),
-                        const SizedBox(
-                            width: 8), // Spacing between icon and text
-                        Expanded(
-                          child: Text(
-                            "$_locationMessage",
-                            style: const TextStyle(
-                              color: Color(0xFFD1F5A0),
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                        Row(
+                          children: [
+                            const Icon(Icons.calendar_today,
+                                color: Color(0xFFD1F5A0), size: 22),
+                            const SizedBox(width: 8),
+                            Text(
+                              _dateController.text,
+                              style: const TextStyle(
+                                color: Color(0xFFD1F5A0),
+                                fontSize: 18, // Slightly larger text
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                            overflow: TextOverflow
-                                .ellipsis, // Handles long text gracefully
+                          ],
+                        ),
+                        const SizedBox(height: 16.0),
+                        InkWell(
+                          onLongPress: () {
+                            Clipboard.setData(
+                                ClipboardData(text: _locationMessage));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Location copied to clipboard"),
+                                behavior: SnackBarBehavior.floating,
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                          child: Row(
+                            children: [
+                              const Icon(Icons.location_on,
+                                  color: Color(0xFFD1F5A0), size: 22),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  _locationMessage,
+                                  style: const TextStyle(
+                                    color: Color(0xFFD1F5A0),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -481,65 +552,35 @@ if (_currentImagePath != null)
                   ),
                   const SizedBox(height: 24.0),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      ElevatedButton(
-                        onPressed: _resetFields,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text('Reset',
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 15)),
-                      ),
-                      SizedBox(
-                        width: 80,
-                      ),
                       ElevatedButton(
                         onPressed: _sendData,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 10),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
+                          minimumSize: Size(
+                              MediaQuery.of(context).size.width * .9,
+                              50), // Adjust width to fit screen
                         ),
-                        child: const Text('Send',
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 15)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.send, color: Colors.white, size: 24),
+                            SizedBox(width: 8),
+                            Text('Send',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 15)),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16.0),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await _saveDraft();
-                      Navigator.pop(context);
-                    },
-                    child: const Text('Save as Draft and Go Back'),
-                  ),
                   const SizedBox(height: 16.0),
-                  ElevatedButton(
-                    onPressed: _delete,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 40, vertical: 10),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: Text(
-                      deleteButtonText,
-                      style: TextStyle(color: Colors.white, fontSize: 15),
-                    ),
-                  ),
                 ],
               ),
             ),
