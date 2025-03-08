@@ -235,7 +235,7 @@ class _StatusHistoryPageState extends State<StatusHistoryPage> {
       case 'declined':
         return Colors.red;
       case 'waiting':
-        return Colors.yellow;
+        return const Color.fromARGB(255, 255, 235, 59);
       default:
         return Colors.grey;
     }
