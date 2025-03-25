@@ -29,15 +29,15 @@ EcoMap is a mobile application designed to connect nature enthusiasts, researche
 
 <table>
   <tr>
-    <td><img src="assets/1.jpg" alt="Home Screen" width="250"></td>
-    <td><img src="assets/2.jpg" alt="Map View" width="250"></td>
+    <td><img src="assets/5.jpg" alt="Home Screen" width="250"></td>
+    <td><img src="assets/2.jpg" alt="Image Submitting Page" width="250"></td>
   </tr>
   <tr>
     <td align="center"><b>Home Screen</b></td>
     <td align="center"><b>Map View</b></td>
   </tr>
   <tr>
-    <td><img src="assets/2.jpg" alt="Upload Screen" width="250"></td>
+    <td><img src="assets/1.jpg" alt="Species Heatmap" width="250"></td>
     <td><img src="assets/2.jpg" alt="Details Screen" width="250"></td>
   </tr>
   <tr>
