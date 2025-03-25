@@ -28,10 +28,10 @@ EcoMap is a mobile application designed to connect nature enthusiasts, researche
 ## 📸 Screenshots
 
 **Home Screen**  
-![Home Screen](assets/home.png)
+![Home Screen](assets/1.jpg)
 
 **Map View**  
-![Map View](assets/map.png)
+![Map View](assets/2.jpg)
 
 ---
 
