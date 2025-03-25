@@ -34,16 +34,33 @@ EcoMap is a mobile application designed to connect nature enthusiasts, researche
   </tr>
   <tr>
     <td align="center"><b>Home Screen</b></td>
-    <td align="center"><b>Map View</b></td>
+    <td align="center"><b>Image Submitting Page</b></td>
   </tr>
   <tr>
-    <td><img src="assets/1.jpg" alt="Species Heatmap" width="250"></td>
-    <td><img src="assets/2.jpg" alt="Details Screen" width="250"></td>
+    <td><img src="assets/3.jpg" alt="Status Page" width="250"></td>
+    <td><img src="assets/4.jpg" alt="Draft Page" width="250"></td>
   </tr>
   <tr>
-    <td align="center"><b>Species Upload</b></td>
-    <td align="center"><b>Details Screen</b></td>
+    <td align="center"><b>Status Page</b></td>
+    <td align="center"><b>Draft Page</b></td>
   </tr>
+  <tr>
+    <td><img src="assets/7.jpg" alt="Splash Screen" width="250"></td>
+    <td><img src="assets/8.jpg" alt="Map Screen" width="250"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Splash Screen</b></td>
+    <td align="center"><b>Map Screen</b></td>
+  </tr>
+  <tr>
+    <td><img src="assets/6.jpg" alt="Explore Species Page" width="250"></td>
+    <td><img src="assets/1.jpg" alt="Draft Page" width="250"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Explore Species Page</b></td>
+    <td align="center"><b>Explore Species Heatmap Page</b></td>
+  </tr>
+  
 </table>
 
 
