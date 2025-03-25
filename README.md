@@ -3,7 +3,7 @@
 EcoMap is a mobile application designed to connect nature enthusiasts, researchers, and conservationists. Users can capture images of animals, plants, and other species with geolocation data. The data is reviewed by biodiversity experts and displayed on an interactive heatmap, fostering citizen science.
 
 ## 📱 Download EcoMap
-[⬇️ Download Latest APK](https://github.com/your-username/your-repo-name/releases/latest/download/Ecomap.apk)  
+[⬇️ Download Latest APK](https://github.com/MhmdSalman18/Ecomap/releases/download/v1.0/Ecomap.apk)  
 
 ---
 
