@@ -1,4 +1,4 @@
-# 🌍 EcoMap – Bridging Nature & Technology
+# 🌍 EcoMap – Community-Driven Biodiversity Mapping
 
 EcoMap is a mobile application designed to connect nature enthusiasts, researchers, and conservationists. Users can capture images of animals, plants, and other species with geolocation data. The data is reviewed by biodiversity experts and displayed on an interactive heatmap, fostering citizen science.
 
