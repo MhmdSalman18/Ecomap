@@ -33,18 +33,20 @@ EcoMap is a mobile application designed to connect **nature enthusiasts, researc
   <tr>
     <td align="center"><img src="assets/5.jpg" alt="Home Screen" width="250"><br><b>Home Screen</b></td>
     <td align="center"><img src="assets/2.jpg" alt="Image Submitting Page" width="250"><br><b>Image Submitting Page</b></td>
+     <td align="center"><img src="assets/3.jpg" alt="Status Page" width="250"><br><b>Status Page</b></td>
+    <td align="center"><img src="assets/4.jpg" alt="Draft Page" width="250"><br><b>Draft Page</b></td>
   </tr>
   <tr>
-    <td align="center"><img src="assets/3.jpg" alt="Status Page" width="250"><br><b>Status Page</b></td>
-    <td align="center"><img src="assets/4.jpg" alt="Draft Page" width="250"><br><b>Draft Page</b></td>
+   
   </tr>
   <tr>
     <td align="center"><img src="assets/7.jpg" alt="Splash Screen" width="250"><br><b>Splash Screen</b></td>
     <td align="center"><img src="assets/8.jpg" alt="Map Screen" width="250"><br><b>Map Screen</b></td>
+      <td align="center"><img src="assets/6.jpg" alt="Explore Species Page" width="250"><br><b>Explore Species Page</b></td>
+    <td align="center"><img src="assets/1.jpg" alt="Explore Species Heatmap Page" width="250"><br><b>Explore Species Heatmap Page</b></td>
   </tr>
   <tr>
-    <td align="center"><img src="assets/6.jpg" alt="Explore Species Page" width="250"><br><b>Explore Species Page</b></td>
-    <td align="center"><img src="assets/1.jpg" alt="Explore Species Heatmap Page" width="250"><br><b>Explore Species Heatmap Page</b></td>
+  
   </tr>
 </table>
 
