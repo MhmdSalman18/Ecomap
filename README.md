@@ -1,16 +1,32 @@
-# ecomap
+# 🌍 EcoMap – Bridging Nature & Technology
 
-A new Flutter project.
+EcoMap is a mobile application designed to connect nature enthusiasts, researchers, and conservationists. Users can capture images of animals, plants, and other species with geolocation data. The data is reviewed by biodiversity experts and displayed on an interactive heatmap, fostering citizen science.
 
-## Getting Started
+## 📱 Download EcoMap
+[⬇️ Download Latest APK](https://github.com/your-username/your-repo-name/releases/latest/download/Ecomap.apk)  
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## 🚀 Features
+- 📸 **Capture & Geotag** – Upload images of species with location data.
+- 🗺 **Interactive Heatmap** – View all recorded sightings on a real-time map.
+- ✅ **Expert Validation** – Submissions reviewed by biodiversity specialists.
+- 🔄 **Offline Support** – Save drafts and upload when online.
+- 🤖 **AI Integration (Upcoming)** – AI-powered species recognition.
+- 📊 **Advanced Analytics (Upcoming)** – Gain insights into biodiversity patterns.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🛠️ Tech Stack
+- **Frontend:** Flutter (Dart)
+- **Maps & Geolocation:** `maplibre_gl`
+- **Backend:** Node.js (Future Expansion)
+- **Database:** Firebase / Supabase (Planned)
+
+---
+
+## 📸 Screenshots
+(Include screenshots or GIFs of the app for better visual appeal)
+
+---
+
