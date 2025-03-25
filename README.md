@@ -23,7 +23,7 @@ EcoMap is a mobile application designed to connect **nature enthusiasts, researc
 🚀 **Frontend:** Flutter (Dart)  
 📍 **Maps & Geolocation:** `maplibre_gl`  
 🖥 **Backend:** Node.js (Future Expansion)  
-💾 **Database:** Firebase / Supabase (Planned)  
+💾 **Database:** MongoDB 
 
 ---
 
