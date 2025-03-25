@@ -27,29 +27,24 @@ EcoMap is a mobile application designed to connect nature enthusiasts, researche
 
 ## 📸 Screenshots
 
-**Home Screen**  
-<img src="assets/1.jpg" alt="Home Screen" width="200">
-
-**Map View**  
-<img src="assets/1.jpg" alt="Map View" width="200">
-
-**Species Upload**  
-<img src="assets/1.jpg" alt="Upload Screen" width="200">
-
-**Species Upload**  
-<img src="assets/1.jpg" alt="Upload Screen" width="200">
-
-**Species Upload**  
-<img src="assets/1.jpg" alt="Upload Screen" width="200">
-
-**Species Upload**  
-<img src="assets/1.jpg" alt="Upload Screen" width="200">
-
-**Species Upload**  
-<img src="assets/1.jpg" alt="Upload Screen" width="200">
-
-**Species Upload**  
-<img src="assets/1.jpg" alt="Upload Screen" width="200">
+<table>
+  <tr>
+    <td><img src="assets/1.jpg" alt="Home Screen" width="250"></td>
+    <td><img src="assets/2.jpg" alt="Map View" width="250"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Home Screen</b></td>
+    <td align="center"><b>Map View</b></td>
+  </tr>
+  <tr>
+    <td><img src="assets/2.jpg" alt="Upload Screen" width="250"></td>
+    <td><img src="assets/2.jpg" alt="Details Screen" width="250"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Species Upload</b></td>
+    <td align="center"><b>Details Screen</b></td>
+  </tr>
+</table>
 
 
 ---
